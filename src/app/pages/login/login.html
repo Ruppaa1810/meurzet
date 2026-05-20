@@ -1,48 +1,102 @@
-<div class="min-h-screen flex items-center justify-center bg-gray-100">
-
-  <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
-
-    <h1 class="text-3xl font-bold text-center mb-6">
-      Sistema de Gestión
-    </h1>
-
-    <div class="mb-4">
-      <label class="block mb-2 font-medium">
-        Email
-      </label>
-
-      <input
-        type="email"
-        [(ngModel)]="email"
-        class="w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
-        placeholder="correo@email.com"
-      >
+<div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; background-color: #384752; padding: 1rem; margin: 0;">
+  
+  <div style="max-width: 28rem; width: 100%; background-color: #f4f4f3; border-radius: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+    
+    <!-- LOGO desde carpeta public -->
+    <div style="text-align: center; padding-top: 2rem; padding-bottom: 1rem;">
+      <div style="width: 5rem; height: 5rem; margin: 0 auto; border-radius: 1.5rem; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); margin-bottom: 1rem; background-color: white; display: flex; align-items: center; justify-content: center;">
+        <img src="/logo.jpeg" alt="Meurzet" style="width: 100%; height: 100%; object-fit: cover;">
+      </div>
+      <h1 style="font-size: 1.75rem; font-weight: 700; color: #384752; letter-spacing: -0.025em; margin: 0;">Meurzet</h1>
+      <p style="font-size: 0.7rem; letter-spacing: 0.15em; margin-top: 0.35rem; color: #969fa3; font-weight: 500;">VIAJES Y TURISMO</p>
     </div>
 
-    <div class="mb-6">
-      <label class="block mb-2 font-medium">
-        Contraseña
-      </label>
+    <!-- Formulario -->
+    <div style="padding: 0 2rem 2rem 2rem;">
+      
+      <!-- Email -->
+      <div style="margin-bottom: 1.25rem;">
+        <input 
+          type="email" 
+          style="width: 100%; padding: 0.85rem 1rem; border-radius: 0.75rem; border: 1.5px solid #c9a08f; background: white; font-size: 0.95rem; outline: none; transition: all 0.2s; box-sizing: border-box;"
+          placeholder="Correo electrónico"
+        >
+      </div>
 
-      <input
-        type="password"
-        [(ngModel)]="password"
-        class="w-full border rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
-        placeholder="********"
+      <!-- Contraseña -->
+      <div style="margin-bottom: 1.5rem; position: relative;">
+        <input 
+          type="password"
+          style="width: 100%; padding: 0.85rem 1rem; border-radius: 0.75rem; border: 1.5px solid #c9a08f; background: white; font-size: 0.95rem; outline: none; transition: all 0.2s; box-sizing: border-box; padding-right: 2.5rem;"
+          placeholder="Contraseña"
+        >
+        <button
+          type="button"
+          style="position: absolute; inset-y: 0; right: 0; display: flex; align-items: center; padding-right: 0.75rem; color: #969fa3; background: transparent; border: none; cursor: pointer;"
+        >
+          <svg style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Recordarme y Olvidaste -->
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.75rem;">
+        <label style="display: flex; align-items: center; cursor: pointer;">
+          <input type="checkbox" style="width: 1rem; height: 1rem; margin: 0; accent-color: #af4f35;">
+          <span style="margin-left: 0.5rem; font-size: 0.85rem; color: #969fa3;">Recordarme</span>
+        </label>
+        <a href="#" style="font-size: 0.85rem; color: #1aa7c4; text-decoration: none; font-weight: 500;">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <!-- Botón Iniciar Sesión -->
+      <button 
+        style="width: 100%; padding: 0.85rem; border-radius: 0.75rem; font-weight: 700; font-size: 1rem; color: white; background: linear-gradient(135deg, #af4f35, #e4912e); border: none; cursor: pointer; transition: all 0.2s; margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);"
       >
+        Iniciar Sesión
+      </button>
+
+      <!-- Separador -->
+      <div style="display: flex; align-items: center; margin-bottom: 1.25rem;">
+        <div style="flex: 1; height: 1px; background: linear-gradient(90deg, transparent, #eec997, transparent);"></div>
+        <span style="padding: 0 0.75rem; font-size: 0.7rem; color: #969fa3; font-weight: 500;">ACCESO SEGURO</span>
+        <div style="flex: 1; height: 1px; background: linear-gradient(90deg, transparent, #eec997, transparent);"></div>
+      </div>
+
     </div>
-
-    <button
-      (click)="login()"
-      class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition"
-    >
-      {{ loading ? 'Ingresando...' : 'Ingresar' }}
-    </button>
-
-    <p class="text-center mt-4 text-red-500">
-      {{ message }}
-    </p>
-
   </div>
-
 </div>
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    margin: 0;
+    padding: 0;
+  }
+  
+  input:hover {
+    border-color: #1aa7c4 !important;
+  }
+  
+  input:focus {
+    border-color: #1aa7c4 !important;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(26, 167, 196, 0.1);
+  }
+  
+  button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
+    opacity: 0.95;
+  }
+  
+  button:active {
+    transform: scale(0.98);
+  }
+</style>

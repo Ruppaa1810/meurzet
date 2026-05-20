@@ -9,10 +9,9 @@ import { SupabaseService } from '../../services/supabase.service';
   standalone: true,
   imports: [FormsModule],
   templateUrl: './login.html',
-  styleUrl: './login.css'
+  styleUrl: './login.css',
 })
 export class Login {
-
   email = '';
   password = '';
 
@@ -21,27 +20,20 @@ export class Login {
 
   constructor(
     private supabaseService: SupabaseService,
-    private router: Router
+    private router: Router,
   ) {}
 
   async login() {
-
     this.loading = true;
     this.message = '';
 
     try {
-
-      const { data, error } = await this.supabaseService.login(
-        this.email,
-        this.password
-      );
+      const { data, error } = await this.supabaseService.login(this.email, this.password);
 
       if (error) {
-
         this.message = error.message;
         this.loading = false;
         return;
-
       }
 
       const userId = data.user?.id;
@@ -49,11 +41,9 @@ export class Login {
       console.log('USER ID:', userId);
 
       if (!userId) {
-
         this.message = 'Usuario inválido';
         this.loading = false;
         return;
-
       }
 
       const roleResponse = await this.supabaseService.getRole(userId);
@@ -63,11 +53,9 @@ export class Login {
       const perfil = roleResponse.data?.[0];
 
       if (!perfil) {
-
         this.message = 'Perfil no encontrado';
         this.loading = false;
         return;
-
       }
 
       const rol = perfil.rol;
@@ -75,32 +63,19 @@ export class Login {
       console.log('ROL:', rol);
 
       if (rol === 'operador_admin') {
-
         this.router.navigate(['/admin']);
-
       } else if (rol === 'admin_mayorista') {
-
         this.router.navigate(['/mayorista']);
-
       } else if (rol === 'vendedor_minorista') {
-
         this.router.navigate(['/minorista']);
-
       } else {
-
         this.message = 'Rol no reconocido';
-
       }
-
     } catch (err) {
-
       console.error(err);
       this.message = 'Error inesperado';
-
     }
 
     this.loading = false;
-
   }
-
 }
