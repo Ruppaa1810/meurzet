@@ -1,0 +1,108 @@
+/* =========================================================
+   ASIENTOS
+========================================================= */
+
+.seat {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+
+  font-size: 0.75rem;
+  font-weight: 700;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: all 0.18s ease;
+
+  user-select: none;
+}
+
+/* LIBRE */
+
+.seat-free {
+  background-color: #e2fcdb;
+  color: #15803d;
+
+  border: 1px solid #bbf7d0;
+}
+
+.seat-free:hover {
+  transform: translateY(-2px) scale(1.04);
+
+  background-color: #22c55e;
+  color: white;
+
+  box-shadow:
+    0 8px 18px rgba(34, 197, 94, 0.20);
+}
+
+/* SELECCIONADO */
+
+.seat-selected {
+  background: white;
+  color: #be5a38;
+
+  border: 2px solid #be5a38;
+
+  box-shadow:
+    0 0 0 4px rgba(190, 90, 56, 0.10);
+}
+
+/* ELEMENTOS FIJOS */
+
+.seat-static {
+  width: 44px;
+  height: 44px;
+
+  border-radius: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+
+  font-size: 0.7rem;
+  font-weight: 700;
+
+  color: #94a3b8;
+
+  user-select: none;
+}
+/* OCUPADO */
+.seat-occupied {
+  background-color: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+/* BLOQUEADO TEMPORAL */
+.seat-blocked {
+  background-color: #fef9c3;
+  color: #ca8a04;
+  border: 1px solid #fde68a;
+  cursor: not-allowed;
+}
+.seat-occupied {
+  background-color: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.seat-blocked {
+  background-color: #fef9c3;
+  color: #ca8a04;
+  border: 1px solid #fde68a;
+  cursor: not-allowed;
+}
+.seat-free:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 16px rgba(34,197,94,0.25);
+}
