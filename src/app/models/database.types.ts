@@ -56,6 +56,7 @@ export interface Reserva {
   id: number;
   viaje_id: number | null;
   vendedor_id: string | null;
+  asiento_viaje_id: number | null;
   pasajero_datos: Record<string, unknown>;
   comprobante_url: string | null;
   tipo_pago: TipoPago | null;

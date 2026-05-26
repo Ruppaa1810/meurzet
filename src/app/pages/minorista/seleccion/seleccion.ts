@@ -3,7 +3,12 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { SupabaseService } from '../../../services/supabase.service';
+import { ReservaStateService } from '../../../services/reserva-state.service';
 import type { Viaje, MapaAsientoViaje, Perfil } from '../../../models/database.types';
+
+interface SeatView extends MapaAsientoViaje {
+  selected: boolean;
+}
 
 @Component({
   selector: 'app-seleccion',
@@ -14,24 +19,27 @@ import type { Viaje, MapaAsientoViaje, Perfil } from '../../../models/database.t
 })
 export class Seleccion implements OnInit, AfterViewInit {
   viaje: Viaje | null = null;
-  asientos: MapaAsientoViaje[] = [];
-  selectedSeat: MapaAsientoViaje | null = null;
+  asientos: SeatView[] = [];
   loading = true;
+  bloqueando = false;
+  mensajeError = '';
   perfil: Perfil | null = null;
+  private userId: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private supabaseService: SupabaseService,
+    private reservaState: ReservaStateService,
     private cdr: ChangeDetectorRef,
   ) {}
 
   async ngOnInit() {
     try {
       const session = await this.supabaseService.supabase.auth.getSession();
-      const userId = session.data.session?.user?.id;
-      if (userId) {
-        const { data } = await this.supabaseService.getPerfil(userId);
+      this.userId = session.data.session?.user?.id ?? null;
+      if (this.userId) {
+        const { data } = await this.supabaseService.getPerfil(this.userId);
         this.perfil = data;
       }
 
@@ -44,9 +52,10 @@ export class Seleccion implements OnInit, AfterViewInit {
       ]);
 
       if (viajeRes.data) this.viaje = viajeRes.data;
-      if (asientosRes.data) this.asientos = asientosRes.data;
-    } catch (e) {
-      console.error('Error en ngOnInit de seleccion:', e);
+      if (asientosRes.data) {
+        this.asientos = asientosRes.data.map(a => ({ ...a, selected: false }));
+      }
+    } catch {
     }
     this.loading = false;
     this.cdr.detectChanges();
@@ -73,22 +82,22 @@ export class Seleccion implements OnInit, AfterViewInit {
     this.router.navigate(['/']);
   }
 
-  asientosPorPiso(piso: number): MapaAsientoViaje[] {
+  asientosPorPiso(piso: number): SeatView[] {
     return this.asientos.filter(a => a.piso === piso);
   }
 
-  seatRowsIzq(piso: number): MapaAsientoViaje[][] {
+  seatRowsIzq(piso: number): SeatView[][] {
     const seats = this.asientosPorPiso(piso);
-    const rows: MapaAsientoViaje[][] = [];
+    const rows: SeatView[][] = [];
     for (let i = 0; i + 1 < seats.length; i += 4) {
       rows.push([seats[i], seats[i + 1]]);
     }
     return rows;
   }
 
-  seatRowsDer(piso: number): MapaAsientoViaje[][] {
+  seatRowsDer(piso: number): SeatView[][] {
     const seats = this.asientosPorPiso(piso);
-    const rows: MapaAsientoViaje[][] = [];
+    const rows: SeatView[][] = [];
     for (let i = 2; i + 1 < seats.length; i += 4) {
       rows.push([seats[i], seats[i + 1]]);
     }
@@ -96,7 +105,7 @@ export class Seleccion implements OnInit, AfterViewInit {
   }
 
   get asientosLibres(): number {
-    return this.asientos.filter(a => a.estado === 'libre').length;
+    return this.asientos.filter(a => a.estado === 'libre' && !a.selected).length;
   }
 
   formatHora(fecha: string): string {
@@ -109,39 +118,85 @@ export class Seleccion implements OnInit, AfterViewInit {
     return `$ ${precio.toLocaleString('es-AR')}`;
   }
 
-  toggleSeat(asiento: MapaAsientoViaje) {
+  private getSeat(id: number): SeatView | undefined {
+    return this.asientos.find(a => a.id === id);
+  }
+
+  private patchSeat(id: number, patch: Partial<SeatView>) {
+    this.asientos = this.asientos.map(a => a.id === id ? { ...a, ...patch } : a);
+  }
+
+  async toggleSeat(seatId: number) {
+    if (!this.userId || this.bloqueando) return;
+
+    const asiento = this.getSeat(seatId);
+    if (!asiento) return;
+
+    if (asiento.selected) {
+      this.bloqueando = true;
+      await this.supabaseService.liberarAsiento(asiento.viaje_id!, asiento.nro_asiento);
+      this.patchSeat(seatId, { estado: 'libre', vendedor_bloqueo_id: null, bloqueado_hasta: null, selected: false });
+      this.bloqueando = false;
+      this.cdr.detectChanges();
+      return;
+    }
+
     if (asiento.estado !== 'libre') return;
-    this.selectedSeat = this.selectedSeat?.id === asiento.id ? null : asiento;
+
+    this.bloqueando = true;
+    this.mensajeError = '';
+
+    const { error } = await this.supabaseService.bloquearAsiento(
+      asiento.viaje_id!,
+      asiento.nro_asiento,
+      this.userId,
+    );
+
+    if (error) {
+      this.mensajeError = 'Este asiento ya no está disponible. Otro usuario lo reservó.';
+      await this.cargarAsientos();
+      this.bloqueando = false;
+      return;
+    }
+
+    this.patchSeat(seatId, {
+      estado: 'bloqueado',
+      vendedor_bloqueo_id: this.userId,
+      bloqueado_hasta: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      selected: true,
+    });
+    this.bloqueando = false;
+    this.cdr.detectChanges();
   }
 
-  get seatLabel(): string {
-    if (!this.selectedSeat) return 'Ninguno';
-    const piso = this.selectedSeat.piso === 1 ? 'Baja' : 'Alta';
-    return `${this.selectedSeat.nro_asiento} — Planta ${piso} · ${this.selectedSeat.categoria}`;
+  private async cargarAsientos() {
+    if (!this.viaje) return;
+    const { data } = await this.supabaseService.getAsientosPorViaje(this.viaje.id);
+    if (data) this.asientos = data.map(a => ({ ...a, selected: false }));
   }
 
-  seatClasses(asiento: MapaAsientoViaje): string {
-    if (this.selectedSeat?.id === asiento.id) return 'seat-selected';
+  seatClasses(asiento: SeatView): string {
+    if (asiento.selected) return 'seat-selected';
     if (asiento.estado === 'bloqueado') return 'seat-blocked';
     if (asiento.estado === 'confirmado') return 'seat-occupied';
     return 'seat-free';
   }
 
+  get selectedList(): SeatView[] {
+    return this.asientos.filter(a => a.selected);
+  }
+
+  get seatLabel(): string {
+    const count = this.selectedList.length;
+    if (count === 0) return 'Ninguno';
+    const total = count * (this.viaje?.precio_base ?? 0);
+    return `${count} asiento${count > 1 ? 's' : ''} — ${this.formatPrecio(total)}`;
+  }
+
   continuarReserva() {
-    if (!this.selectedSeat || !this.viaje) return;
-    this.router.navigate(['/minorista/reserva'], {
-      queryParams: {
-        viajeId: this.viaje.id,
-        asientoId: this.selectedSeat.id,
-        nroAsiento: this.selectedSeat.nro_asiento,
-        piso: this.selectedSeat.piso,
-        categoria: this.selectedSeat.categoria,
-        precio: this.viaje.precio_base,
-        origen: this.viaje.origen,
-        destino: this.viaje.destino,
-        fechaSalida: this.viaje.fecha_salida,
-      }
-    });
+    const sel = this.selectedList;
+    if (sel.length === 0 || !this.viaje) return;
+    this.reservaState.iniciar(this.viaje, sel);
+    this.router.navigate(['/minorista/reserva']);
   }
 }
-

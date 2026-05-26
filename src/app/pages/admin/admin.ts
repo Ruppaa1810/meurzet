@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 import { SupabaseService } from '../../services/supabase.service';
 import type { Perfil } from '../../models/database.types';
@@ -8,15 +8,12 @@ import type { Perfil } from '../../models/database.types';
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
   templateUrl: './admin.html',
   styleUrl: './admin.css',
 })
 export class Admin implements OnInit {
   perfil: Perfil | null = null;
-  viajesActivos = 0;
-  totalUnidades = 0;
-  reservasHoy = 0;
 
   constructor(
     private supabaseService: SupabaseService,
@@ -30,21 +27,13 @@ export class Admin implements OnInit {
       const { data } = await this.supabaseService.getPerfil(userId);
       this.perfil = data;
     }
-
-    const [viajesRes, unidadesRes] = await Promise.all([
-      this.supabaseService.getViajes(),
-      this.supabaseService.supabase.from('unidades').select('id'),
-    ]);
-
-    if (viajesRes.data) this.viajesActivos = viajesRes.data.length;
-    if (unidadesRes.data) this.totalUnidades = unidadesRes.data.length;
   }
 
   get nombreUsuario(): string {
     return this.perfil?.nombre || 'Administrador';
   }
 
-  get emailUsuario(): string {
+  get agenciaNombre(): string {
     return this.perfil?.agencia_nombre || 'admin@meurzet.com';
   }
 
