@@ -33,9 +33,12 @@ export class Reserva implements OnInit {
     return this.reservaState.precio * this.reservaState.asientos.length;
   }
 
-  get totalLabel(): string {
-    const p = this.reservaState.tipoPago === 'total' ? this.total : this.total * 0.3;
-    return `$ ${p.toLocaleString('es-AR')}`;
+  get montoAPagar(): number {
+    return Math.round(this.total * this.reservaState.porcentajePago / 100);
+  }
+
+  get montoMinimo(): number {
+    return Math.round(this.total * 0.3);
   }
 
   formatPrecio(precio: number): string {
@@ -43,7 +46,7 @@ export class Reserva implements OnInit {
   }
 
   async confirmarReserva() {
-    const { viaje, asientos, pasajeros, tipoPago } = this.reservaState;
+    const { viaje, asientos, pasajeros, porcentajePago } = this.reservaState;
 
     if (!viaje) return;
 
@@ -68,12 +71,16 @@ export class Reserva implements OnInit {
     const ids: number[] = [];
 
     for (let i = 0; i < asientos.length; i++) {
+      const pasajeroConPago = {
+        ...pasajeros[i],
+        porcentaje_pago: porcentajePago,
+      };
       const { data, error } = await this.supabaseService.crearReserva({
         viaje_id: viaje.id,
         vendedor_id: vendedorId,
         asiento_viaje_id: asientos[i].asientoId,
-        pasajero_datos: pasajeros[i] as unknown as Record<string, unknown>,
-        tipo_pago: tipoPago,
+        pasajero_datos: pasajeroConPago as unknown as Record<string, unknown>,
+        tipo_pago: porcentajePago === 100 ? 'total' : 'parcial',
         estado: 'pendiente_comprobante',
         comprobante_url: null,
         motivo_rechazo: null,

@@ -21,7 +21,7 @@ export class ReservaStateService {
   viaje: Viaje | null = null;
   asientos: AsientoReserva[] = [];
   pasajeros: PasajeroData[] = [];
-  tipoPago: 'total' | 'parcial' = 'total';
+  porcentajePago: number = 100;
   precio: number = 0;
   reservaIds: number[] = [];
 
@@ -37,7 +37,7 @@ export class ReservaStateService {
       nombre: '', apellido: '', documento: '', email: '', telefono: '',
     }));
     this.precio = viaje.precio_base;
-    this.tipoPago = 'total';
+    this.porcentajePago = 30;
   }
 
   limpiar() {
@@ -45,7 +45,7 @@ export class ReservaStateService {
     this.asientos = [];
     this.pasajeros = [];
     this.precio = 0;
-    this.tipoPago = 'total';
+    this.porcentajePago = 30;
     this.reservaIds = [];
   }
 }

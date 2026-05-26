@@ -14,6 +14,7 @@
     <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
       <thead>
         <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+          <th style="padding: 1rem; text-align: left; color: #64748b; font-weight: 600;">Empresa</th>
           <th style="padding: 1rem; text-align: left; color: #64748b; font-weight: 600;">Patente</th>
           <th style="padding: 1rem; text-align: left; color: #64748b; font-weight: 600;">Pisos</th>
           <th style="padding: 1rem; text-align: left; color: #64748b; font-weight: 600;">Asientos</th>
@@ -23,6 +24,7 @@
       <tbody>
         @for (u of unidades; track u.id) {
           <tr style="border-bottom: 1px solid #f1f5f9;">
+            <td style="padding: 1rem; font-weight: 600;">{{ u.layout_config['empresa'] || '-' }}</td>
             <td style="padding: 1rem; font-weight: 600;">{{ u.patente }}</td>
             <td style="padding: 1rem;">{{ u.pisos }}</td>
             <td style="padding: 1rem;">{{ u.asientos_totales }}</td>
@@ -43,7 +45,7 @@
           </tr>
         } @empty {
           <tr>
-            <td colspan="4" style="padding: 2rem; text-align: center; color: #94a3b8;">No hay unidades registradas</td>
+            <td colspan="5" style="padding: 2rem; text-align: center; color: #94a3b8;">No hay unidades registradas</td>
           </tr>
         }
       </tbody>
@@ -66,6 +68,12 @@
       <h3 style="font-size: 1.2rem; font-weight: 700; color: #384752; margin: 0 0 1.5rem 0;">
         {{ editando ? 'Editar' : 'Nueva' }} Unidad
       </h3>
+
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #384752; margin-bottom: 0.3rem;">Empresa</label>
+        <input [(ngModel)]="form.empresa" placeholder="Ej: Rápido Tata"
+          style="width: 100%; padding: 0.7rem; border: 1.5px solid #d1d5db; border-radius: 0.75rem; font-size: 0.9rem; box-sizing: border-box;">
+      </div>
 
       <div style="margin-bottom: 1rem;">
         <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #384752; margin-bottom: 0.3rem;">Patente</label>

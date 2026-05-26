@@ -19,7 +19,7 @@ export class Flota implements OnInit {
   editando = false;
   editandoId: number | null = null;
 
-  form = { patente: '', pisos: 1 as 1 | 2, asientos_totales: 0 };
+  form = { patente: '', empresa: '', pisos: 1 as 1 | 2, asientos_totales: 0 };
 
   constructor(
     private supabaseService: SupabaseService,
@@ -47,11 +47,11 @@ export class Flota implements OnInit {
     if (unidad) {
       this.editando = true;
       this.editandoId = unidad.id;
-      this.form = { patente: unidad.patente, pisos: unidad.pisos, asientos_totales: unidad.asientos_totales };
+      this.form = { patente: unidad.patente, empresa: (unidad.layout_config?.['empresa'] as string) || '', pisos: unidad.pisos, asientos_totales: unidad.asientos_totales };
     } else {
       this.editando = false;
       this.editandoId = null;
-      this.form = { patente: '', pisos: 1, asientos_totales: 0 };
+      this.form = { patente: '', empresa: '', pisos: 1, asientos_totales: 0 };
     }
     this.modalAbierto = true;
   }
@@ -64,11 +64,18 @@ export class Flota implements OnInit {
     if (!this.esAdmin) return;
     if (!this.form.patente.trim() || this.form.asientos_totales < 1) return;
 
+    const payload = {
+      patente: this.form.patente,
+      pisos: this.form.pisos,
+      asientos_totales: this.form.asientos_totales,
+      layout_config: { empresa: this.form.empresa },
+    };
+
     if (this.editando && this.editandoId != null) {
-      const { error } = await this.supabaseService.updateUnidad(this.editandoId, this.form);
+      const { error } = await this.supabaseService.updateUnidad(this.editandoId, payload);
       if (error) { this.mensaje = error.message; return; }
     } else {
-      const { error } = await this.supabaseService.createUnidad({ patente: this.form.patente, pisos: this.form.pisos, asientos_totales: this.form.asientos_totales, layout_config: {} });
+      const { error } = await this.supabaseService.createUnidad(payload);
       if (error) { this.mensaje = error.message; return; }
     }
 

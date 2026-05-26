@@ -32,6 +32,15 @@ export class Confirmacion implements OnInit {
     return this.reservaState.precio * this.reservaState.asientos.length;
   }
 
+  get montoAPagar(): number {
+    return Math.round(this.total * this.reservaState.porcentajePago / 100);
+  }
+
+  get pagoLabel(): string {
+    const p = this.reservaState.porcentajePago;
+    return p === 100 ? 'Pago Total' : `Seña (${p}%)`;
+  }
+
   formatPrecio(precio: number): string {
     return `$ ${precio.toLocaleString('es-AR')}`;
   }

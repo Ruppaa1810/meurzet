@@ -39,21 +39,52 @@
 
   <div style="background: white; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1.5rem;">
     <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: #384752;">
-      Tipo de Pago
+      Seleccioná el monto a pagar
     </h3>
-    <div style="display: flex; gap: 1rem;">
-      <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.75rem 1rem; border: 2px solid; border-radius: 0.75rem; font-size: 0.9rem; font-weight: 600; transition: all 0.2s;"
-        [style.border-color]="reservaState.tipoPago === 'total' ? '#af4f35' : '#e2e8f0'"
-        [style.background]="reservaState.tipoPago === 'total' ? '#fff5f2' : 'white'">
-        <input type="radio" name="tipoPago" value="total" [(ngModel)]="reservaState.tipoPago" style="accent-color: #af4f35;">
-        Pago Total — {{ totalLabel }}
+
+    <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem;">
+      <button (click)="reservaState.porcentajePago = 30"
+        style="flex: 1; padding: 0.6rem; border-radius: 0.75rem; font-size: 0.85rem; font-weight: 700; cursor: pointer; border: 2px solid; transition: all 0.2s;"
+        [style.border-color]="reservaState.porcentajePago === 30 ? '#af4f35' : '#e2e8f0'"
+        [style.background]="reservaState.porcentajePago === 30 ? '#fff5f2' : 'white'">
+        30% (Mínimo)
+      </button>
+      <button (click)="reservaState.porcentajePago = 50"
+        style="flex: 1; padding: 0.6rem; border-radius: 0.75rem; font-size: 0.85rem; font-weight: 700; cursor: pointer; border: 2px solid; transition: all 0.2s;"
+        [style.border-color]="reservaState.porcentajePago === 50 ? '#af4f35' : '#e2e8f0'"
+        [style.background]="reservaState.porcentajePago === 50 ? '#fff5f2' : 'white'">
+        50%
+      </button>
+      <button (click)="reservaState.porcentajePago = 75"
+        style="flex: 1; padding: 0.6rem; border-radius: 0.75rem; font-size: 0.85rem; font-weight: 700; cursor: pointer; border: 2px solid; transition: all 0.2s;"
+        [style.border-color]="reservaState.porcentajePago === 75 ? '#af4f35' : '#e2e8f0'"
+        [style.background]="reservaState.porcentajePago === 75 ? '#fff5f2' : 'white'">
+        75%
+      </button>
+      <button (click)="reservaState.porcentajePago = 100"
+        style="flex: 1; padding: 0.6rem; border-radius: 0.75rem; font-size: 0.85rem; font-weight: 700; cursor: pointer; border: 2px solid; transition: all 0.2s;"
+        [style.border-color]="reservaState.porcentajePago === 100 ? '#af4f35' : '#e2e8f0'"
+        [style.background]="reservaState.porcentajePago === 100 ? '#fff5f2' : 'white'">
+        100% (Total)
+      </button>
+    </div>
+
+    <div>
+      <label style="font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.25rem; display: block;">
+        O elegí un porcentaje personalizado ({{ reservaState.porcentajePago }}%)
       </label>
-      <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.75rem 1rem; border: 2px solid; border-radius: 0.75rem; font-size: 0.9rem; font-weight: 600; transition: all 0.2s;"
-        [style.border-color]="reservaState.tipoPago === 'parcial' ? '#af4f35' : '#e2e8f0'"
-        [style.background]="reservaState.tipoPago === 'parcial' ? '#fff5f2' : 'white'">
-        <input type="radio" name="tipoPago" value="parcial" [(ngModel)]="reservaState.tipoPago" style="accent-color: #af4f35;">
-        Pago Parcial (30%) — {{ totalLabel }}
-      </label>
+      <input type="range" min="30" max="100" step="5" [(ngModel)]="reservaState.porcentajePago"
+        style="width: 100%; accent-color: #af4f35;">
+      <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #94a3b8; margin-top: 0.25rem;">
+        <span>30% (${{ formatPrecio(montoMinimo) }})</span>
+        <span>100% (${{ formatPrecio(total) }})</span>
+      </div>
+    </div>
+
+    <div style="margin-top: 1rem; padding: 1rem; background: #fff5f2; border-radius: 0.75rem; text-align: center;">
+      <div style="font-size: 0.8rem; color: #64748b;">Monto a pagar ahora</div>
+      <div style="font-size: 1.5rem; font-weight: 800; color: #af4f35;">{{ formatPrecio(montoAPagar) }}</div>
+      <div style="font-size: 0.75rem; color: #94a3b8;">{{ reservaState.porcentajePago }}% del total ({{ formatPrecio(total) }})</div>
     </div>
   </div>
 
