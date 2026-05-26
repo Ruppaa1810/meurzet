@@ -1,1 +1,45 @@
-<p>confirmacion works!</p>
+<div style="max-width: 500px; margin: 0 auto; padding: 2rem; font-family: 'Inter', sans-serif; text-align: center;">
+
+  <div style="font-size: 4rem; margin-bottom: 1rem;">&#10004;</div>
+
+  <h2 style="font-size: 1.5rem; font-weight: 700; color: #16a34a; margin-bottom: 0.5rem;">
+    Reserva Confirmada
+  </h2>
+
+  <p style="color: #64748b; margin-bottom: 2rem;">
+    Tu reserva fue registrada correctamente. Te enviaremos los detalles por email.
+  </p>
+
+  <div style="background: white; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1.5rem; text-align: left;">
+
+    <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #f1f5f9;">
+      <span style="color: #64748b; font-size: 0.85rem;">Viaje</span>
+      <span style="font-weight: 600; font-size: 0.85rem;">{{ origen }} → {{ destino }}</span>
+    </div>
+    <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #f1f5f9;">
+      <span style="color: #64748b; font-size: 0.85rem;">Fecha</span>
+      <span style="font-weight: 600; font-size: 0.85rem;">{{ fechaLabel }} {{ formatHora(fecha) }} hs</span>
+    </div>
+    <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #f1f5f9;">
+      <span style="color: #64748b; font-size: 0.85rem;">Asiento</span>
+      <span style="font-weight: 600; font-size: 0.85rem;">N° {{ asiento }} · Planta {{ pisoLabel }} · {{ categoria }}</span>
+    </div>
+    <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #f1f5f9;">
+      <span style="color: #64748b; font-size: 0.85rem;">Pasajero</span>
+      <span style="font-weight: 600; font-size: 0.85rem;">{{ pasajero }}</span>
+    </div>
+    <div style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
+      <span style="color: #64748b; font-size: 0.85rem;">Pago</span>
+      <span style="font-weight: 600; font-size: 0.85rem;">{{ tipoPago === 'total' ? 'Total' : 'Seña (30%)' }} — {{ formatPrecio(precio) }}</span>
+    </div>
+  </div>
+
+  <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 1.5rem;">
+    Recordá subir el comprobante de pago para que podamos validar tu reserva.
+  </p>
+
+  <button routerLink="/minorista/inicio"
+    style="width: 100%; padding: 1rem; border-radius: 1rem; font-weight: 700; font-size: 1rem; color: white; background: linear-gradient(135deg, #af4f35, #e4912e); border: none; cursor: pointer; transition: all 0.2s;">
+    Volver al Inicio
+  </button>
+</div>

@@ -1,81 +1,61 @@
 <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; background-color: #384752; padding: 2rem; margin: 0;">
-  
-  <!-- Formulario más grande -->
+
   <div style="max-width: 36rem; width: 100%; background-color: #f4f4f3; border-radius: 2rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
-    
-    <!-- LOGO más grande -->
+
     <div style="text-align: center; padding-top: 2.5rem; padding-bottom: 1rem;">
       <div style="width: 10rem; height: 10rem; margin: 0 auto; border-radius: 2rem; overflow: hidden; background-color: white; display: flex; align-items: center; justify-content: center;">
         <img src="/logo.jpeg" alt="Meurzet" style="width: 100%; height: 100%; object-fit: cover;">
       </div>
     </div>
 
-    <!-- Formulario -->
-    <div style="padding: 0 2.5rem 2.5rem 2.5rem;">
-      
-      <!-- Email -->
+    <form (ngSubmit)="login()" style="padding: 0 2.5rem 2.5rem 2.5rem;">
+
       <div style="margin-bottom: 1.5rem;">
-        <input 
-          type="email" 
+        <input
+          type="email"
+          name="email"
+          [(ngModel)]="email"
           style="width: 100%; padding: 1rem 1.25rem; border-radius: 1rem; border: 1.5px solid #c9a08f; background: white; font-size: 1rem; outline: none; transition: all 0.2s; box-sizing: border-box;"
           placeholder="Correo electrónico"
+          required
         >
       </div>
 
-      <!-- Contraseña con ojo DENTRO del campo (a la derecha) -->
       <div style="margin-bottom: 1.75rem; position: relative;">
-        <input 
+        <input
           id="password"
+          name="password"
           type="password"
+          [(ngModel)]="password"
           style="width: 100%; padding: 1rem 1.25rem; border-radius: 1rem; border: 1.5px solid #c9a08f; background: white; font-size: 1rem; outline: none; transition: all 0.2s; box-sizing: border-box;"
           placeholder="Contraseña"
+          required
         >
-        <button
-          type="button"
-          onclick="togglePassword()"
-          style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); color: #969fa3; background: transparent; border: none; cursor: pointer; padding: 0; margin: 0; display: flex; align-items: center; justify-content: center;"
-        >
-          <svg style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-          </svg>
-        </button>
       </div>
 
-      <!-- Recordarme y Olvidaste -->
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem;">
-        <label style="display: flex; align-items: center; cursor: pointer;">
-          <input type="checkbox" style="width: 1rem; height: 1rem; margin: 0; accent-color: #af4f35;">
-          <span style="margin-left: 0.5rem; font-size: 0.9rem; color: #969fa3;">Recordarme</span>
-        </label>
-        <a href="#" style="font-size: 0.9rem; color: #1aa7c4; text-decoration: none; font-weight: 500;">¿Olvidaste tu contraseña?</a>
-      </div>
+      @if (message) {
+        <div style="margin-bottom: 1rem; padding: 0.75rem 1rem; border-radius: 0.75rem; background: #fef2f2; color: #991b1b; font-size: 0.875rem; text-align: center; border: 1px solid #fecaca;">
+          {{ message }}
+        </div>
+      }
 
-      <!-- Botón Iniciar Sesión -->
-      <button 
+      <button
+        type="submit"
+        [disabled]="loading"
         style="width: 100%; padding: 1rem; border-radius: 1rem; font-weight: 700; font-size: 1.1rem; color: white; background: linear-gradient(135deg, #af4f35, #e4912e); border: none; cursor: pointer; transition: all 0.2s; margin-bottom: 2rem;"
-      >
-        Iniciar Sesión
+        [style.opacity]="loading ? '0.6' : '1'">
+        {{ loading ? 'Ingresando...' : 'Iniciar Sesión' }}
       </button>
 
-      <!-- Separador -->
       <div style="display: flex; align-items: center;">
         <div style="flex: 1; height: 1px; background: linear-gradient(90deg, transparent, #eec997, transparent);"></div>
         <span style="padding: 0 0.75rem; font-size: 0.75rem; color: #969fa3; font-weight: 500;">ACCESO SEGURO</span>
         <div style="flex: 1; height: 1px; background: linear-gradient(90deg, transparent, #eec997, transparent);"></div>
       </div>
 
-    </div>
+    </form>
   </div>
 </div>
-
-<script>
-  function togglePassword() {
-    const passwordInput = document.getElementById('password');
-    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-    passwordInput.setAttribute('type', type);
-  }
-</script>
 
 <style>
   * {

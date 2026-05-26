@@ -7,4 +7,4 @@ import { RouterOutlet } from '@angular/router';
   imports: [RouterOutlet],
   template: `<router-outlet></router-outlet>`
 })
-export class Minorista { } // <--- EL NOMBRE AQUÍ DEBE SER EXACTAMENTE "Minorista"
+export class Minorista { }

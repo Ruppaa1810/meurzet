@@ -1,0 +1,75 @@
+<div class="max-w-md mx-auto bg-slate-50 text-slate-800 min-h-screen pb-24 shadow-md border-x border-slate-200 relative font-sans">
+  
+  <header class="bg-white border-b border-slate-200 p-4 z-40 sticky top-0">
+    <div class="bg-red-50 text-red-700 font-black text-[10px] px-3 py-2 rounded-lg flex items-center justify-between mb-3 border border-red-200 shadow-sm tracking-wider">
+      <span class="flex items-center gap-1 uppercase">BLOQUEO AUTÓNOMO EXPIRABLE</span>
+      <span class="font-mono bg-red-100 px-1.5 py-0.5 rounded">23:54:12 hs</span>
+    </div>
+    <h2 class="text-xl font-extrabold text-slate-900">Datos de Confirmación</h2>
+    <p class="text-xs text-slate-500 font-medium mt-0.5">Completá la carga del soporte digital para validar tu reserva.</p>
+  </header>
+
+  <main class="p-4 flex flex-col gap-4">
+    
+    <div class="bg-white border border-slate-200 rounded-xl p-4 flex flex-col gap-4 shadow-sm">
+      
+      <div class="relative mt-1">
+        <label class="text-[10px] font-black text-slate-400 absolute -top-2 left-3 bg-white px-1 tracking-wider uppercase">NOMBRE DEL PASAJERO</label>
+        <div class="flex items-center border border-slate-200 rounded-lg p-3 bg-white shadow-sm focus-within:border-blue-900 transition-colors">
+          <svg class="w-4 h-4 text-slate-400 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+          </svg>
+          <input class="bg-transparent border-none p-0 focus:outline-none w-full text-xs font-bold text-slate-800" type="text" value="Carlos Gómez"/>
+        </div>
+      </div>
+
+      <div class="relative mt-1">
+        <label class="text-[10px] font-black text-slate-400 absolute -top-2 left-3 bg-white px-1 tracking-wider uppercase">DNI / DOCUMENTO</label>
+        <div class="flex items-center border border-slate-200 rounded-lg p-3 bg-white shadow-sm focus-within:border-blue-900 transition-colors">
+          <svg class="w-4 h-4 text-slate-400 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5zm6-10.125a1.875 1.875 0 11-3.75 0 1.875 1.875 0 013.75 0zm1.294 6.336a6.721 6.721 0 01-3.17.789 6.721 6.721 0 01-3.168-.789 3.376 3.376 0 016.338 0z" />
+          </svg>
+          <input class="bg-transparent border-none p-0 focus:outline-none w-full text-xs font-bold text-slate-800" type="text" value="34.123.456"/>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mt-1">
+        <div class="relative">
+          <label class="text-[10px] font-black text-slate-400 absolute -top-2 left-3 bg-white px-1 tracking-wider uppercase">TIPO DE PAGO</label>
+          <div class="border border-slate-200 rounded-lg p-3 bg-white shadow-sm focus-within:border-blue-900 transition-colors">
+            <select class="bg-transparent border-none p-0 focus:outline-none w-full text-xs font-extrabold text-slate-700 cursor-pointer">
+              <option>Seña Parcial</option>
+              <option>Pago Total</option>
+            </select>
+          </div>
+        </div>
+        <div class="relative">
+          <label class="text-[10px] font-black text-slate-400 absolute -top-2 left-3 bg-white px-1 tracking-wider uppercase">MONTO ($)</label>
+          <div class="border border-slate-200 rounded-lg p-3 bg-slate-50 text-xs font-black text-blue-900 shadow-inner">
+            15000
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="bg-white border-2 border-dashed border-slate-300 hover:border-blue-900 rounded-xl p-8 flex flex-col items-center justify-center text-center gap-3 cursor-pointer transition-all shadow-sm group">
+      <div class="w-11 h-11 rounded-full bg-blue-50 text-blue-900 flex items-center justify-center border border-blue-100 group-hover:scale-105 transition-transform shadow-sm">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
+        </svg>
+      </div>
+      <div>
+        <p class="text-xs font-extrabold text-slate-800">Subir Comprobante</p>
+        <p class="text-[10px] text-slate-400 font-bold mt-0.5">Formatos aceptados: PDF o Imagen</p>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="absolute bottom-0 left-0 w-full bg-white border-t border-slate-200 p-4 z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+    <button class="w-full bg-blue-900 hover:bg-blue-950 text-white font-extrabold py-3 rounded-lg text-xs tracking-wider transition-transform active:scale-[0.99] shadow-sm">
+      FINALIZAR RESERVA
+    </button>
+  </footer>
+</div>

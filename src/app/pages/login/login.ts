@@ -38,44 +38,39 @@ export class Login {
 
       const userId = data.user?.id;
 
-      console.log('USER ID:', userId);
-
       if (!userId) {
         this.message = 'Usuario inválido';
         this.loading = false;
         return;
       }
 
-      const roleResponse = await this.supabaseService.getRole(userId);
-
-      console.log('ROLE RESPONSE:', roleResponse);
-
-      const perfil = roleResponse.data?.[0];
-
-      if (!perfil) {
-        this.message = 'Perfil no encontrado';
-        this.loading = false;
-        return;
-      }
-
-      const rol = perfil.rol;
-
-      console.log('ROL:', rol);
-
-      if (rol === 'operador_admin') {
-        this.router.navigate(['/admin']);
-      } else if (rol === 'admin_mayorista') {
-        this.router.navigate(['/mayorista']);
-      } else if (rol === 'vendedor_minorista') {
-        this.router.navigate(['/minorista']);
-      } else {
-        this.message = 'Rol no reconocido';
-      }
+      await this.redirigirSegunRol(userId);
     } catch (err) {
       console.error(err);
       this.message = 'Error inesperado';
     }
 
     this.loading = false;
+  }
+
+  private async redirigirSegunRol(userId: string) {
+    const { data: perfil, error: perfilError } = await this.supabaseService.getPerfil(userId);
+
+    if (perfilError || !perfil) {
+      this.message = 'Perfil no encontrado';
+      return;
+    }
+
+    const rol = perfil.rol;
+
+    if (rol === 'operador_admin') {
+      this.router.navigate(['/admin']);
+    } else if (rol === 'admin_mayorista') {
+      this.router.navigate(['/mayorista']);
+    } else if (rol === 'vendedor_minorista') {
+      this.router.navigate(['/minorista']);
+    } else {
+      this.message = 'Rol no reconocido';
+    }
   }
 }
