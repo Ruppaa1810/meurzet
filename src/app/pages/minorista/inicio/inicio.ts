@@ -43,11 +43,8 @@ export class Inicio implements OnInit, AfterViewInit {
       if (!error && data) {
         this.todosViajes = data;
         this.viajesFiltrados = data;
-      } else if (error) {
-        console.error('Error al cargar viajes:', error);
       }
-    } catch (e) {
-      console.error('Error en ngOnInit de inicio:', e);
+    } catch {
     }
     this.loading = false;
     this.cdr.detectChanges();

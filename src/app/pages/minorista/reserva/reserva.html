@@ -1,39 +1,41 @@
-<div style="max-width: 600px; margin: 0 auto; padding: 2rem; font-family: 'Inter', sans-serif;">
+<div style="max-width: 700px; margin: 0 auto; padding: 2rem; font-family: 'Inter', sans-serif;">
   <h2 style="font-size: 1.5rem; font-weight: 700; color: #384752; margin-bottom: 0.5rem;">
     Confirmar Reserva
   </h2>
   <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 2rem;">
-    {{ origen }} → {{ destino }} · {{ formatHora(fechaSalida) }} hs · Asiento {{ nroAsiento }}
+    {{ reservaState.viaje?.origen }} → {{ reservaState.viaje?.destino }} · {{ reservaState.asientos.length }} asiento{{ reservaState.asientos.length > 1 ? 's' : '' }}
   </p>
 
-  <div style="background: white; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1.5rem;">
-    <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: #384752;">
-      Datos del Pasajero
-    </h3>
+  @for (asiento of reservaState.asientos; track asiento.asientoId; let i = $index) {
+    <div style="background: white; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1.5rem;">
+      <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem; color: #384752;">
+        Pasajero {{ i + 1 }} — Asiento N° {{ asiento.nroAsiento }} · Planta {{ asiento.piso === 1 ? 'Baja' : 'Alta' }}
+      </h3>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-      <div>
-        <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.25rem;">Nombre</label>
-        <input type="text" [(ngModel)]="pasajero.nombre" style="width: 100%; padding: 0.6rem 0.75rem; border: 1.5px solid #e2e8f0; border-radius: 0.5rem; font-size: 0.9rem; box-sizing: border-box;">
-      </div>
-      <div>
-        <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.25rem;">Apellido</label>
-        <input type="text" [(ngModel)]="pasajero.apellido" style="width: 100%; padding: 0.6rem 0.75rem; border: 1.5px solid #e2e8f0; border-radius: 0.5rem; font-size: 0.9rem; box-sizing: border-box;">
-      </div>
-      <div>
-        <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.25rem;">Documento</label>
-        <input type="text" [(ngModel)]="pasajero.documento" style="width: 100%; padding: 0.6rem 0.75rem; border: 1.5px solid #e2e8f0; border-radius: 0.5rem; font-size: 0.9rem; box-sizing: border-box;">
-      </div>
-      <div>
-        <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.25rem;">Email</label>
-        <input type="email" [(ngModel)]="pasajero.email" style="width: 100%; padding: 0.6rem 0.75rem; border: 1.5px solid #e2e8f0; border-radius: 0.5rem; font-size: 0.9rem; box-sizing: border-box;">
-      </div>
-      <div style="grid-column: 1 / -1;">
-        <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.25rem;">Teléfono</label>
-        <input type="text" [(ngModel)]="pasajero.telefono" style="width: 100%; padding: 0.6rem 0.75rem; border: 1.5px solid #e2e8f0; border-radius: 0.5rem; font-size: 0.9rem; box-sizing: border-box;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+        <div>
+          <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.25rem;">Nombre</label>
+          <input type="text" [(ngModel)]="reservaState.pasajeros[i].nombre" style="width: 100%; padding: 0.6rem 0.75rem; border: 1.5px solid #e2e8f0; border-radius: 0.5rem; font-size: 0.9rem; box-sizing: border-box;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.25rem;">Apellido</label>
+          <input type="text" [(ngModel)]="reservaState.pasajeros[i].apellido" style="width: 100%; padding: 0.6rem 0.75rem; border: 1.5px solid #e2e8f0; border-radius: 0.5rem; font-size: 0.9rem; box-sizing: border-box;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.25rem;">Documento</label>
+          <input type="text" [(ngModel)]="reservaState.pasajeros[i].documento" style="width: 100%; padding: 0.6rem 0.75rem; border: 1.5px solid #e2e8f0; border-radius: 0.5rem; font-size: 0.9rem; box-sizing: border-box;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.25rem;">Email</label>
+          <input type="email" [(ngModel)]="reservaState.pasajeros[i].email" style="width: 100%; padding: 0.6rem 0.75rem; border: 1.5px solid #e2e8f0; border-radius: 0.5rem; font-size: 0.9rem; box-sizing: border-box;">
+        </div>
+        <div style="grid-column: 1 / -1;">
+          <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.25rem;">Teléfono</label>
+          <input type="text" [(ngModel)]="reservaState.pasajeros[i].telefono" style="width: 100%; padding: 0.6rem 0.75rem; border: 1.5px solid #e2e8f0; border-radius: 0.5rem; font-size: 0.9rem; box-sizing: border-box;">
+        </div>
       </div>
     </div>
-  </div>
+  }
 
   <div style="background: white; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1.5rem;">
     <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: #384752;">
@@ -41,16 +43,16 @@
     </h3>
     <div style="display: flex; gap: 1rem;">
       <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.75rem 1rem; border: 2px solid; border-radius: 0.75rem; font-size: 0.9rem; font-weight: 600; transition: all 0.2s;"
-        [style.border-color]="tipoPago === 'total' ? '#af4f35' : '#e2e8f0'"
-        [style.background]="tipoPago === 'total' ? '#fff5f2' : 'white'">
-        <input type="radio" name="tipoPago" value="total" [(ngModel)]="tipoPago" style="accent-color: #af4f35;">
-        Pago Total — {{ formatPrecio(precio) }}
+        [style.border-color]="reservaState.tipoPago === 'total' ? '#af4f35' : '#e2e8f0'"
+        [style.background]="reservaState.tipoPago === 'total' ? '#fff5f2' : 'white'">
+        <input type="radio" name="tipoPago" value="total" [(ngModel)]="reservaState.tipoPago" style="accent-color: #af4f35;">
+        Pago Total — {{ totalLabel }}
       </label>
       <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.75rem 1rem; border: 2px solid; border-radius: 0.75rem; font-size: 0.9rem; font-weight: 600; transition: all 0.2s;"
-        [style.border-color]="tipoPago === 'parcial' ? '#af4f35' : '#e2e8f0'"
-        [style.background]="tipoPago === 'parcial' ? '#fff5f2' : 'white'">
-        <input type="radio" name="tipoPago" value="parcial" [(ngModel)]="tipoPago" style="accent-color: #af4f35;">
-        Pago Parcial — {{ formatPrecio(precio * 0.3) }}
+        [style.border-color]="reservaState.tipoPago === 'parcial' ? '#af4f35' : '#e2e8f0'"
+        [style.background]="reservaState.tipoPago === 'parcial' ? '#fff5f2' : 'white'">
+        <input type="radio" name="tipoPago" value="parcial" [(ngModel)]="reservaState.tipoPago" style="accent-color: #af4f35;">
+        Pago Parcial (30%) — {{ totalLabel }}
       </label>
     </div>
   </div>

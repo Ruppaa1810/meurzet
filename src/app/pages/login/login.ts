@@ -14,14 +14,25 @@ import { SupabaseService } from '../../services/supabase.service';
 export class Login {
   email = '';
   password = '';
+  showPassword = false;
+  remember = false;
 
   loading = false;
   message = '';
+  showForgotPassword = false;
+  forgotEmail = '';
+  resetMessage = '';
 
   constructor(
     private supabaseService: SupabaseService,
     private router: Router,
-  ) {}
+  ) {
+    const saved = localStorage.getItem('meurzet_email');
+    if (saved) {
+      this.email = saved;
+      this.remember = true;
+    }
+  }
 
   async login() {
     this.loading = true;
@@ -44,29 +55,51 @@ export class Login {
         return;
       }
 
-      await this.redirigirSegunRol(userId);
-    } catch (err) {
-      console.error(err);
+      if (this.remember) {
+        localStorage.setItem('meurzet_email', this.email);
+      } else {
+        localStorage.removeItem('meurzet_email');
+      }
+
+      const { data: perfil, error: perfilError } = await this.supabaseService.getPerfil(userId);
+      if (perfilError || !perfil) {
+        this.message = 'Perfil no encontrado';
+        this.loading = false;
+        return;
+      }
+      this.redirigirSegunRol(perfil.rol);
+    } catch {
       this.message = 'Error inesperado';
     }
 
     this.loading = false;
   }
 
-  private async redirigirSegunRol(userId: string) {
-    const { data: perfil, error: perfilError } = await this.supabaseService.getPerfil(userId);
-
-    if (perfilError || !perfil) {
-      this.message = 'Perfil no encontrado';
+  async sendResetEmail() {
+    if (!this.forgotEmail) {
+      this.resetMessage = 'Ingresá tu correo electrónico';
       return;
     }
+    this.loading = true;
+    this.resetMessage = '';
+    const { error } = await this.supabaseService.resetPassword(this.forgotEmail);
+    this.loading = false;
+    if (error) {
+      this.resetMessage = error.message;
+    } else {
+      this.resetMessage = 'Te enviamos un enlace para restablecer tu contraseña';
+    }
+  }
 
-    const rol = perfil.rol;
+  cancelForgotPassword() {
+    this.showForgotPassword = false;
+    this.forgotEmail = '';
+    this.resetMessage = '';
+  }
 
-    if (rol === 'operador_admin') {
+  private redirigirSegunRol(rol: string) {
+    if (rol === 'operador_admin' || rol === 'admin_mayorista') {
       this.router.navigate(['/admin']);
-    } else if (rol === 'admin_mayorista') {
-      this.router.navigate(['/mayorista']);
     } else if (rol === 'vendedor_minorista') {
       this.router.navigate(['/minorista']);
     } else {

@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
+import { SupabaseService } from '../../../services/supabase.service';
+import { ReservaStateService } from '../../../services/reserva-state.service';
 
 @Component({
   selector: 'app-confirmacion',
@@ -10,48 +12,77 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
   styleUrl: './confirmacion.css',
 })
 export class Confirmacion implements OnInit {
-  origen = '';
-  destino = '';
-  fecha = '';
-  asiento = 0;
-  piso = 1;
-  categoria = '';
-  precio = 0;
-  pasajero = '';
-  tipoPago = '';
+  subiendo = false;
+  comprobanteSubido = false;
+  mensaje = '';
 
-  constructor(private route: ActivatedRoute) {}
+  constructor(
+    public reservaState: ReservaStateService,
+    private supabaseService: SupabaseService,
+    private router: Router,
+  ) {}
 
   ngOnInit() {
-    const q = this.route.snapshot.queryParams;
-    this.origen = q['origen'] || '';
-    this.destino = q['destino'] || '';
-    this.fecha = q['fecha'] || '';
-    this.asiento = Number(q['asiento']);
-    this.piso = Number(q['piso']);
-    this.categoria = q['categoria'] || '';
-    this.precio = Number(q['precio']);
-    this.pasajero = q['pasajero'] || '';
-    this.tipoPago = q['tipoPago'] || '';
+    if (!this.reservaState.viaje || this.reservaState.asientos.length === 0) {
+      this.router.navigate(['/minorista/inicio']);
+    }
+  }
+
+  get total(): number {
+    return this.reservaState.precio * this.reservaState.asientos.length;
   }
 
   formatPrecio(precio: number): string {
     return `$ ${precio.toLocaleString('es-AR')}`;
   }
 
-  formatHora(fecha: string): string {
-    return new Date(fecha).toLocaleTimeString('es-AR', {
-      hour: '2-digit', minute: '2-digit', hour12: false,
-    });
+  pisoLabel(piso: number): string {
+    return piso === 1 ? 'Baja' : 'Alta';
   }
 
-  get pisoLabel(): string {
-    return this.piso === 1 ? 'Baja' : 'Alta';
-  }
+  async subirComprobante(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file || this.reservaState.reservaIds.length === 0) return;
 
-  get fechaLabel(): string {
-    return new Date(this.fecha).toLocaleDateString('es-AR', {
-      weekday: 'long', day: 'numeric', month: 'long',
-    });
+    this.subiendo = true;
+    this.mensaje = '';
+    const userId = (await this.supabaseService.supabase.auth.getSession()).data.session?.user?.id;
+    if (!userId) {
+      this.mensaje = 'Sesión expirada';
+      this.subiendo = false;
+      return;
+    }
+
+    const basePath = `${userId}/${Date.now()}_${file.name}`;
+
+    const { error: uploadError } = await this.supabaseService.subirComprobante(basePath, file);
+    if (uploadError) {
+      this.mensaje = 'Error al subir el comprobante: ' + uploadError.message;
+      this.subiendo = false;
+      return;
+    }
+
+    const { data: signedUrl, error: signedError } = await this.supabaseService.supabase.storage
+      .from('comprobantes')
+      .createSignedUrl(basePath, 60 * 60 * 24 * 365);
+    if (signedError || !signedUrl?.signedUrl) {
+      this.mensaje = 'Error al generar enlace del comprobante';
+      this.subiendo = false;
+      return;
+    }
+
+    const { error: updateError } = await this.supabaseService.supabase
+      .from('reservas')
+      .update({ comprobante_url: signedUrl.signedUrl, estado: 'pendiente_validacion' })
+      .in('id', this.reservaState.reservaIds);
+    if (updateError) {
+      this.mensaje = 'Error al actualizar reserva: ' + updateError.message;
+      this.subiendo = false;
+      return;
+    }
+
+    this.comprobanteSubido = true;
+    this.subiendo = false;
   }
 }

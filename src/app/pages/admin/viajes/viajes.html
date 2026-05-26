@@ -1,0 +1,134 @@
+<div style="padding: 2rem;">
+
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <h2 style="font-size: 1.5rem; font-weight: 700; color: #384752; margin: 0;">Gestión de Viajes</h2>
+    <button (click)="abrirModal()"
+      style="padding: 0.7rem 1.5rem; border-radius: 0.75rem; font-weight: 700; font-size: 0.9rem; color: white; background: linear-gradient(135deg, #af4f35, #e4912e); border: none; cursor: pointer;">
+      + Nuevo Viaje
+    </button>
+  </div>
+
+  <div style="background: white; border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); overflow: hidden;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+      <thead>
+        <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+          <th style="padding: 1rem; text-align: left; color: #64748b; font-weight: 600;">Origen</th>
+          <th style="padding: 1rem; text-align: left; color: #64748b; font-weight: 600;">Destino</th>
+          <th style="padding: 1rem; text-align: left; color: #64748b; font-weight: 600;">Salida</th>
+          <th style="padding: 1rem; text-align: left; color: #64748b; font-weight: 600;">Llegada</th>
+          <th style="padding: 1rem; text-align: left; color: #64748b; font-weight: 600;">Precio</th>
+          <th style="padding: 1rem; text-align: left; color: #64748b; font-weight: 600;">Activo</th>
+          <th style="padding: 1rem; text-align: right; color: #64748b; font-weight: 600;">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (v of viajes; track v.id) {
+          <tr style="border-bottom: 1px solid #f1f5f9;">
+            <td style="padding: 1rem; font-weight: 600;">{{ v.origen }}</td>
+            <td style="padding: 1rem;">{{ v.destino }}</td>
+            <td style="padding: 1rem;">{{ v.fecha_salida | date:'dd/MM/yy HH:mm' }}</td>
+            <td style="padding: 1rem;">{{ v.fecha_llegada | date:'dd/MM/yy HH:mm' }}</td>
+            <td style="padding: 1rem;">${{ v.precio_base | number }}</td>
+            <td style="padding: 1rem;">
+              <span [style.color]="v.activo ? '#16a34a' : '#dc2626'" style="font-weight: 600;">
+                {{ v.activo ? 'Sí' : 'No' }}
+              </span>
+            </td>
+            <td style="padding: 1rem; text-align: right;">
+              <button (click)="abrirModal(v)"
+                style="padding: 0.4rem 0.8rem; border-radius: 0.5rem; font-size: 0.8rem; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; cursor: pointer; margin-right: 0.5rem;">
+                Editar
+              </button>
+              <button (click)="eliminar(v.id)"
+                style="padding: 0.4rem 0.8rem; border-radius: 0.5rem; font-size: 0.8rem; background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; cursor: pointer;">
+                Eliminar
+              </button>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="7" style="padding: 2rem; text-align: center; color: #94a3b8;">No hay viajes registrados</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (loading) {
+    <p style="text-align: center; color: #64748b; margin-top: 1rem;">Cargando...</p>
+  }
+  @if (mensaje) {
+    <p style="text-align: center; color: #dc2626; margin-top: 1rem;">{{ mensaje }}</p>
+  }
+</div>
+
+@if (modalAbierto) {
+  <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 1000;"
+    (click)="cerrarModal()">
+    <div style="background: white; border-radius: 1.5rem; padding: 2rem; width: 90%; max-width: 450px; box-shadow: 0 20px 60px rgba(0,0,0,0.15);"
+      (click)="$event.stopPropagation()">
+      <h3 style="font-size: 1.2rem; font-weight: 700; color: #384752; margin: 0 0 1.5rem 0;">
+        {{ editando ? 'Editar' : 'Nuevo' }} Viaje
+      </h3>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #384752; margin-bottom: 0.3rem;">Origen</label>
+          <input [(ngModel)]="form.origen"
+            style="width: 100%; padding: 0.7rem; border: 1.5px solid #d1d5db; border-radius: 0.75rem; font-size: 0.9rem; box-sizing: border-box;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #384752; margin-bottom: 0.3rem;">Destino</label>
+          <input [(ngModel)]="form.destino"
+            style="width: 100%; padding: 0.7rem; border: 1.5px solid #d1d5db; border-radius: 0.75rem; font-size: 0.9rem; box-sizing: border-box;">
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #384752; margin-bottom: 0.3rem;">Salida</label>
+          <input [(ngModel)]="form.fecha_salida" type="datetime-local"
+            style="width: 100%; padding: 0.7rem; border: 1.5px solid #d1d5db; border-radius: 0.75rem; font-size: 0.9rem; box-sizing: border-box;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #384752; margin-bottom: 0.3rem;">Llegada</label>
+          <input [(ngModel)]="form.fecha_llegada" type="datetime-local"
+            style="width: 100%; padding: 0.7rem; border: 1.5px solid #d1d5db; border-radius: 0.75rem; font-size: 0.9rem; box-sizing: border-box;">
+        </div>
+      </div>
+
+      <div style="margin-top: 1rem;">
+        <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #384752; margin-bottom: 0.3rem;">Unidad</label>
+        <select [(ngModel)]="form.unidad_id"
+          style="width: 100%; padding: 0.7rem; border: 1.5px solid #d1d5db; border-radius: 0.75rem; font-size: 0.9rem; background: white; box-sizing: border-box;">
+          <option [ngValue]="null">Sin asignar</option>
+          @for (u of unidades; track u.id) {
+            <option [ngValue]="u.id">{{ u.patente }} ({{ u.asientos_totales }} as.)</option>
+          }
+        </select>
+      </div>
+
+      <div style="margin-top: 1rem;">
+        <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #384752; margin-bottom: 0.3rem;">Precio base ($)</label>
+        <input [(ngModel)]="form.precio_base" type="number"
+          style="width: 100%; padding: 0.7rem; border: 1.5px solid #d1d5db; border-radius: 0.75rem; font-size: 0.9rem; box-sizing: border-box;">
+      </div>
+
+      <div style="margin-top: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+        <input [(ngModel)]="form.activo" type="checkbox" id="activo-check">
+        <label for="activo-check" style="font-size: 0.85rem; font-weight: 600; color: #384752;">Viaje activo</label>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+        <button (click)="cerrarModal()"
+          style="flex: 1; padding: 0.8rem; border-radius: 0.75rem; font-weight: 600; background: #f1f5f9; color: #64748b; border: none; cursor: pointer;">
+          Cancelar
+        </button>
+        <button (click)="guardar()"
+          style="flex: 1; padding: 0.8rem; border-radius: 0.75rem; font-weight: 700; color: white; background: linear-gradient(135deg, #af4f35, #e4912e); border: none; cursor: pointer;">
+          {{ editando ? 'Guardar' : 'Crear' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

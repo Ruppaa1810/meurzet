@@ -1,0 +1,78 @@
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { SupabaseService } from '../../../services/supabase.service';
+import type { Unidad } from '../../../models/database.types';
+
+@Component({
+  selector: 'app-flota',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './flota.html',
+})
+export class Flota implements OnInit {
+  unidades: Unidad[] = [];
+  loading = false;
+  mensaje = '';
+  modalAbierto = false;
+  editando = false;
+  editandoId: number | null = null;
+
+  form = { patente: '', pisos: 1 as 1 | 2, asientos_totales: 0 };
+
+  constructor(
+    private supabaseService: SupabaseService,
+    private cdr: ChangeDetectorRef,
+  ) {}
+
+  ngOnInit() {
+    this.cargar();
+  }
+
+  async cargar() {
+    this.loading = true;
+    const { data, error } = await this.supabaseService.getUnidades();
+    if (error) { this.mensaje = error.message; } else { this.unidades = data ?? []; }
+    this.loading = false;
+    this.cdr.detectChanges();
+  }
+
+  abrirModal(unidad?: Unidad) {
+    if (unidad) {
+      this.editando = true;
+      this.editandoId = unidad.id;
+      this.form = { patente: unidad.patente, pisos: unidad.pisos, asientos_totales: unidad.asientos_totales };
+    } else {
+      this.editando = false;
+      this.editandoId = null;
+      this.form = { patente: '', pisos: 1, asientos_totales: 0 };
+    }
+    this.modalAbierto = true;
+  }
+
+  cerrarModal() {
+    this.modalAbierto = false;
+  }
+
+  async guardar() {
+    if (!this.form.patente.trim() || this.form.asientos_totales < 1) return;
+
+    if (this.editando && this.editandoId != null) {
+      const { error } = await this.supabaseService.updateUnidad(this.editandoId, this.form);
+      if (error) { this.mensaje = error.message; return; }
+    } else {
+      const { error } = await this.supabaseService.createUnidad({ patente: this.form.patente, pisos: this.form.pisos, asientos_totales: this.form.asientos_totales, layout_config: {} });
+      if (error) { this.mensaje = error.message; return; }
+    }
+
+    this.modalAbierto = false;
+    await this.cargar();
+  }
+
+  async eliminar(id: number) {
+    if (!confirm('¿Eliminar esta unidad?')) return;
+    const { error } = await this.supabaseService.deleteUnidad(id);
+    if (error) { this.mensaje = error.message; return; }
+    await this.cargar();
+  }
+}
