@@ -1,0 +1,1003 @@
+/* =========================================================
+BASE
+========================================================= */
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(26,167,196,0.05),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(175,79,53,0.08),
+      transparent 30%
+    ),
+    #f4f4f3;
+
+  color: #384752;
+}
+
+/* =========================================================
+TOPBAR
+========================================================= */
+
+.topbar {
+  height: 78px;
+
+  padding: 0 28px;
+
+  background: #384752;
+
+  border-bottom: 3px solid #af4f35;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo-img {
+  width: 52px;
+  height: 52px;
+
+  border-radius: 50%;
+
+  object-fit: cover;
+
+  background: white;
+}
+
+.brand-title {
+  margin: 0;
+
+  color: white;
+
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.brand-subtitle {
+  margin: 2px 0 0;
+
+  color: #eec997;
+
+  font-size: 11px;
+
+  text-transform: uppercase;
+
+  letter-spacing: 2px;
+}
+
+.agency-badge {
+  padding: 10px 16px;
+
+  border-radius: 12px;
+
+  background: rgba(255,255,255,0.1);
+
+  color: white;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* =========================================================
+LAYOUT
+========================================================= */
+
+.inicio-layout {
+  width: 100%;
+  max-width: 1400px;
+
+  margin: 0 auto;
+
+  padding: 42px 24px 70px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: 34px;
+
+  transition: .35s ease;
+}
+
+/* =========================================================
+FORMULARIO
+========================================================= */
+
+.search-panel {
+  width: 100%;
+  max-width: 1050px;
+
+  background: rgba(255,255,255,0.72);
+
+  backdrop-filter: blur(14px);
+
+  border: 1px solid rgba(175,79,53,0.14);
+
+  border-radius: 30px;
+
+  padding: 34px;
+
+  transition:
+    transform .30s ease,
+    box-shadow .30s ease,
+    border-color .30s ease;
+
+  box-shadow:
+    0 12px 34px rgba(15,23,42,0.06);
+}
+
+/* =========================================================
+ANIMACION CUANDO HAY RESULTADOS
+========================================================= */
+
+.inicio-layout.has-results .search-panel {
+  max-width: 1200px;
+
+  padding: 24px 28px;
+
+  border-radius: 24px;
+}
+
+.inicio-layout.has-results .search-header {
+  margin-bottom: 24px;
+}
+
+.inicio-layout.has-results .search-grid {
+  grid-template-columns:
+    repeat(4, 1fr)
+    220px;
+
+  align-items: end;
+}
+
+/* =========================================================
+HOVER PANEL
+========================================================= */
+
+.search-panel:hover {
+  transform: scale(1.01);
+
+  border-color: rgba(26,167,196,0.30);
+
+  box-shadow:
+    0 22px 48px rgba(26,167,196,0.10);
+}
+
+/* =========================================================
+HEADER FORM
+========================================================= */
+
+.search-header {
+  text-align: center;
+
+  margin-bottom: 34px;
+
+  transition: .3s ease;
+}
+
+.search-header h2 {
+  margin: 0;
+
+  font-size: 38px;
+  font-weight: 900;
+
+  color: #384752;
+
+  letter-spacing: -1px;
+}
+
+.search-header p {
+  margin-top: 10px;
+
+  color: #64748b;
+
+  font-size: 14px;
+
+  line-height: 1.6;
+}
+
+/* =========================================================
+GRID FORM
+========================================================= */
+
+.search-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, 1fr);
+
+  gap: 20px;
+
+  transition: .35s ease;
+}
+
+/* =========================================================
+FIELDS
+========================================================= */
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.field-group label {
+  margin-bottom: 8px;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  letter-spacing: 1px;
+
+  text-transform: uppercase;
+
+  color: #64748b;
+}
+
+.field-group input,
+.field-group select {
+  width: 100%;
+
+  height: 58px;
+
+  border-radius: 16px;
+
+  border: 2px solid rgba(175,79,53,0.15);
+
+  background: white;
+
+  padding: 0 18px;
+
+  font-size: 14px;
+
+  color: #384752;
+
+  outline: none;
+
+  transition:
+    border-color .25s ease,
+    box-shadow .25s ease,
+    transform .25s ease,
+    background .25s ease;
+}
+
+/* =========================================================
+HOVER INPUTS
+========================================================= */
+
+.field-group input:hover,
+.field-group select:hover {
+  border-color: #1aa7c4;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 0 0 4px rgba(26,167,196,0.08);
+}
+
+/* =========================================================
+FOCUS INPUTS
+========================================================= */
+
+.field-group input:focus,
+.field-group select:focus {
+  border-color: #1aa7c4;
+
+  box-shadow:
+    0 0 0 5px rgba(26,167,196,0.12);
+
+  background: white;
+}
+
+/* =========================================================
+BOTON
+========================================================= */
+
+.search-btn {
+  width: 100%;
+  height: 58px;
+
+  border: none;
+
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #af4f35,
+      #e4912e
+    );
+
+  color: white;
+
+  font-size: 14px;
+  font-weight: 800;
+
+  letter-spacing: .5px;
+
+  cursor: pointer;
+
+  transition:
+    transform .25s ease,
+    box-shadow .25s ease,
+    opacity .25s ease;
+}
+
+.search-btn:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 14px 26px rgba(175,79,53,0.22);
+
+  opacity: .96;
+}
+
+/* =========================================================
+RESULTADOS
+========================================================= */
+
+.results-panel {
+  width: 100%;
+  max-width: 1200px;
+
+  animation: fadeUp .45s ease;
+}
+
+/* =========================================================
+ANIMACION RESULTADOS
+========================================================= */
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================================
+HEADER RESULTADOS
+========================================================= */
+
+.results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 28px;
+}
+
+.results-header h2 {
+  margin: 0;
+
+  font-size: 32px;
+  font-weight: 900;
+
+  color: #384752;
+}
+
+.results-header p {
+  margin-top: 6px;
+
+  color: #64748b;
+
+  font-size: 14px;
+}
+
+.results-count {
+  background: #eec997;
+
+  color: #af4f35;
+
+  padding: 12px 18px;
+
+  border-radius: 14px;
+
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* =========================================================
+LISTA
+========================================================= */
+
+.results-list {
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fit, minmax(420px, 1fr));
+
+  gap: 24px;
+}
+
+/* =========================================================
+CARD
+========================================================= */
+
+.trip-card {
+  background: rgba(255,255,255,0.82);
+
+  backdrop-filter: blur(12px);
+
+  border: 1px solid rgba(255,255,255,0.65);
+
+  border-radius: 30px;
+
+  padding: 26px;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 24px;
+
+  transition:
+    transform .25s ease,
+    box-shadow .25s ease,
+    border-color .25s ease;
+
+  box-shadow:
+    0 12px 34px rgba(15,23,42,.05);
+}
+
+.trip-card:hover {
+  transform: translateY(-5px);
+
+  border-color: rgba(26,167,196,.22);
+
+  box-shadow:
+    0 24px 52px rgba(15,23,42,.10);
+}
+
+/* =========================================================
+RUTA
+========================================================= */
+
+.trip-route {
+  display: flex;
+  align-items: center;
+
+  gap: 16px;
+
+  margin-bottom: 22px;
+}
+
+.city {
+  font-size: 24px;
+  font-weight: 900;
+
+  color: #384752;
+
+  white-space: nowrap;
+}
+
+.trip-line {
+  flex: 1;
+
+  height: 3px;
+
+  border-radius: 999px;
+
+  background:
+    linear-gradient(
+      to right,
+      #af4f35,
+      #e4912e
+    );
+}
+
+/* =========================================================
+INFO
+========================================================= */
+
+.trip-info {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, 1fr);
+
+  gap: 20px;
+}
+
+.trip-block {
+  background: rgba(244,244,243,0.7);
+
+  border: 1px solid rgba(175,79,53,0.10);  /* antes era rgba(203,213,225,0.5) */
+
+  border-radius: 18px;
+
+  padding: 14px;
+}
+
+.trip-block span {
+  display: block;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  color: #94a3b8;
+
+  text-transform: uppercase;
+
+  margin-bottom: 6px;
+}
+
+.trip-block strong {
+  font-size: 16px;
+
+  color: #384752;
+}
+
+.free-seats {
+  color: #16a34a !important;
+}
+
+/* =========================================================
+ACCIONES
+========================================================= */
+
+.trip-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 18px;
+
+  padding-top: 10px;
+}
+
+.trip-price {
+  font-size: 32px;
+  font-weight: 900;
+
+  color: #af4f35;
+}
+
+.select-btn {
+  height: 52px;
+  border: none;
+  padding: 0 32px;
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 800;
+  color: white;
+  white-space: nowrap;
+  background: linear-gradient(135deg, #af4f35, #e4912e);
+  transition: background .2s ease, transform .2s ease;
+}
+
+.select-btn:hover {
+  background: linear-gradient(135deg, #1aa7c4, #384752);
+  transform: translateY(-2px);
+}
+
+/* =========================================================
+RESPONSIVE
+========================================================= */
+
+@media (max-width: 992px) {
+
+  .inicio-layout.has-results .search-grid {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+  .results-list {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+@media (max-width: 768px) {
+
+  .topbar {
+    padding: 0 18px;
+  }
+
+  .search-panel {
+    padding: 26px 20px;
+  }
+
+  .search-header h2 {
+    font-size: 30px;
+  }
+
+  .search-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .inicio-layout.has-results .search-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .results-header {
+    flex-direction: column;
+    align-items: flex-start;
+
+    gap: 14px;
+  }
+
+  .trip-info {
+    grid-template-columns: 1fr;
+  }
+
+  .trip-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .select-btn {
+    width: 100%;
+  }
+
+  .city {
+    font-size: 18px;
+  }
+
+}
+/* =========================================================
+TOPBAR
+========================================================= */
+
+.topbar {
+  height: 78px;
+
+  padding: 0 28px;
+
+  background: #384752;
+
+  border-bottom: 3px solid #af4f35;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+/* IZQUIERDA */
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* MENU HAMBURGUESA */
+
+.menu-btn {
+  width: 48px;
+  height: 48px;
+
+  border: none;
+
+  border-radius: 14px;
+
+  background: rgba(255,255,255,0.08);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  gap: 5px;
+
+  cursor: pointer;
+
+  transition:
+    background .2s ease,
+    transform .2s ease;
+}
+
+.menu-btn:hover {
+  background: rgba(255,255,255,0.16);
+
+  transform: scale(1.04);
+}
+
+.menu-btn span {
+  width: 22px;
+  height: 2px;
+
+  border-radius: 999px;
+
+  background: white;
+
+  transition: .2s ease;
+}
+
+/* LOGO */
+
+.logo-img {
+  width: 52px;
+  height: 52px;
+
+  border-radius: 50%;
+
+  object-fit: cover;
+
+  background: white;
+}
+
+/* TITULOS */
+
+.brand-title {
+  margin: 0;
+
+  color: white;
+
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.brand-subtitle {
+  margin: 2px 0 0;
+
+  color: #eec997;
+
+  font-size: 11px;
+
+  text-transform: uppercase;
+
+  letter-spacing: 2px;
+}
+
+/* DERECHA */
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* AGENCIA */
+
+.agency-badge {
+  padding: 10px 16px;
+
+  border-radius: 12px;
+
+  background: rgba(255,255,255,0.1);
+
+  color: white;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  backdrop-filter: blur(10px);
+}
+
+/* =========================================================
+SIDEBAR OCULTO
+========================================================= */
+
+/* =========================================================
+SIDEBAR
+========================================================= */
+
+.sidebar {
+  position: fixed;
+
+  top: 78px;
+  left: 0;
+
+  width: 290px;
+  height: calc(100vh - 78px);
+
+  background: #384752;
+
+  border-right: 1px solid rgba(255,255,255,0.08);
+
+  padding: 24px 18px;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 10px;
+
+  transform: translateX(-100%);
+
+  opacity: 0;
+
+  transition:
+    transform .35s cubic-bezier(.22,.61,.36,1),
+    opacity .25s ease;
+
+  z-index: 60;
+
+  box-shadow:
+    0 20px 40px rgba(0,0,0,.18);
+}
+
+/* OPEN */
+
+.sidebar.open {
+  transform: translateX(0);
+
+  opacity: 1;
+}
+
+
+/* =========================================================
+ITEMS
+========================================================= */
+.sidebar-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.08);
+  margin: 8px 0;
+}
+.sidebar-item {
+  height: 54px;
+
+  border-radius: 16px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 0 18px;
+
+  color: rgba(255,255,255,0.82);
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  background: transparent;
+
+  opacity: 0;
+
+  transform: translateX(-18px);
+
+  transition:
+    background .22s ease,
+    transform .22s ease,
+    color .22s ease;
+}
+
+/* =========================================================
+STAGGER ANIMATION
+========================================================= */
+
+.sidebar.open .sidebar-item {
+  animation: staggerItem .45s forwards;
+}
+
+.sidebar.open .sidebar-item:nth-child(1) {
+  animation-delay: .05s;
+}
+
+.sidebar.open .sidebar-item:nth-child(2) {
+  animation-delay: .10s;
+}
+
+.sidebar.open .sidebar-item:nth-child(3) {
+  animation-delay: .15s;
+}
+
+.sidebar.open .sidebar-item:nth-child(4) {
+  animation-delay: .20s;
+}
+
+.sidebar.open .sidebar-item:nth-child(5) {
+  animation-delay: .25s;
+}
+
+/* =========================================================
+KEYFRAMES
+========================================================= */
+
+@keyframes staggerItem {
+
+  from {
+    opacity: 0;
+    transform: translateX(-18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+}
+
+/* =========================================================
+HOVER
+========================================================= */
+
+.sidebar-item:hover {
+  background: rgba(255,255,255,0.08);
+
+  transform: translateX(4px);
+
+  color: white;
+}
+
+/* =========================================================
+ACTIVE
+========================================================= */
+
+.sidebar-item.active {
+  background:
+    linear-gradient(
+      135deg,
+      #af4f35,
+      #e4912e
+    );
+
+  color: white;
+
+  box-shadow:
+    0 12px 24px rgba(175,79,53,.22);
+}
+
+/* =========================================================
+OVERLAY
+========================================================= */
+
+.sidebar-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  background: rgba(15,23,42,0.45);
+
+  backdrop-filter: blur(3px);
+
+  opacity: 0;
+  visibility: hidden;
+
+  transition: .25s ease;
+
+  z-index: 50;
+}
+
+.sidebar-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+/* =========================================================
+RESPONSIVE
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .topbar {
+    padding: 0 16px;
+  }
+
+  .brand-title {
+    font-size: 18px;
+  }
+
+  .agency-badge {
+    display: none;
+  }
+
+  .sidebar {
+    width: 86%;
+  }
+
+}

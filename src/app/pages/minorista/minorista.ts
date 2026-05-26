@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-minorista',
-  imports: [],
-  templateUrl: './minorista.html',
-  styleUrl: './minorista.css',
+  standalone: true,
+  imports: [RouterOutlet],
+  template: `<router-outlet></router-outlet>`
 })
-export class Minorista {}
+export class Minorista { } // <--- EL NOMBRE AQUÍ DEBE SER EXACTAMENTE "Minorista"
