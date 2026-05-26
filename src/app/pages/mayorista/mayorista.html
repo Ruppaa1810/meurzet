@@ -1,3 +1,36 @@
-<h1 class="text-5xl font-bold p-10">
-  PANEL MAYORISTA
-</h1>
+<div style="padding: 2rem; font-family: 'Inter', sans-serif; max-width: 1200px; margin: 0 auto;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+      <h1 style="font-size: 1.75rem; font-weight: 800; color: #384752; margin: 0;">
+        Panel Mayorista
+      </h1>
+      <p style="color: #64748b; margin-top: 0.25rem;">
+        Bienvenido, {{ perfil?.nombre || 'Mayorista' }}
+      </p>
+    </div>
+    <button (click)="logout()"
+      style="padding: 0.5rem 1.25rem; border-radius: 0.75rem; background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; font-weight: 600; font-size: 0.85rem; cursor: pointer;">
+      Cerrar Sesión
+    </button>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+    <div style="background: white; border-radius: 1rem; padding: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+      <div style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b;">Viajes Disponibles</div>
+      <div style="font-size: 2rem; font-weight: 800; color: #384752;">{{ viajes.length }}</div>
+    </div>
+  </div>
+
+  <h2 style="font-size: 1.1rem; font-weight: 700; color: #384752; margin-bottom: 1rem;">Viajes</h2>
+  <div style="display: grid; gap: 1rem;">
+    @for (viaje of viajes; track viaje.id) {
+      <div style="background: white; border-radius: 1rem; padding: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div style="font-weight: 700;">{{ viaje.origen }} → {{ viaje.destino }}</div>
+          <div style="font-size: 0.85rem; color: #64748b;">{{ viaje.fecha_salida | date:'dd/MM/yyyy HH:mm' }}</div>
+        </div>
+        <div style="font-weight: 800; color: #af4f35; font-size: 1.1rem;">{{ formatPrecio(viaje.precio_base) }}</div>
+      </div>
+    }
+  </div>
+</div>

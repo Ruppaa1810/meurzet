@@ -1,397 +1,119 @@
-<!-- =========================================================
-TOPBAR
-========================================================= -->
-
 <header class="topbar">
-
   <div class="topbar-left">
-
-    <!-- MENU -->
-
     <button class="menu-btn">
       <span></span>
       <span></span>
       <span></span>
     </button>
-
-    <!-- LOGO -->
-
-    <img
-      src="/logo.jpeg"
-      class="logo-img"
-    />
-
-    <!-- BRAND -->
-
+    <img src="/logo.jpeg" class="logo-img" />
     <div>
-      <h1 class="brand-title">
-        Meurzet
-      </h1>
-
-      <p class="brand-subtitle">
-        Portal Minorista
-      </p>
+      <h1 class="brand-title">Meurzet</h1>
+      <p class="brand-subtitle">Portal Minorista</p>
     </div>
-
   </div>
-
-  <!-- RIGHT -->
-
   <div class="topbar-right">
-
-    <div class="agency-badge">
-      Agencia Norte
-    </div>
-
+    <div class="agency-badge">{{ perfil?.agencia_nombre || perfil?.nombre || 'Minorista' }}</div>
   </div>
-
 </header>
-
-<!-- =========================================================
-OVERLAY
-========================================================= -->
 
 <div class="sidebar-overlay"></div>
 
-<!-- =========================================================
-SIDEBAR
-========================================================= -->
-
 <aside class="sidebar">
-
-  <div class="sidebar-item active">
-    Inicio
-  </div>
-
-  <div class="sidebar-item">
-    Reservas de Hoy
-  </div>
-
-  <div class="sidebar-item">
-    Próximas Reservas
-  </div>
-
-  <div class="sidebar-item">
-    Historial
-  </div>
-
-  <div class="sidebar-item">
-    Pagos Pendientes
-  </div>
-
+  <div class="sidebar-item active">Inicio</div>
+  <div class="sidebar-item">Reservas de Hoy</div>
+  <div class="sidebar-item">Próximas Reservas</div>
+  <div class="sidebar-item">Historial</div>
+  <div class="sidebar-item">Pagos Pendientes</div>
   <div class="sidebar-divider"></div>
-
-  <button class="sidebar-logout">
-    Cerrar Sesión
-  </button>
-
+  <button class="sidebar-logout" (click)="logout()">Cerrar Sesión</button>
 </aside>
 
-<!-- =========================================================
-LAYOUT
-========================================================= -->
-
-<div class="inicio-layout">
-
-  <!-- =========================================================
-  BUSCADOR
-  ========================================================= -->
-
-  <aside class="search-panel">
-
-    <!-- HEADER -->
-
-    <div class="search-header">
-
-      <h2>
-        Buscar Pasajes
-      </h2>
-
-      <p>
-        Consultá servicios disponibles y seleccioná asientos.
-      </p>
-
-    </div>
-
-    <!-- GRID -->
-
-    <div class="search-grid">
-
-      <!-- ORIGEN -->
-
-      <div class="field-group">
-
-        <label>
-          Origen
-        </label>
-
-        <input
-          type="text"
-          placeholder="Mendoza"
-        />
-
+@if (loading) {
+  <div style="display: flex; align-items: center; justify-content: center; height: 60vh; font-family: 'Inter', sans-serif;">
+    <p style="font-size: 1.125rem; font-weight: 600; color: #64748b;">Cargando viajes...</p>
+  </div>
+} @else if (todosViajes.length === 0) {
+  <div style="display: flex; align-items: center; justify-content: center; height: 60vh; font-family: 'Inter', sans-serif; flex-direction: column; gap: 1rem;">
+    <p style="font-size: 1.125rem; font-weight: 600; color: #64748b;">No hay viajes disponibles</p>
+    <p style="font-size: 0.875rem; color: #94a3b8;">Ejecutá el script seed.sql en Supabase</p>
+  </div>
+} @else {
+  <div class="inicio-layout">
+    <aside class="search-panel">
+      <div class="search-header">
+        <h2>Buscar Pasajes</h2>
+        <p>Consultá servicios disponibles y seleccioná asientos.</p>
       </div>
-
-      <!-- DESTINO -->
-
-      <div class="field-group">
-
-        <label>
-          Destino
-        </label>
-
-        <input
-          type="text"
-          placeholder="Buenos Aires"
-        />
-
-      </div>
-
-      <!-- FECHA -->
-
-      <div class="field-group">
-
-        <label>
-          Fecha
-        </label>
-
-        <input
-          type="date"
-        />
-
-      </div>
-
-      <!-- HORARIO -->
-
-      <div class="field-group">
-
-        <label>
-          Horario
-        </label>
-
-        <select>
-          <option>
-            Todos los horarios
-          </option>
-
-          <option>
-            Mañana
-          </option>
-
-          <option>
-            Tarde
-          </option>
-
-          <option>
-            Noche
-          </option>
-        </select>
-
-      </div>
-
-      <!-- BOTON -->
-
-      <button class="search-btn">
-        Buscar Viajes
-      </button>
-
-    </div>
-
-  </aside>
-
-  <!-- =========================================================
-  RESULTADOS
-  ========================================================= -->
-
-  <main class="results-panel">
-
-    <!-- HEADER -->
-
-    <div class="results-header">
-
-      <div>
-
-        <h2>
-          Viajes Disponibles
-        </h2>
-
-        <p>
-          Seleccioná un servicio para continuar con la reserva.
-        </p>
-
-      </div>
-
-      <div class="results-count">
-        3 servicios
-      </div>
-
-    </div>
-
-    <!-- =========================================================
-    LISTA
-    ========================================================= -->
-
-    <div class="results-list">
-
-      <!-- =========================================================
-      CARD 1
-      ========================================================= -->
-
-      <div class="trip-card">
-
-        <div class="trip-main">
-
-          <!-- RUTA -->
-
-          <div class="trip-route">
-
-            <div class="city">
-              Mendoza
-            </div>
-
-            <div class="trip-line"></div>
-
-            <div class="city">
-              Buenos Aires
-            </div>
-
-          </div>
-
-          <!-- INFO -->
-
-          <div class="trip-info">
-
-            <div class="trip-block">
-              <span>Salida</span>
-              <strong>21:30 hs</strong>
-            </div>
-
-            <div class="trip-block">
-              <span>Llegada</span>
-              <strong>09:15 hs</strong>
-            </div>
-
-            <div class="trip-block">
-              <span>Servicio</span>
-              <strong>Cama Ejecutivo</strong>
-            </div>
-
-            <div class="trip-block">
-              <span>Disponibles</span>
-
-              <strong class="free-seats">
-                46 asientos
-              </strong>
-            </div>
-
-          </div>
-
+      <div class="search-grid">
+        <div class="field-group">
+          <label>Origen</label>
+          <input type="text" [(ngModel)]="filtroOrigen" name="origen" placeholder="Mendoza" />
         </div>
-
-        <!-- ACTIONS -->
-
-        <div class="trip-actions">
-
-          <div class="trip-price">
-            $ 48.500
-          </div>
-
-          <button class="select-btn">
-            Seleccionar Asientos
-          </button>
-
+        <div class="field-group">
+          <label>Destino</label>
+          <input type="text" [(ngModel)]="filtroDestino" name="destino" placeholder="Buenos Aires" />
         </div>
+        <div class="field-group">
+          <label>Fecha</label>
+          <input type="date" [(ngModel)]="filtroFecha" name="fecha" />
+        </div>
+        <div class="field-group">
+          <label>Horario</label>
+          <select [(ngModel)]="filtroHorario" name="horario">
+            <option value="todos">Todos los horarios</option>
+            <option value="manana">Mañana</option>
+            <option value="tarde">Tarde</option>
+            <option value="noche">Noche</option>
+          </select>
+        </div>
+        <button class="search-btn" (click)="buscarViajes()">Buscar Viajes</button>
+      </div>
+    </aside>
 
+    <main class="results-panel">
+      <div class="results-header">
+        <div>
+          <h2>Viajes Disponibles</h2>
+          <p>Seleccioná un servicio para continuar con la reserva.</p>
+        </div>
+        <div class="results-count">{{ viajesFiltrados.length }} servicio{{ viajesFiltrados.length !== 1 ? 's' : '' }}</div>
       </div>
 
-      <!-- =========================================================
-      CARD 2
-      ========================================================= -->
-
-      <div class="trip-card">
-
-        <div class="trip-main">
-
-          <!-- RUTA -->
-
-          <div class="trip-route">
-
-            <div class="city">
-              Mendoza
+      <div class="results-list">
+        @for (viaje of viajesFiltrados; track viaje.id) {
+          <div class="trip-card">
+            <div class="trip-main">
+              <div class="trip-route">
+                <div class="city">{{ viaje.origen }}</div>
+                <div class="trip-line"></div>
+                <div class="city">{{ viaje.destino }}</div>
+              </div>
+              <div class="trip-info">
+                <div class="trip-block">
+                  <span>Salida</span>
+                  <strong>{{ formatHora(viaje.fecha_salida) }} hs</strong>
+                </div>
+                <div class="trip-block">
+                  <span>Llegada</span>
+                  <strong>{{ formatHora(viaje.fecha_llegada) }} hs</strong>
+                </div>
+                <div class="trip-block">
+                  <span>Servicio</span>
+                  <strong>Cama Ejecutivo</strong>
+                </div>
+                <div class="trip-block">
+                  <span>Disponibles</span>
+                  <strong class="free-seats">Consultar</strong>
+                </div>
+              </div>
             </div>
-
-            <div class="trip-line"></div>
-
-            <div class="city">
-              Buenos Aires
+            <div class="trip-actions">
+              <div class="trip-price">{{ formatPrecio(viaje.precio_base) }}</div>
+              <button class="select-btn" [routerLink]="['/minorista/seleccion', viaje.id]">Seleccionar Asientos</button>
             </div>
-
           </div>
-
-          <!-- INFO -->
-
-          <div class="trip-info">
-
-            <div class="trip-block">
-              <span>Salida</span>
-              <strong>23:00 hs</strong>
-            </div>
-
-            <div class="trip-block">
-              <span>Llegada</span>
-              <strong>10:40 hs</strong>
-            </div>
-
-            <div class="trip-block">
-              <span>Servicio</span>
-              <strong>Semicama</strong>
-            </div>
-
-            <div class="trip-block">
-              <span>Disponibles</span>
-
-              <strong class="free-seats">
-                21 asientos
-              </strong>
-            </div>
-
-          </div>
-
-        </div>
-
-        <!-- ACTIONS -->
-
-        <div class="trip-actions">
-
-          <div class="trip-price">
-            $ 39.900
-          </div>
-
-          <button class="select-btn">
-            Seleccionar Asientos
-          </button>
-
-        </div>
-
+        }
       </div>
-
-    </div>
-
-  </main>
-<script>
-  const menuBtn = document.querySelector('.menu-btn');
-  const sidebar = document.querySelector('.sidebar');
-  const overlay = document.querySelector('.sidebar-overlay');
-
-  menuBtn.addEventListener('click', () => {
-    sidebar.classList.toggle('open');
-    overlay.classList.toggle('show');
-  });
-
-  overlay.addEventListener('click', () => {
-    sidebar.classList.remove('open');
-    overlay.classList.remove('show');
-  });
-</script>
-
-</div>
+    </main>
+  </div>
+}

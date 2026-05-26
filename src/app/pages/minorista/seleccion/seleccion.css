@@ -891,17 +891,6 @@ AMENITIES
   gap: 10px;
 }
 
-/* BAJA */
-
-.pb-interior .bus-amenities-row {
-  display: flex;
-  flex-direction: column;
-
-  align-items: flex-end;
-
-  gap: 10px;
-}
-
 /* =========================================================
 BOXES
 ========================================================= */
@@ -1203,6 +1192,12 @@ CONTINUE BAR
 
   box-shadow:
     0 10px 22px rgba(175,79,53,.28);
+}
+
+.continue-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 /* =========================================================

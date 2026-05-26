@@ -1,34 +1,36 @@
-<!-- TOPBAR -->
 <header class="topbar">
   <div class="topbar-left">
     <button class="menu-btn" aria-label="Menú"><span></span><span></span><span></span></button>
     <img src="/logo.jpeg" class="logo-img" alt="Meurzet" />
     <div>
       <h1 class="brand-title">Meurzet</h1>
-      <p class="brand-subtitle">Selección de Asientos</p>
+      <p class="brand-subtitle">Selecci&oacute;n de Asientos</p>
     </div>
-  </div> 
+  </div>
   <div class="topbar-right">
-    <div class="agency-badge">Agencia Norte</div>
+    <div class="agency-badge">{{ perfil?.agencia_nombre || perfil?.nombre || 'Minorista' }}</div>
   </div>
 </header>
 
-<!-- OVERLAY -->
 <div class="sidebar-overlay"></div>
 
-<!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="sidebar-item active">Reservar Pasajes</div>
   <div class="sidebar-item">Mis Reservas</div>
   <div class="sidebar-item">Pagos Pendientes</div>
   <div class="sidebar-item">Historial</div>
   <div class="sidebar-divider"></div>
-  <button class="sidebar-logout">Cerrar Sesión</button>
+  <button class="sidebar-logout" (click)="logout()">Cerrar Sesi&oacute;n</button>
 </aside>
 
-<!-- CONTENT WRAPPER -->
+@if (loading) {
+  <div class="content-wrapper" style="display: flex; align-items: center; justify-content: center; height: 60vh;">
+    <p style="font-size: 1.125rem; font-weight: 600; color: #64748b;">Cargando asientos...</p>
+  </div>
+} @else {
+
 <div class="content-wrapper">
-  <!-- PANEL LATERAL DEL VIAJE -->
+
   <aside class="trip-panel">
     <div class="trip-panel-inner">
       <div class="trip-panel-logo">
@@ -37,374 +39,195 @@
         <div class="trip-dot"></div>
       </div>
       <div class="trip-panel-data">
-        <div class="trip-panel-city">Mendoza</div>
+        <div class="trip-panel-city">{{ viaje?.origen }}</div>
         <div class="trip-panel-blocks">
           <div class="trip-panel-block">
             <span>Salida</span>
-            <strong>21:30 hs</strong>
+            <strong>{{ viaje ? formatHora(viaje.fecha_salida) : '' }} hs</strong>
           </div>
           <div class="trip-panel-block">
             <span>Fecha</span>
-            <strong>15 Jun</strong>
+            <strong>{{ viaje ? (viaje.fecha_salida | date: 'dd MMM') : '' }}</strong>
           </div>
         </div>
-        <div class="trip-panel-city dest">Buenos Aires</div>
+        <div class="trip-panel-city dest">{{ viaje?.destino }}</div>
         <div class="trip-panel-blocks">
           <div class="trip-panel-block">
             <span>Llegada</span>
-            <strong>09:15 hs</strong>
+            <strong>{{ viaje ? formatHora(viaje.fecha_llegada) : '' }} hs</strong>
           </div>
           <div class="trip-panel-block">
-            <span>Duración</span>
-            <strong>11:45 hs</strong>
+            <span>Disponibles</span>
+            <strong class="avail-tag">{{ asientosLibres }} asientos</strong>
           </div>
         </div>
         <div class="trip-panel-divider"></div>
         <div class="trip-panel-block full">
-          <span>Servicio</span>
-          <strong>Cama Ejecutivo</strong>
-        </div>
-        <div class="trip-panel-block full">
           <span>Precio base</span>
-          <strong class="price-tag">$ 48.500</strong>
-        </div>
-        <div class="trip-panel-block full">
-          <span>Disponibles</span>
-          <strong class="avail-tag">46 asientos</strong>
+          <strong class="price-tag">{{ viaje ? formatPrecio(viaje.precio_base) : '' }}</strong>
         </div>
       </div>
     </div>
   </aside>
 
-  <!-- MAIN COLECTIVO -->
   <main class="bus-main">
-    <!-- HEADER -->
+
     <div class="bus-main-header">
       <div>
-        <h2 class="section-title">Distribución de Asientos</h2>
-        <p class="section-sub">Doble piso · Hacé clic en un asiento libre para seleccionarlo</p>
+        <h2 class="section-title">Distribuci&oacute;n de Asientos</h2>
+        <p class="section-sub">Doble piso &middot; Hac&eacute; clic en un asiento libre para seleccionarlo</p>
       </div>
-      <!-- LEYENDA -->
       <div class="legend">
-        <div class="legend-item">
-          <div class="legend-dot free"></div>
-          <span>Libre</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-dot occupied"></div>
-          <span>Ocupado</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-dot blocked"></div>
-          <span>Bloqueado</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-dot selected"></div>
-          <span>Seleccionado</span>
-        </div>
+        <div class="legend-item"><div class="legend-dot free"></div><span>Libre</span></div>
+        <div class="legend-item"><div class="legend-dot occupied"></div><span>Ocupado</span></div>
+        <div class="legend-item"><div class="legend-dot blocked"></div><span>Bloqueado</span></div>
+        <div class="legend-item"><div class="legend-dot selected"></div><span>Seleccionado</span></div>
       </div>
     </div>
 
-    <!-- DOS PLANTAS LADO A LADO -->
     <div class="buses-row">
-     <!-- ===== PLANTA BAJA ===== -->
-<div class="bus-wrap">
-  <h3 class="bus-floor-title">Planta <strong>Baja</strong></h3>
 
-  <div class="bus-body pb">
-
-    <!-- NARIZ -->
-    <div class="bus-nose">
-
-      <div class="windshield">
-        <div class="ws-left"></div>
-        <div class="ws-right"></div>
-      </div>
-
-      <div class="bus-nose-details">
-
-        <div class="steering-wrap">
-          <div class="steering-big">
-            <div class="steering-hub"></div>
-          </div>
-
-          <span class="driver-label">Chofer</span>
-        </div>
-
-        <div class="companion-wrap">
-          <div class="companion-seat">
-            <div class="companion-icon"></div>
-          </div>
-
-          <span class="companion-label">Acomp.</span>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- INTERIOR -->
-    <div class="bus-interior pb-interior">
-
-      <!-- IZQUIERDA -->
-      <div class="bus-col-izq">
-
-        <div class="bus-amenity wc-box">
-          <span class="amenity-icon">WC</span>
-          <span class="amenity-label">Baño</span>
-        </div>
-
-        <div class="seats-col">
-
-          <div class="seat-pair">
-            <button class="seat seat-free">63</button>
-            <button class="seat seat-free">64</button>
-          </div>
-
-          <div class="seat-pair">
-            <button class="seat seat-free">65</button>
-            <div class="seat seat-occupied">66</div>
-          </div>
-
-          <div class="seat-pair">
-            <div class="seat seat-blocked">67</div>
-            <button class="seat seat-free">68</button>
-          </div>
-
-          <div class="seat-pair">
-            <button class="seat seat-free">69</button>
-            <button class="seat seat-free">70</button>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- PASILLO -->
-      <div class="aisle pb-aisle">
-        <div class="aisle-line"></div>
-      </div>
-
-      <!-- DERECHA -->
-      <div class="bus-col-der">
-
-        <!-- amenities -->
-        <div class="bus-amenities-col">
-
-          <div class="bus-amenity stairs-box">
-            <span class="amenity-icon">↑</span>
-            <span class="amenity-label">Esc.</span>
-          </div>
-
-          <div class="bus-amenity door-box">
-            <span class="amenity-icon">▷</span>
-            <span class="amenity-label">Puerta</span>
-          </div>
-
-        </div>
-
-        <!-- asientos + equipaje -->
-        <div class="der-seats-luggage">
-
-          <!-- asientos -->
-          <div class="seats-col single">
-
-            <div class="seat-pair">
-              <button class="seat seat-free">71</button>
-            </div>
-
-            <div class="seat-pair">
-              <button class="seat seat-free">72</button>
-            </div>
-
-            <div class="seat-pair">
-              <button class="seat seat-selected">73</button>
-            </div>
-
-            <div class="seat-pair">
-              <button class="seat seat-free">74</button>
-            </div>
-
-          </div>
-
-          <!-- equipaje lateral -->
-          <div class="luggage-side">
-
-            <div class="luggage-box-v"></div>
-            <div class="luggage-box-v"></div>
-            <div class="luggage-box-v"></div>
-
-            <span class="luggage-label-v">EQ</span>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-
-    <!-- COLA -->
-    <div class="bus-tail">
-      <div class="tail-light left"></div>
-      <div class="tail-light right"></div>
-    </div>
-
-  </div>
-</div>
-      <!-- ===== PLANTA ALTA ===== -->
+      <!-- ===== PLANTA BAJA ===== -->
       <div class="bus-wrap">
-        <h3 class="bus-floor-title">Planta <strong>Alta</strong></h3>
+        <h3 class="bus-floor-title">Planta <strong>Baja</strong></h3>
 
-        <div class="bus-body pa">
-          <!-- NARIZ PLANTA ALTA (sin chofer) -->
-          <div class="bus-nose pa-nose">
-            <div class="pa-nose-label">Frente</div>
+        <div class="bus-body pb">
+
+          <div class="bus-nose">
+            <div class="windshield">
+              <div class="ws-left"></div>
+              <div class="ws-right"></div>
+            </div>
+            <div class="bus-nose-details">
+              <div class="steering-wrap">
+                <div class="steering-big"><div class="steering-hub"></div></div>
+                <span class="driver-label">Chofer</span>
+              </div>
+              <div class="companion-wrap">
+                <div class="companion-seat"><div class="companion-icon"></div></div>
+                <span class="companion-label">Acomp.</span>
+              </div>
+            </div>
           </div>
 
-          <!-- CUERPO -->
-          <div class="bus-interior pa-interior">
-            <!-- IZQ -->
+          <div class="bus-interior pb-interior">
             <div class="bus-col-izq">
+              <div class="bus-amenity wc-box">
+                <span class="amenity-icon">WC</span>
+                <span class="amenity-label">Ba&ntilde;o</span>
+              </div>
               <div class="seats-col">
-                <div class="seat-pair">
-                  <button class="seat seat-free">1</button><button class="seat seat-free">2</button>
-                </div>
-                <div class="seat-pair">
-                  <button class="seat seat-free">5</button><button class="seat seat-free">6</button>
-                </div>
-                <div class="seat-pair">
-                  <button class="seat seat-free">9</button
-                  ><button class="seat seat-free">10</button>
-                </div>
-                <div class="seat-pair">
-                  <button class="seat seat-free">13</button
-                  ><button class="seat seat-free">14</button>
-                </div>
-                <div class="seat-pair">
-                  <button class="seat seat-free">17</button
-                  ><button class="seat seat-free">18</button>
-                </div>
-                <div class="seat-pair">
-                  <button class="seat seat-free">21</button
-                  ><button class="seat seat-free">22</button>
-                </div>
-                <div class="seat-pair">
-                  <button class="seat seat-free">25</button
-                  ><button class="seat seat-free">26</button>
-                </div>
-                <div class="seat-pair">
-                  <button class="seat seat-free">29</button
-                  ><button class="seat seat-free">30</button>
-                </div>
-                <div class="seat-pair">
-                  <button class="seat seat-free">33</button
-                  ><button class="seat seat-free">34</button>
-                </div>
-                <div class="seat-pair">
-                  <button class="seat seat-free">37</button
-                  ><button class="seat seat-free">38</button>
-                </div>
-                <div class="seat-pair">
-                  <button class="seat seat-free">41</button
-                  ><button class="seat seat-free">42</button>
-                </div>
+                @for (pair of seatRowsIzq(1); track pair[0].id) {
+                  <div class="seat-pair">
+                    <button class="seat {{ seatClasses(pair[0]) }}" (click)="toggleSeat(pair[0])" [disabled]="pair[0].estado !== 'libre'">{{ pair[0].nro_asiento }}</button>
+                    <button class="seat {{ seatClasses(pair[1]) }}" (click)="toggleSeat(pair[1])" [disabled]="pair[1].estado !== 'libre'">{{ pair[1].nro_asiento }}</button>
+                  </div>
+                }
               </div>
             </div>
 
-            <!-- PASILLO -->
-            <div class="aisle pa-aisle">
+            <div class="aisle pb-aisle">
               <div class="aisle-line"></div>
             </div>
 
-            <!-- DER -->
             <div class="bus-col-der">
-              <div class="seats-col">
-                <div class="seat-pair">
-                  <button class="seat seat-free">3</button
-                  ><button class="seat seat-occupied">4</button>
+              <div class="bus-amenities-col">
+                <div class="bus-amenity stairs-box">
+                  <span class="amenity-icon">&uarr;</span>
+                  <span class="amenity-label">Esc.</span>
                 </div>
-                <div class="bus-amenity stairs-box stairs-pa">
-                  <span class="amenity-icon">↓</span>
-                  <span class="amenity-label">Escalera</span>
+                <div class="bus-amenity door-box">
+                  <span class="amenity-icon">▷</span>
+                  <span class="amenity-label">Puerta</span>
                 </div>
-                <div class="seat-pair">
-                  <button class="seat seat-free">7</button><button class="seat seat-free">8</button>
-                </div>
-                <div class="seat-pair">
-                  <button class="seat seat-free">11</button
-                  ><button class="seat seat-free">12</button>
-                </div>
-                <div class="seat-pair">
-                  <button class="seat seat-free">15</button
-                  ><button class="seat seat-free">16</button>
-                </div>
-                <div class="seat-pair">
-                  <button class="seat seat-free">19</button
-                  ><button class="seat seat-blocked">20</button>
-                </div>
-                <div class="seat-pair">
-                  <button class="seat seat-free">23</button
-                  ><button class="seat seat-free">24</button>
-                </div>
-                <div class="seat-pair">
-                  <button class="seat seat-free">27</button
-                  ><button class="seat seat-free">28</button>
-                </div>
-                <div class="seat-pair">
-                  <button class="seat seat-free">31</button
-                  ><button class="seat seat-free">32</button>
-                </div>
-                <div class="seat-pair">
-                  <button class="seat seat-free">35</button
-                  ><button class="seat seat-free">36</button>
-                </div>
-                <div class="seat-pair">
-                  <button class="seat seat-free">39</button
-                  ><button class="seat seat-free">40</button>
-                </div>
+              </div>
+              <div class="seats-col single">
+                @for (pair of seatRowsDer(1); track pair[0].id) {
+                  <div class="seat-pair">
+                    <button class="seat {{ seatClasses(pair[0]) }}" (click)="toggleSeat(pair[0])" [disabled]="pair[0].estado !== 'libre'">{{ pair[0].nro_asiento }}</button>
+                    <button class="seat {{ seatClasses(pair[1]) }}" (click)="toggleSeat(pair[1])" [disabled]="pair[1].estado !== 'libre'">{{ pair[1].nro_asiento }}</button>
+                  </div>
+                }
               </div>
             </div>
           </div>
 
-          <!-- COLA -->
+          <div class="luggage-area">
+            <div class="luggage-grid">
+              <div class="luggage-box"></div>
+              <div class="luggage-box"></div>
+              <div class="luggage-box"></div>
+            </div>
+            <span class="luggage-label">Guardaequipaje</span>
+          </div>
+
           <div class="bus-tail">
             <div class="tail-light left"></div>
             <div class="tail-light right"></div>
           </div>
         </div>
       </div>
+
+      <!-- ===== PLANTA ALTA ===== -->
+      <div class="bus-wrap">
+        <h3 class="bus-floor-title">Planta <strong>Alta</strong></h3>
+
+        <div class="bus-body pa">
+
+          <div class="bus-nose pa-nose">
+            <div class="pa-nose-label">Frente</div>
+          </div>
+
+          <div class="bus-interior pa-interior">
+            <div class="bus-col-izq">
+              <div class="seats-col">
+                @for (pair of seatRowsIzq(2); track pair[0].id) {
+                  <div class="seat-pair">
+                    <button class="seat {{ seatClasses(pair[0]) }}" (click)="toggleSeat(pair[0])" [disabled]="pair[0].estado !== 'libre'">{{ pair[0].nro_asiento }}</button>
+                    <button class="seat {{ seatClasses(pair[1]) }}" (click)="toggleSeat(pair[1])" [disabled]="pair[1].estado !== 'libre'">{{ pair[1].nro_asiento }}</button>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <div class="aisle pa-aisle">
+              <div class="aisle-line"></div>
+            </div>
+
+            <div class="bus-col-der">
+              <div class="seats-col">
+                <div class="bus-amenity stairs-box stairs-pa">
+                  <span class="amenity-icon">&darr;</span>
+                  <span class="amenity-label">Escalera</span>
+                </div>
+                @for (pair of seatRowsDer(2); track pair[0].id) {
+                  <div class="seat-pair">
+                    <button class="seat {{ seatClasses(pair[0]) }}" (click)="toggleSeat(pair[0])" [disabled]="pair[0].estado !== 'libre'">{{ pair[0].nro_asiento }}</button>
+                    <button class="seat {{ seatClasses(pair[1]) }}" (click)="toggleSeat(pair[1])" [disabled]="pair[1].estado !== 'libre'">{{ pair[1].nro_asiento }}</button>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="bus-tail">
+            <div class="tail-light left"></div>
+            <div class="tail-light right"></div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <!-- BARRA CONTINUAR -->
     <div class="continue-bar">
       <div class="continue-info">
         <span class="continue-label">Asiento seleccionado</span>
-        <span class="continue-seat">73 — Planta Baja · Cama Ejecutivo</span>
+        <span class="continue-seat">{{ seatLabel }}</span>
       </div>
-      <button class="continue-btn">Continuar con la reserva →</button>
+      <button class="continue-btn" [class.disabled]="!selectedSeat" (click)="continuarReserva()">Continuar con la reserva &rarr;</button>
     </div>
+
   </main>
 </div>
 
-<script>
-  const menuBtn = document.querySelector('.menu-btn');
-  const sidebar = document.querySelector('.sidebar');
-  const overlay = document.querySelector('.sidebar-overlay');
-  menuBtn?.addEventListener('click', () => {
-    sidebar?.classList.toggle('open');
-    overlay?.classList.toggle('show');
-  });
-  overlay?.addEventListener('click', () => {
-    sidebar?.classList.remove('open');
-    overlay?.classList.remove('show');
-  });
-  document.querySelectorAll('.seat-free').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.seat-selected').forEach((s) => {
-        s.classList.remove('seat-selected');
-        s.classList.add('seat-free');
-      });
-      btn.classList.remove('seat-free');
-      btn.classList.add('seat-selected');
-    });
-  });
-</script>
+}

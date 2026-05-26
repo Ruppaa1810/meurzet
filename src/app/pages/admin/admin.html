@@ -127,6 +127,17 @@
         </svg>
         Mayoristas
       </a>
+      <a class="nav-item" (click)="logout()" style="cursor: pointer; margin-top: auto; color: #f87171;">
+        <svg
+          style="width: 1.1rem; height: 1.1rem"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+        Cerrar Sesión
+      </a>
     </nav>
 
     <div
@@ -142,8 +153,8 @@
         <img src="/logo.jpeg" alt="Admin" style="width: 100%; height: 100%; object-fit: cover" />
       </div>
       <div>
-        <div style="font-size: 0.8rem; font-weight: 600">Administrador</div>
-        <div style="font-size: 0.65rem; color: var(--color-meurzet-gray)">admin@meurzet.com</div>
+        <div style="font-size: 0.8rem; font-weight: 600">{{ nombreUsuario }}</div>
+        <div style="font-size: 0.65rem; color: var(--color-meurzet-gray)">{{ emailUsuario }}</div>
       </div>
     </div>
   </div>
@@ -317,7 +328,7 @@
               >Urgente</span
             >
           </div>
-          <div class="card-number" style="color: var(--color-meurzet-accent)">5</div>
+          <div class="card-number" style="color: var(--color-meurzet-accent)">{{ viajesActivos }}</div>
         </div>
 
         <div class="card">
@@ -344,7 +355,7 @@
               >En curso</span
             >
           </div>
-          <div class="card-number" style="color: var(--color-meurzet-secondary)">12</div>
+          <div class="card-number" style="color: var(--color-meurzet-secondary)">{{ viajesActivos }}</div>
         </div>
 
         <div class="card">
@@ -371,7 +382,7 @@
               >Completado</span
             >
           </div>
-          <div class="card-number" style="color: #16a34a">24</div>
+          <div class="card-number" style="color: #16a34a">{{ reservasHoy }}</div>
         </div>
 
         <div class="card">
@@ -384,7 +395,7 @@
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
               "
-              >Confirmados hoy</span
+              >Unidades</span
             >
             <span
               style="
@@ -395,10 +406,10 @@
                 padding: 0.15rem 0.5rem;
                 border-radius: 4px;
               "
-              >Completado</span
+              >Disponibles</span
             >
           </div>
-          <div class="card-number" style="color: #0d9488">8</div>
+          <div class="card-number" style="color: #0d9488">{{ totalUnidades }}</div>
         </div>
       </div>
 
