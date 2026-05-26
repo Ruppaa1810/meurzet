@@ -251,8 +251,7 @@ export class SupabaseService {
   async getActividadReciente() {
     return await this.supabase
       .from('reservas')
-      .select('id, estado, created_at, viaje:viaje_id(origen, destino), asiento_viaje_id')
-      .not('asiento_viaje_id', 'is', null)
+      .select('id, estado, created_at, viaje:viaje_id(origen, destino)')
       .order('created_at', { ascending: false })
       .limit(10);
   }

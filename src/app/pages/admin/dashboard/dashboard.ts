@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -21,6 +21,7 @@ export class AdminDashboard implements OnInit {
   constructor(
     private supabaseService: SupabaseService,
     private router: Router,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   async ngOnInit() {
@@ -37,6 +38,7 @@ export class AdminDashboard implements OnInit {
     this.reservasHoy = confirmadasRes.count ?? 0;
     this.bloqueadosPorVendedor = bloqueadosRes.count ?? 0;
     if (actividadRes.data) this.actividadReciente = actividadRes.data;
+    this.cdr.detectChanges();
   }
 
   irA(ruta: string) {
