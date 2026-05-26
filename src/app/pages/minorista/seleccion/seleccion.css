@@ -806,6 +806,9 @@ COLUMNAS
 
   align-items: flex-start;
 }
+.pb-interior .bus-col-izq .seats-col {
+  margin-top: 40px;
+}
 
 .bus-col-der {
   display: flex;
@@ -1244,77 +1247,46 @@ RESPONSIVE
     width: 100%;
   }
 }
-/* =========================================================
-GUARDAEQUIPAJE
-========================================================= */
+.der-seats-luggage {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
 
-.luggage-area {
-
-  margin: 4px 18px 0;
-
-  height: 70px;
-
-  border-radius: 18px;
-
-  background:
-    linear-gradient(
-      to bottom,
-      rgba(56,71,82,0.04),
-      rgba(56,71,82,0.08)
-    );
-
-  border: 1px solid rgba(56,71,82,0.08);
-
+/* columna derecha */
+.seats-col.single {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-
   gap: 10px;
-
-  position: relative;
-
-  overflow: hidden;
 }
 
-/* GRID */
-
-.luggage-grid {
-
+/* equipaje SOLO abajo */
+.luggage-side {
   display: flex;
-  gap: 10px;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: flex-start;
+
+  gap: 5px;
+
+  /* baja el equipaje a la altura 73/74 */
+  margin-top: 178px;
+}
+.luggage-box-v {
+  width: 50px;
+  height: 30px;
+  border-radius: 5px;
+  background: linear-gradient(135deg, #cfd6dc, #b7c0c7);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 1px 3px rgba(0,0,0,0.06);
 }
 
-/* CAJAS */
-
-.luggage-box {
-
-  width: 46px;
-  height: 16px;
-
-  border-radius: 6px;
-
-  background:
-    linear-gradient(
-      135deg,
-      #cfd6dc,
-      #b7c0c7
-    );
-
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.8),
-    0 1px 3px rgba(0,0,0,0.06);
-}
-
-/* TEXTO */
-
-.luggage-label {
-
-  font-size: 9px;
+.luggage-label-v {
+  font-size: 7px;
   font-weight: 800;
-
   letter-spacing: 1px;
   text-transform: uppercase;
-
   color: #8c98a0;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
 }
