@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 
 import { SupabaseService } from '../../services/supabase.service';
 import type { Viaje, Perfil } from '../../models/database.types';
@@ -8,9 +8,8 @@ import type { Viaje, Perfil } from '../../models/database.types';
 @Component({
   selector: 'app-mayorista',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './mayorista.html',
-  styleUrl: './mayorista.css',
 })
 export class Mayorista implements OnInit {
   perfil: Perfil | null = null;
