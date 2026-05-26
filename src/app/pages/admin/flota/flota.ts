@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../../services/supabase.service';
+import { AuthStore } from '../../../services/auth-store.service';
 import type { Unidad } from '../../../models/database.types';
 
 @Component({
@@ -23,7 +24,12 @@ export class Flota implements OnInit {
   constructor(
     private supabaseService: SupabaseService,
     private cdr: ChangeDetectorRef,
-  ) {}
+    private authStore: AuthStore,
+  ) { }
+
+  get esAdmin(): boolean {
+    return this.authStore.rol === 'admin_mayorista';
+  }
 
   ngOnInit() {
     this.cargar();
@@ -55,6 +61,7 @@ export class Flota implements OnInit {
   }
 
   async guardar() {
+    if (!this.esAdmin) return;
     if (!this.form.patente.trim() || this.form.asientos_totales < 1) return;
 
     if (this.editando && this.editandoId != null) {
@@ -70,6 +77,7 @@ export class Flota implements OnInit {
   }
 
   async eliminar(id: number) {
+    if (!this.esAdmin) return;
     if (!confirm('¿Eliminar esta unidad?')) return;
     const { error } = await this.supabaseService.deleteUnidad(id);
     if (error) { this.mensaje = error.message; return; }

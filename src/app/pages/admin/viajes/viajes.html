@@ -2,10 +2,12 @@
 
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
     <h2 style="font-size: 1.5rem; font-weight: 700; color: #384752; margin: 0;">Gestión de Viajes</h2>
-    <button (click)="abrirModal()"
-      style="padding: 0.7rem 1.5rem; border-radius: 0.75rem; font-weight: 700; font-size: 0.9rem; color: white; background: linear-gradient(135deg, #af4f35, #e4912e); border: none; cursor: pointer;">
-      + Nuevo Viaje
-    </button>
+    @if (esAdmin) {
+      <button (click)="abrirModal()"
+        style="padding: 0.7rem 1.5rem; border-radius: 0.75rem; font-weight: 700; font-size: 0.9rem; color: white; background: linear-gradient(135deg, #af4f35, #e4912e); border: none; cursor: pointer;">
+        + Nuevo Viaje
+      </button>
+    }
   </div>
 
   <div style="background: white; border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); overflow: hidden;">
@@ -35,14 +37,18 @@
               </span>
             </td>
             <td style="padding: 1rem; text-align: right;">
-              <button (click)="abrirModal(v)"
-                style="padding: 0.4rem 0.8rem; border-radius: 0.5rem; font-size: 0.8rem; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; cursor: pointer; margin-right: 0.5rem;">
-                Editar
-              </button>
-              <button (click)="eliminar(v.id)"
-                style="padding: 0.4rem 0.8rem; border-radius: 0.5rem; font-size: 0.8rem; background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; cursor: pointer;">
-                Eliminar
-              </button>
+              @if (esAdmin) {
+                <button (click)="abrirModal(v)"
+                  style="padding: 0.4rem 0.8rem; border-radius: 0.5rem; font-size: 0.8rem; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; cursor: pointer; margin-right: 0.5rem;">
+                  Editar
+                </button>
+                <button (click)="eliminar(v.id)"
+                  style="padding: 0.4rem 0.8rem; border-radius: 0.5rem; font-size: 0.8rem; background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; cursor: pointer;">
+                  Eliminar
+                </button>
+              } @else {
+                <span style="font-size: 0.8rem; color: #94a3b8;">Solo lectura</span>
+              }
             </td>
           </tr>
         } @empty {

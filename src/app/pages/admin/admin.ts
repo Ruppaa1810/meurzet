@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 import { SupabaseService } from '../../services/supabase.service';
+import { AuthStore } from '../../services/auth-store.service';
 import type { Perfil } from '../../models/database.types';
 
 @Component({
@@ -18,6 +19,7 @@ export class Admin implements OnInit {
   constructor(
     private supabaseService: SupabaseService,
     private router: Router,
+    private authStore: AuthStore,
   ) {}
 
   async ngOnInit() {
@@ -27,6 +29,10 @@ export class Admin implements OnInit {
       const { data } = await this.supabaseService.getPerfil(userId);
       this.perfil = data;
     }
+  }
+
+  get esAdmin(): boolean {
+    return this.authStore.rol === 'admin_mayorista';
   }
 
   get nombreUsuario(): string {

@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../../services/supabase.service';
+import { AuthStore } from '../../../services/auth-store.service';
 import type { Viaje, Unidad } from '../../../models/database.types';
 
 @Component({
@@ -32,7 +33,12 @@ export class Viajes implements OnInit {
   constructor(
     private supabaseService: SupabaseService,
     private cdr: ChangeDetectorRef,
-  ) {}
+    private authStore: AuthStore,
+  ) { }
+
+  get esAdmin(): boolean {
+    return this.authStore.rol === 'admin_mayorista';
+  }
 
   ngOnInit() {
     this.cargar();
@@ -77,6 +83,7 @@ export class Viajes implements OnInit {
   }
 
   async guardar() {
+    if (!this.esAdmin) return;
     if (!this.form.origen.trim() || !this.form.destino.trim() || !this.form.fecha_salida || !this.form.fecha_llegada) return;
 
     const payload = {
@@ -102,6 +109,7 @@ export class Viajes implements OnInit {
   }
 
   async eliminar(id: number) {
+    if (!this.esAdmin) return;
     if (!confirm('¿Eliminar este viaje?')) return;
     const { error } = await this.supabaseService.deleteViaje(id);
     if (error) { this.mensaje = error.message; return; }

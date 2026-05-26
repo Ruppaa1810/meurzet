@@ -19,8 +19,8 @@ export const routes: Routes = [
       { path: 'validaciones', component: Validaciones },
       { path: 'flota', loadComponent: () => import('./pages/admin/flota/flota').then(m => m.Flota) },
       { path: 'viajes', loadComponent: () => import('./pages/admin/viajes/viajes').then(m => m.Viajes) },
-      { path: 'minoristas', loadComponent: () => import('./pages/admin/gestion-minoristas/gestion-minoristas').then(m => m.GestionMinoristas) },
-      { path: 'mayoristas', loadComponent: () => import('./pages/admin/gestion-mayoristas/gestion-mayoristas').then(m => m.GestionMayoristas) },
+      { path: 'minoristas', loadComponent: () => import('./pages/admin/gestion-minoristas/gestion-minoristas').then(m => m.GestionMinoristas), canActivate: [AuthGuard], data: { roles: ['admin_mayorista'] } },
+      { path: 'mayoristas', loadComponent: () => import('./pages/admin/gestion-mayoristas/gestion-mayoristas').then(m => m.GestionMayoristas), canActivate: [AuthGuard], data: { roles: ['admin_mayorista'] } },
     ]
   },
   {
