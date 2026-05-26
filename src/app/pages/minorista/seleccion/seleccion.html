@@ -7,7 +7,7 @@
       <h1 class="brand-title">Meurzet</h1>
       <p class="brand-subtitle">Selección de Asientos</p>
     </div>
-  </div>
+  </div> 
   <div class="topbar-right">
     <div class="agency-badge">Agencia Norte</div>
   </div>
@@ -107,103 +107,149 @@
 
     <!-- DOS PLANTAS LADO A LADO -->
     <div class="buses-row">
-      <!-- ===== PLANTA BAJA ===== -->
-      <div class="bus-wrap">
-        <h3 class="bus-floor-title">Planta <strong>Baja</strong></h3>
+     <!-- ===== PLANTA BAJA ===== -->
+<div class="bus-wrap">
+  <h3 class="bus-floor-title">Planta <strong>Baja</strong></h3>
 
-        <!-- SILUETA SVG DEL MICRO -->
-        <div class="bus-body pb">
-          <!-- TECHO / PARABRISAS -->
-          <div class="bus-nose">
-            <div class="windshield">
-              <div class="ws-left"></div>
-              <div class="ws-right"></div>
-            </div>
-            <div class="bus-nose-details">
-              <div class="steering-wrap">
-                <div class="steering-big"><div class="steering-hub"></div></div>
-                <span class="driver-label">Chofer</span>
-              </div>
-              <div class="companion-wrap">
-                <div class="companion-seat"><div class="companion-icon"></div></div>
-                <span class="companion-label">Acomp.</span>
-              </div>
-            </div>
+  <div class="bus-body pb">
+
+    <!-- NARIZ -->
+    <div class="bus-nose">
+
+      <div class="windshield">
+        <div class="ws-left"></div>
+        <div class="ws-right"></div>
+      </div>
+
+      <div class="bus-nose-details">
+
+        <div class="steering-wrap">
+          <div class="steering-big">
+            <div class="steering-hub"></div>
           </div>
 
-          <!-- CUERPO -->
-          <div class="bus-interior pb-interior">
-            <!-- IZQ: BAÑO + ASIENTOS -->
-            <div class="bus-col-izq">
-              <div class="bus-amenity wc-box">
-                <span class="amenity-icon">WC</span>
-                <span class="amenity-label">Baño</span>
-              </div>
-              <div class="seats-col">
-                <div class="seat-pair">
-                  <button class="seat seat-free">63</button>
-                  <button class="seat seat-free">64</button>
-                </div>
-                <div class="seat-pair">
-                  <button class="seat seat-free">65</button>
-                  <div class="seat seat-occupied">66</div>
-                </div>
-                <div class="seat-pair">
-                  <div class="seat seat-blocked">67</div>
-                  <button class="seat seat-free">68</button>
-                </div>
-                <div class="seat-pair">
-                  <button class="seat seat-free">69</button>
-                  <button class="seat seat-free">70</button>
-                </div>
-              </div>
-            </div>
+          <span class="driver-label">Chofer</span>
+        </div>
 
-            <!-- PASILLO -->
-            <div class="aisle pb-aisle">
-              <div class="aisle-line"></div>
-            </div>
-
-            <!-- DER: ESCALERA + PUERTA + ASIENTOS -->
-            <div class="bus-col-der">
-              <div class="bus-amenities-col">
-                <div class="bus-amenity stairs-box">
-                  <span class="amenity-icon">↑</span>
-                  <span class="amenity-label">Esc.</span>
-                </div>
-
-                <div class="bus-amenity door-box">
-                  <span class="amenity-icon">▷</span>
-                  <span class="amenity-label">Puerta</span>
-                </div>
-              </div>
-
-              <div class="seats-col single">
-                <div class="seat-pair"><button class="seat seat-free">71</button></div>
-                <div class="seat-pair"><button class="seat seat-free">72</button></div>
-                <div class="seat-pair"><button class="seat seat-selected">73</button></div>
-                <div class="seat-pair"><button class="seat seat-free">74</button></div>
-              </div>
-            </div>
+        <div class="companion-wrap">
+          <div class="companion-seat">
+            <div class="companion-icon"></div>
           </div>
-          <!-- GUARDAEQUIPAJE -->
-          <div class="luggage-area">
-            <div class="luggage-grid">
-              <div class="luggage-box"></div>
-              <div class="luggage-box"></div>
-              <div class="luggage-box"></div>
-            </div>
 
-            <span class="luggage-label"> Guardaequipaje </span>
+          <span class="companion-label">Acomp.</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- INTERIOR -->
+    <div class="bus-interior pb-interior">
+
+      <!-- IZQUIERDA -->
+      <div class="bus-col-izq">
+
+        <div class="bus-amenity wc-box">
+          <span class="amenity-icon">WC</span>
+          <span class="amenity-label">Baño</span>
+        </div>
+
+        <div class="seats-col">
+
+          <div class="seat-pair">
+            <button class="seat seat-free">63</button>
+            <button class="seat seat-free">64</button>
           </div>
-          <!-- COLA -->
-          <div class="bus-tail">
-            <div class="tail-light left"></div>
-            <div class="tail-light right"></div>
+
+          <div class="seat-pair">
+            <button class="seat seat-free">65</button>
+            <div class="seat seat-occupied">66</div>
           </div>
+
+          <div class="seat-pair">
+            <div class="seat seat-blocked">67</div>
+            <button class="seat seat-free">68</button>
+          </div>
+
+          <div class="seat-pair">
+            <button class="seat seat-free">69</button>
+            <button class="seat seat-free">70</button>
+          </div>
+
         </div>
       </div>
 
+      <!-- PASILLO -->
+      <div class="aisle pb-aisle">
+        <div class="aisle-line"></div>
+      </div>
+
+      <!-- DERECHA -->
+      <div class="bus-col-der">
+
+        <!-- amenities -->
+        <div class="bus-amenities-col">
+
+          <div class="bus-amenity stairs-box">
+            <span class="amenity-icon">↑</span>
+            <span class="amenity-label">Esc.</span>
+          </div>
+
+          <div class="bus-amenity door-box">
+            <span class="amenity-icon">▷</span>
+            <span class="amenity-label">Puerta</span>
+          </div>
+
+        </div>
+
+        <!-- asientos + equipaje -->
+        <div class="der-seats-luggage">
+
+          <!-- asientos -->
+          <div class="seats-col single">
+
+            <div class="seat-pair">
+              <button class="seat seat-free">71</button>
+            </div>
+
+            <div class="seat-pair">
+              <button class="seat seat-free">72</button>
+            </div>
+
+            <div class="seat-pair">
+              <button class="seat seat-selected">73</button>
+            </div>
+
+            <div class="seat-pair">
+              <button class="seat seat-free">74</button>
+            </div>
+
+          </div>
+
+          <!-- equipaje lateral -->
+          <div class="luggage-side">
+
+            <div class="luggage-box-v"></div>
+            <div class="luggage-box-v"></div>
+            <div class="luggage-box-v"></div>
+
+            <span class="luggage-label-v">EQ</span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- COLA -->
+    <div class="bus-tail">
+      <div class="tail-light left"></div>
+      <div class="tail-light right"></div>
+    </div>
+
+  </div>
+</div>
       <!-- ===== PLANTA ALTA ===== -->
       <div class="bus-wrap">
         <h3 class="bus-floor-title">Planta <strong>Alta</strong></h3>
