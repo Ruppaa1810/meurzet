@@ -73,6 +73,16 @@
           <input type="number" [min]="montoMinimo" [max]="total" [(ngModel)]="reservaState.montoPersonalizado"
             style="width: 100%; padding: 0.8rem 1rem 0.8rem 2rem; border: 1.5px solid #e2e8f0; border-radius: 0.75rem; font-size: 1.1rem; font-weight: 700; box-sizing: border-box;">
         </div>
+        <div style="margin-top: 0.75rem;">
+          <input type="range" min="30" max="100" step="1"
+            [value]="pctActual()"
+            (input)="actualizarPorSlider($any($event.target).value)"
+            style="width: 100%; accent-color: #af4f35;">
+          <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #94a3b8; margin-top: 0.25rem;">
+            <span>30% (${{ formatPrecio(montoMinimo) }})</span>
+            <span>100% (${{ formatPrecio(total) }})</span>
+          </div>
+        </div>
         @if (reservaState.montoPersonalizado > 0 && reservaState.montoPersonalizado < montoMinimo) {
           <p style="color: #dc2626; font-size: 0.8rem; margin-top: 0.25rem;">El monto mínimo es ${{ formatPrecio(montoMinimo) }}</p>
         }
