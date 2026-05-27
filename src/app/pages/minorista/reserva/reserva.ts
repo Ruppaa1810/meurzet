@@ -34,6 +34,7 @@ export class Reserva implements OnInit {
   }
 
   get montoAPagar(): number {
+    if (this.reservaState.tipoPagoMode === 'personalizado') return this.reservaState.montoPersonalizado;
     return Math.round(this.total * this.reservaState.porcentajePago / 100);
   }
 
@@ -46,7 +47,7 @@ export class Reserva implements OnInit {
   }
 
   async confirmarReserva() {
-    const { viaje, asientos, pasajeros, porcentajePago } = this.reservaState;
+    const { viaje, asientos, pasajeros, porcentajePago, tipoPagoMode } = this.reservaState;
 
     if (!viaje) return;
 
@@ -80,7 +81,7 @@ export class Reserva implements OnInit {
         vendedor_id: vendedorId,
         asiento_viaje_id: asientos[i].asientoId,
         pasajero_datos: pasajeroConPago as unknown as Record<string, unknown>,
-        tipo_pago: porcentajePago === 100 ? 'total' : 'parcial',
+        tipo_pago: tipoPagoMode === 'total' ? 'total' : 'parcial',
         estado: 'pendiente_comprobante',
         comprobante_url: null,
         motivo_rechazo: null,

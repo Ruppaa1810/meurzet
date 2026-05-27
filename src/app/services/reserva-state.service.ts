@@ -16,14 +16,25 @@ export interface PasajeroData {
   telefono: string;
 }
 
+export type TipoPagoMode = 'total' | 'parcial' | 'personalizado';
+
 @Injectable({ providedIn: 'root' })
 export class ReservaStateService {
   viaje: Viaje | null = null;
   asientos: AsientoReserva[] = [];
   pasajeros: PasajeroData[] = [];
-  porcentajePago: number = 100;
+  tipoPagoMode: TipoPagoMode = 'parcial';
+  montoPersonalizado: number = 0;
   precio: number = 0;
   reservaIds: number[] = [];
+
+  get porcentajePago(): number {
+    if (this.tipoPagoMode === 'total') return 100;
+    if (this.tipoPagoMode === 'parcial') return 30;
+    const total = this.precio * this.asientos.length;
+    if (total === 0) return 0;
+    return Math.round(this.montoPersonalizado / total * 100);
+  }
 
   iniciar(viaje: Viaje, asientos: MapaAsientoViaje[]) {
     this.viaje = viaje;
@@ -37,7 +48,8 @@ export class ReservaStateService {
       nombre: '', apellido: '', documento: '', email: '', telefono: '',
     }));
     this.precio = viaje.precio_base;
-    this.porcentajePago = 30;
+    this.tipoPagoMode = 'parcial';
+    this.montoPersonalizado = 0;
   }
 
   limpiar() {
@@ -45,7 +57,8 @@ export class ReservaStateService {
     this.asientos = [];
     this.pasajeros = [];
     this.precio = 0;
-    this.porcentajePago = 30;
+    this.tipoPagoMode = 'parcial';
+    this.montoPersonalizado = 0;
     this.reservaIds = [];
   }
 }

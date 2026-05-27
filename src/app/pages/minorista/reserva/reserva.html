@@ -43,43 +43,41 @@
     </h3>
 
     <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem;">
-      <button (click)="reservaState.porcentajePago = 30"
+      <button (click)="reservaState.tipoPagoMode = 'total'"
         style="flex: 1; padding: 0.6rem; border-radius: 0.75rem; font-size: 0.85rem; font-weight: 700; cursor: pointer; border: 2px solid; transition: all 0.2s;"
-        [style.border-color]="reservaState.porcentajePago === 30 ? '#af4f35' : '#e2e8f0'"
-        [style.background]="reservaState.porcentajePago === 30 ? '#fff5f2' : 'white'">
-        30% (Mínimo)
+        [style.border-color]="reservaState.tipoPagoMode === 'total' ? '#af4f35' : '#e2e8f0'"
+        [style.background]="reservaState.tipoPagoMode === 'total' ? '#fff5f2' : 'white'">
+        Total
       </button>
-      <button (click)="reservaState.porcentajePago = 50"
+      <button (click)="reservaState.tipoPagoMode = 'parcial'"
         style="flex: 1; padding: 0.6rem; border-radius: 0.75rem; font-size: 0.85rem; font-weight: 700; cursor: pointer; border: 2px solid; transition: all 0.2s;"
-        [style.border-color]="reservaState.porcentajePago === 50 ? '#af4f35' : '#e2e8f0'"
-        [style.background]="reservaState.porcentajePago === 50 ? '#fff5f2' : 'white'">
-        50%
+        [style.border-color]="reservaState.tipoPagoMode === 'parcial' ? '#af4f35' : '#e2e8f0'"
+        [style.background]="reservaState.tipoPagoMode === 'parcial' ? '#fff5f2' : 'white'">
+        Parcial (30%)
       </button>
-      <button (click)="reservaState.porcentajePago = 75"
+      <button (click)="reservaState.tipoPagoMode = 'personalizado'"
         style="flex: 1; padding: 0.6rem; border-radius: 0.75rem; font-size: 0.85rem; font-weight: 700; cursor: pointer; border: 2px solid; transition: all 0.2s;"
-        [style.border-color]="reservaState.porcentajePago === 75 ? '#af4f35' : '#e2e8f0'"
-        [style.background]="reservaState.porcentajePago === 75 ? '#fff5f2' : 'white'">
-        75%
-      </button>
-      <button (click)="reservaState.porcentajePago = 100"
-        style="flex: 1; padding: 0.6rem; border-radius: 0.75rem; font-size: 0.85rem; font-weight: 700; cursor: pointer; border: 2px solid; transition: all 0.2s;"
-        [style.border-color]="reservaState.porcentajePago === 100 ? '#af4f35' : '#e2e8f0'"
-        [style.background]="reservaState.porcentajePago === 100 ? '#fff5f2' : 'white'">
-        100% (Total)
+        [style.border-color]="reservaState.tipoPagoMode === 'personalizado' ? '#af4f35' : '#e2e8f0'"
+        [style.background]="reservaState.tipoPagoMode === 'personalizado' ? '#fff5f2' : 'white'">
+        Personalizado
       </button>
     </div>
 
-    <div>
-      <label style="font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.25rem; display: block;">
-        O elegí un porcentaje personalizado ({{ reservaState.porcentajePago }}%)
-      </label>
-      <input type="range" min="30" max="100" step="5" [(ngModel)]="reservaState.porcentajePago"
-        style="width: 100%; accent-color: #af4f35;">
-      <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #94a3b8; margin-top: 0.25rem;">
-        <span>30% (${{ formatPrecio(montoMinimo) }})</span>
-        <span>100% (${{ formatPrecio(total) }})</span>
+    @if (reservaState.tipoPagoMode === 'personalizado') {
+      <div style="margin-bottom: 1rem;">
+        <label style="font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.25rem; display: block;">
+          Ingresá el monto a pagar (mínimo ${{ formatPrecio(montoMinimo) }})
+        </label>
+        <div style="position: relative;">
+          <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); font-weight: 700; color: #64748b;">$</span>
+          <input type="number" [min]="montoMinimo" [max]="total" [(ngModel)]="reservaState.montoPersonalizado"
+            style="width: 100%; padding: 0.8rem 1rem 0.8rem 2rem; border: 1.5px solid #e2e8f0; border-radius: 0.75rem; font-size: 1.1rem; font-weight: 700; box-sizing: border-box;">
+        </div>
+        @if (reservaState.montoPersonalizado > 0 && reservaState.montoPersonalizado < montoMinimo) {
+          <p style="color: #dc2626; font-size: 0.8rem; margin-top: 0.25rem;">El monto mínimo es ${{ formatPrecio(montoMinimo) }}</p>
+        }
       </div>
-    </div>
+    }
 
     <div style="margin-top: 1rem; padding: 1rem; background: #fff5f2; border-radius: 0.75rem; text-align: center;">
       <div style="font-size: 0.8rem; color: #64748b;">Monto a pagar ahora</div>

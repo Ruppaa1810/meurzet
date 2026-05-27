@@ -33,12 +33,14 @@ export class Confirmacion implements OnInit {
   }
 
   get montoAPagar(): number {
+    if (this.reservaState.tipoPagoMode === 'personalizado') return this.reservaState.montoPersonalizado;
     return Math.round(this.total * this.reservaState.porcentajePago / 100);
   }
 
   get pagoLabel(): string {
-    const p = this.reservaState.porcentajePago;
-    return p === 100 ? 'Pago Total' : `Seña (${p}%)`;
+    if (this.reservaState.tipoPagoMode === 'total') return 'Pago Total';
+    if (this.reservaState.tipoPagoMode === 'personalizado') return `Personalizado (${this.reservaState.porcentajePago}%)`;
+    return `Seña (${this.reservaState.porcentajePago}%)`;
   }
 
   formatPrecio(precio: number): string {
