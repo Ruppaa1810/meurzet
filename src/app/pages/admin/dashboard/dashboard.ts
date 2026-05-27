@@ -9,7 +9,6 @@ import { SupabaseService } from '../../../services/supabase.service';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './dashboard.html',
-  styleUrl: './dashboard.css',
 })
 export class AdminDashboard implements OnInit {
   viajesActivos = 0;

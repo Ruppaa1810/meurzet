@@ -1,5 +1,4 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../../services/supabase.service';
 import { AuthStore } from '../../../services/auth-store.service';
@@ -8,7 +7,7 @@ import type { Unidad } from '../../../models/database.types';
 @Component({
   selector: 'app-flota',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './flota.html',
 })
 export class Flota implements OnInit {

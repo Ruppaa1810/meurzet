@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { SupabaseService } from '../../../services/supabase.service';
 import { ReservaStateService } from '../../../services/reserva-state.service';
@@ -7,7 +6,7 @@ import { ReservaStateService } from '../../../services/reserva-state.service';
 @Component({
   selector: 'app-confirmacion',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [RouterLink],
   templateUrl: './confirmacion.html',
   styleUrl: './confirmacion.css',
 })

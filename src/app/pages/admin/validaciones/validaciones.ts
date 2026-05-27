@@ -1,5 +1,4 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { SupabaseService } from '../../../services/supabase.service';
 import type { Reserva, Viaje } from '../../../models/database.types';
 
@@ -8,9 +7,8 @@ type ReservaConViaje = Reserva & { viaje?: Viaje };
 @Component({
   selector: 'app-validaciones',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './validaciones.html',
-  styleUrl: './validaciones.css',
 })
 export class Validaciones implements OnInit {
   reservas: ReservaConViaje[] = [];

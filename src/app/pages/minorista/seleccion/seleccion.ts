@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { SupabaseService } from '../../../services/supabase.service';
@@ -13,7 +13,7 @@ interface SeatView extends MapaAsientoViaje {
 @Component({
   selector: 'app-seleccion',
   standalone: true,
-  imports: [CommonModule],
+  imports: [DatePipe],
   templateUrl: './seleccion.html',
   styleUrl: './seleccion.css',
 })
