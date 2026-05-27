@@ -46,19 +46,6 @@ export class Reserva implements OnInit {
     return `$ ${precio.toLocaleString('es-AR')}`;
   }
 
-  pctActual(): number {
-    if (this.total === 0) return 30;
-    const pct = Math.round(this.reservaState.montoPersonalizado / this.total * 100);
-    return Math.max(30, Math.min(100, pct));
-  }
-
-  actualizarPorSlider(pct: string) {
-    this.reservaState.montoPersonalizado = Math.round(Number(pct) / 100 * this.total);
-    if (this.reservaState.montoPersonalizado < this.montoMinimo) {
-      this.reservaState.montoPersonalizado = this.montoMinimo;
-    }
-  }
-
   async confirmarReserva() {
     const { viaje, asientos, pasajeros, porcentajePago, tipoPagoMode } = this.reservaState;
 
