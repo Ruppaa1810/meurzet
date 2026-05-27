@@ -9,6 +9,7 @@ import { SupabaseService } from '../../../services/supabase.service';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './dashboard.html',
+  styleUrl: './dashboard.css',
 })
 export class AdminDashboard implements OnInit {
   viajesActivos = 0;
@@ -42,5 +43,15 @@ export class AdminDashboard implements OnInit {
 
   irA(ruta: string) {
     this.router.navigate([`/admin/${ruta}`]);
+  }
+
+  labelEstado(estado: string): string {
+    const map: Record<string, string> = {
+      aprobado: 'Aprobado',
+      pendiente_validacion: 'Pendiente de validación',
+      pendiente_comprobante: 'Esperando comprobante',
+      rechazado: 'Rechazado',
+    };
+    return map[estado] ?? estado;
   }
 }

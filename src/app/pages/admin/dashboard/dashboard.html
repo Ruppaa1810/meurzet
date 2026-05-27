@@ -110,7 +110,7 @@
               <td><span
                 [class.badge-confirmed]="act.estado === 'aprobado'"
                 [class.badge-pending]="act.estado === 'pendiente_validacion' || act.estado === 'pendiente_comprobante'"
-                [class.badge-rejected]="act.estado === 'rechazado'">{{ act.estado }}</span></td>
+                [class.badge-rejected]="act.estado === 'rechazado'">{{ labelEstado(act.estado) }}</span></td>
               <td style="text-align: right; color: #64748b; font-size: 0.8rem">{{ act.created_at | date: 'HH:mm' }}</td>
             </tr>
           } @empty {

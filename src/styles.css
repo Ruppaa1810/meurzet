@@ -27,6 +27,12 @@
   
   --color-success-container: #86f2e4;
   --color-on-success-container: #00201d;
+
+  /* Meurzet - Admin panel */
+  --color-meurzet-primary: #384752;
+  --color-meurzet-accent: #e4912e;
+  --color-meurzet-secondary: #1aa7c4;
+  --color-meurzet-gray: #969fa3;
 }
 
 body {

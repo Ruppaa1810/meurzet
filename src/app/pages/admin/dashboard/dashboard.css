@@ -1,0 +1,64 @@
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.25rem;
+  border: 1px solid #eec997;
+}
+
+.card-number {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-top: 0.5rem;
+}
+
+.badge-confirmed {
+  background: #1aa7c420;
+  color: #1aa7c4;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-pending {
+  background: #e4912e20;
+  color: #e4912e;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-rejected {
+  background: #af4f3520;
+  color: #af4f35;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  text-align: left;
+  padding: 1rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #969fa3;
+  text-transform: uppercase;
+  border-bottom: 1px solid #eec997;
+}
+
+td {
+  padding: 0.875rem 1rem;
+  font-size: 0.85rem;
+  border-bottom: 1px solid #eec997;
+}
+
+tr:hover {
+  background-color: #f4f4f3;
+}
