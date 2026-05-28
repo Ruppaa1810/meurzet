@@ -11,7 +11,6 @@ import { ReservaStateService } from '../../../services/reserva-state.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './reserva.html',
-  styleUrl: './reserva.css',
 })
 export class Reserva implements OnInit {
   loading = false;
@@ -30,7 +29,11 @@ export class Reserva implements OnInit {
   }
 
   get total(): number {
-    return this.reservaState.precio * this.reservaState.asientos.length;
+    return this.reservaState.total;
+  }
+
+  get montoMinimo(): number {
+    return this.reservaState.montoMinimo;
   }
 
   get montoAPagar(): number {
@@ -38,8 +41,12 @@ export class Reserva implements OnInit {
     return Math.round(this.total * this.reservaState.porcentajePago / 100);
   }
 
-  get montoMinimo(): number {
-    return Math.round(this.total * 0.3);
+  get montoError(): string {
+    const monto = this.reservaState.montoPersonalizado;
+    if (this.reservaState.tipoPagoMode !== 'personalizado' || !monto) return '';
+    if (monto < this.montoMinimo) return `El mínimo es ${this.formatPrecio(this.montoMinimo)}`;
+    if (monto > this.total) return `El máximo es ${this.formatPrecio(this.total)}`;
+    return '';
   }
 
   formatPrecio(precio: number): string {
@@ -50,6 +57,11 @@ export class Reserva implements OnInit {
     const { viaje, asientos, pasajeros, porcentajePago, tipoPagoMode } = this.reservaState;
 
     if (!viaje) return;
+
+    if (this.montoError) {
+      this.message = this.montoError;
+      return;
+    }
 
     for (let i = 0; i < pasajeros.length; i++) {
       if (!pasajeros[i].nombre || !pasajeros[i].apellido || !pasajeros[i].documento) {

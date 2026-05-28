@@ -9,7 +9,6 @@ import { SupabaseService } from '../../services/supabase.service';
   standalone: true,
   imports: [FormsModule],
   templateUrl: './login.html',
-  styleUrl: './login.css',
 })
 export class Login {
   email = '';

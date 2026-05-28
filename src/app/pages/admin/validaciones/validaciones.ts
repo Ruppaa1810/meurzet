@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SupabaseService } from '../../../services/supabase.service';
-import type { Reserva, Viaje } from '../../../models/database.types';
+import type { Reserva, Viaje, UserRole } from '../../../models/database.types';
 
 type ReservaConViaje = Reserva & { viaje?: Viaje };
 
@@ -10,19 +10,26 @@ type ReservaConViaje = Reserva & { viaje?: Viaje };
   standalone: true,
   imports: [CommonModule],
   templateUrl: './validaciones.html',
-  styleUrl: './validaciones.css',
+
 })
 export class Validaciones implements OnInit {
   reservas: ReservaConViaje[] = [];
   loading = true;
   error = '';
+  rol: UserRole | null = null;
 
   constructor(
     private supabaseService: SupabaseService,
     private cdr: ChangeDetectorRef,
   ) {}
 
-  ngOnInit() {
+  get esAdmin(): boolean {
+    return this.rol === 'admin_mayorista';
+  }
+
+  async ngOnInit() {
+    const { data } = await this.supabaseService.getCurrentProfile();
+    if (data) this.rol = data.rol;
     this.cargar();
   }
 
@@ -40,7 +47,7 @@ export class Validaciones implements OnInit {
   }
 
   async aprobar(reserva: ReservaConViaje) {
-    if (!reserva.asiento_viaje_id) return;
+    if (!this.esAdmin || !reserva.asiento_viaje_id) return;
     const { error } = await this.supabaseService.aprobarReserva(reserva.id, reserva.asiento_viaje_id);
     if (!error) {
       this.reservas = this.reservas.filter(r => r.id !== reserva.id);
@@ -48,7 +55,7 @@ export class Validaciones implements OnInit {
   }
 
   async rechazar(reserva: ReservaConViaje, motivo: string) {
-    if (!reserva.asiento_viaje_id) return;
+    if (!this.esAdmin || !reserva.asiento_viaje_id) return;
     const { error } = await this.supabaseService.rechazarReserva(reserva.id, reserva.asiento_viaje_id, motivo);
     if (!error) {
       this.reservas = this.reservas.filter(r => r.id !== reserva.id);

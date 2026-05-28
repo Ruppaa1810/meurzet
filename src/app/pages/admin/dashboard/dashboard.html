@@ -1,121 +1,125 @@
-<div style="padding: 2.5rem; display: flex; flex-direction: column; gap: 2rem">
-  <div style="margin-bottom: -0.5rem">
-    <h2 style="font-size: 1.1rem; font-weight: 700; color: var(--color-meurzet-primary); margin: 0;">
+<div class="p-10 flex flex-col gap-8">
+  <div class="-mb-2">
+    <h2 class="text-lg font-bold text-[var(--color-meurzet-primary)] m-0">
       Panel de Control
     </h2>
-    <p style="font-size: 0.8rem; color: #64748b; margin-top: 0.25rem; margin-bottom: 0;">
+    <p class="text-xs text-slate-500 mt-1 mb-0">
       Resumen general del sistema
     </p>
   </div>
 
-  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem;">
-    <div class="card" style="border-left: 6px solid var(--color-meurzet-accent);">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <span style="color: #475569; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Bloqueados por vendedor</span>
-        <span style="font-size: 0.65rem; font-weight: 700; color: var(--color-meurzet-accent); background: #ffedd5; padding: 0.15rem 0.5rem; border-radius: 4px;">Pendiente</span>
+  <div class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-6">
+    <div class="bg-white rounded-2xl p-5 border border-[#eec997] border-l-4 border-l-[var(--color-meurzet-accent)]">
+      <div class="flex justify-between items-center">
+        <span class="text-[#475569] text-xs font-bold uppercase tracking-wider">Bloqueados por vendedor</span>
+        <span class="text-xs font-bold text-[var(--color-meurzet-accent)] bg-orange-100 px-2 py-0.5 rounded">Pendiente</span>
       </div>
-      <div class="card-number" style="color: var(--color-meurzet-accent)">{{ bloqueadosPorVendedor }}</div>
+      <div class="text-2xl font-bold mt-2 text-[var(--color-meurzet-accent)]">{{ bloqueadosPorVendedor }}</div>
     </div>
 
-    <div class="card" style="border-left: 6px solid var(--color-meurzet-accent);">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <span style="color: #475569; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Viajes activos</span>
-        <span style="font-size: 0.65rem; font-weight: 700; color: var(--color-meurzet-accent); background: #ffedd5; padding: 0.15rem 0.5rem; border-radius: 4px;">En curso</span>
+    <div class="bg-white rounded-2xl p-5 border border-[#eec997] border-l-4 border-l-[var(--color-meurzet-accent)]">
+      <div class="flex justify-between items-center">
+        <span class="text-[#475569] text-xs font-bold uppercase tracking-wider">Viajes activos</span>
+        <span class="text-xs font-bold text-[var(--color-meurzet-accent)] bg-orange-100 px-2 py-0.5 rounded">En curso</span>
       </div>
-      <div class="card-number" style="color: var(--color-meurzet-accent)">{{ viajesActivos }}</div>
+      <div class="text-2xl font-bold mt-2 text-[var(--color-meurzet-accent)]">{{ viajesActivos }}</div>
     </div>
 
-    <div class="card" style="border-left: 6px solid var(--color-meurzet-accent);">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <span style="color: #475569; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Confirmados hoy</span>
-        <span style="font-size: 0.65rem; font-weight: 700; color: var(--color-meurzet-accent); background: #ffedd5; padding: 0.15rem 0.5rem; border-radius: 4px;">Completado</span>
+    <div class="bg-white rounded-2xl p-5 border border-[#eec997] border-l-4 border-l-[var(--color-meurzet-accent)]">
+      <div class="flex justify-between items-center">
+        <span class="text-[#475569] text-xs font-bold uppercase tracking-wider">Confirmados hoy</span>
+        <span class="text-xs font-bold text-[var(--color-meurzet-accent)] bg-orange-100 px-2 py-0.5 rounded">Completado</span>
       </div>
-      <div class="card-number" style="color: var(--color-meurzet-accent)">{{ reservasHoy }}</div>
+      <div class="text-2xl font-bold mt-2 text-[var(--color-meurzet-accent)]">{{ reservasHoy }}</div>
     </div>
 
-    <div class="card" style="border-left: 6px solid var(--color-meurzet-accent);">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <span style="color: #475569; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Unidades</span>
-        <span style="font-size: 0.65rem; font-weight: 700; color: var(--color-meurzet-accent); background: #ffedd5; padding: 0.15rem 0.5rem; border-radius: 4px;">Disponibles</span>
+    <div class="bg-white rounded-2xl p-5 border border-[#eec997] border-l-4 border-l-[var(--color-meurzet-accent)]">
+      <div class="flex justify-between items-center">
+        <span class="text-[#475569] text-xs font-bold uppercase tracking-wider">Unidades</span>
+        <span class="text-xs font-bold text-[var(--color-meurzet-accent)] bg-orange-100 px-2 py-0.5 rounded">Disponibles</span>
       </div>
-      <div class="card-number" style="color: var(--color-meurzet-accent)">{{ totalUnidades }}</div>
+      <div class="text-2xl font-bold mt-2 text-[var(--color-meurzet-accent)]">{{ totalUnidades }}</div>
     </div>
   </div>
 
   <div>
-    <h3 style="font-size: 0.85rem; font-weight: 700; color: var(--color-meurzet-primary); margin-bottom: 1rem;">
+    <h3 class="text-sm font-bold text-[var(--color-meurzet-primary)] mb-4">
       Accesos Rápidos
     </h3>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
-      <div class="card" style="display: flex; align-items: flex-start; gap: 1rem; cursor: pointer;" (click)="irA('validaciones')">
-        <div style="padding: 0.5rem; background: #eff6ff; border-radius: 8px; color: var(--color-meurzet-secondary);">
-          <svg style="width: 1.25rem; height: 1.25rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-6">
+      <div class="bg-white rounded-2xl p-5 border border-[#eec997] flex items-start gap-4 cursor-pointer" (click)="irA('validaciones')">
+        <div class="p-2 bg-blue-50 rounded-lg text-[var(--color-meurzet-secondary)]">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
         <div>
-          <div style="font-weight: 700; color: var(--color-meurzet-primary); font-size: 0.9rem;">Validar Pagos</div>
-          <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.15rem;">Revisar comprobantes pendientes</div>
-          <span style="font-size: 0.75rem; color: var(--color-meurzet-secondary); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; margin-top: 0.5rem;">Validar pagos &rarr;</span>
+          <div class="font-bold text-[var(--color-meurzet-primary)] text-sm">Validar Pagos</div>
+          <div class="text-xs text-slate-500 mt-0.5">Revisar comprobantes pendientes</div>
+          <span class="text-xs text-[var(--color-meurzet-secondary)] font-semibold inline-flex items-center gap-1 mt-2">Validar pagos &rarr;</span>
         </div>
       </div>
 
-      <div class="card" style="display: flex; align-items: flex-start; gap: 1rem; cursor: pointer;" (click)="irA('flota')">
-        <div style="padding: 0.5rem; background: #fff7ed; border-radius: 8px; color: var(--color-meurzet-accent);">
-          <svg style="width: 1.25rem; height: 1.25rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+      <div class="bg-white rounded-2xl p-5 border border-[#eec997] flex items-start gap-4 cursor-pointer" (click)="irA('flota')">
+        <div class="p-2 bg-orange-50 rounded-lg text-[var(--color-meurzet-accent)]">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M8 17a2 2 0 11-4 0 2 2 0 014 0zM20 17a2 2 0 11-4 0 2 2 0 014 0z" />
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 17h2m10 0h2a2 2 0 002-2v-3a2 2 0 00-2-2h-3V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h6m2 0h2" />
           </svg>
         </div>
         <div>
-          <div style="font-weight: 700; color: var(--color-meurzet-primary); font-size: 0.9rem;">Gestionar Flota</div>
-          <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.15rem;">Agregar o editar unidades disponibles</div>
-          <span style="font-size: 0.75rem; color: var(--color-meurzet-accent); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; margin-top: 0.5rem;">Ver flota &rarr;</span>
+          <div class="font-bold text-[var(--color-meurzet-primary)] text-sm">Gestionar Flota</div>
+          <div class="text-xs text-slate-500 mt-0.5">Agregar o editar unidades disponibles</div>
+          <span class="text-xs text-[var(--color-meurzet-accent)] font-semibold inline-flex items-center gap-1 mt-2">Ver flota &rarr;</span>
         </div>
       </div>
 
-      <div class="card" style="display: flex; align-items: flex-start; gap: 1rem; cursor: pointer;" (click)="irA('viajes')">
-        <div style="padding: 0.5rem; background: #ecfdf5; border-radius: 8px; color: #10b981;">
-          <svg style="width: 1.25rem; height: 1.25rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+      <div class="bg-white rounded-2xl p-5 border border-[#eec997] flex items-start gap-4 cursor-pointer" (click)="irA('viajes')">
+        <div class="p-2 bg-emerald-50 rounded-lg text-emerald-500">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
           </svg>
         </div>
         <div>
-          <div style="font-weight: 700; color: var(--color-meurzet-primary); font-size: 0.9rem;">Nuevo Viaje</div>
-          <div style="font-size: 0.75rem; color: #64748b; margin-top: 0.15rem;">Crear nuevas rutas y cronogramas</div>
-          <span style="font-size: 0.75rem; color: #10b981; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; margin-top: 0.5rem;">Crear ruta &rarr;</span>
+          <div class="font-bold text-[var(--color-meurzet-primary)] text-sm">Nuevo Viaje</div>
+          <div class="text-xs text-slate-500 mt-0.5">Crear nuevas rutas y cronogramas</div>
+          <span class="text-xs text-emerald-500 font-semibold inline-flex items-center gap-1 mt-2">Crear ruta &rarr;</span>
         </div>
       </div>
     </div>
   </div>
 
   <div>
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-      <h3 style="font-size: 0.85rem; font-weight: 700; color: var(--color-meurzet-primary); margin: 0;">Actividad Reciente</h3>
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-sm font-bold text-[var(--color-meurzet-primary)] m-0">Actividad Reciente</h3>
     </div>
 
-    <div class="card" style="padding: 0; overflow: hidden;">
-      <table>
+    <div class="bg-white rounded-2xl border border-[#eec997] p-0 overflow-hidden">
+      <table class="w-full border-collapse">
         <thead>
           <tr>
-            <th>Viaje</th>
-            <th>Estado</th>
-            <th style="text-align: right">Creada</th>
+            <th class="text-xs font-semibold uppercase text-gray-400 border-b border-[#eec997] text-left p-4">Viaje</th>
+            <th class="text-xs font-semibold uppercase text-gray-400 border-b border-[#eec997] text-left p-4">Estado</th>
+            <th class="text-xs font-semibold uppercase text-gray-400 border-b border-[#eec997] text-right p-4">Creada</th>
           </tr>
         </thead>
         <tbody>
           @for (act of actividadReciente; track act.id) {
-            <tr>
-              <td style="font-weight: 600">{{ act.viaje?.origen }} → {{ act.viaje?.destino }}</td>
-              <td><span class="badge-status"
-                [class.badge-confirmed]="act.estado === 'aprobado'"
-                [class.badge-pending]="act.estado === 'pendiente_validacion' || act.estado === 'pendiente_comprobante'"
-                [class.badge-rejected]="act.estado === 'rechazado'">{{ act.estado }}</span></td>
-              <td style="text-align: right; color: #64748b; font-size: 0.8rem">{{ act.created_at | date: 'HH:mm' }}</td>
+            <tr class="hover:bg-[#f4f4f3]">
+              <td class="font-semibold p-3.5 text-sm border-b border-[#eec997]">{{ act.viaje?.origen }} → {{ act.viaje?.destino }}</td>
+              <td class="p-3.5 text-sm border-b border-[#eec997]"><span class="px-3 py-1 rounded-full text-xs font-semibold"
+                [class.bg-green-100]="act.estado === 'aprobado'"
+                [class.text-green-700]="act.estado === 'aprobado'"
+                [class.bg-amber-100]="act.estado === 'pendiente_validacion' || act.estado === 'pendiente_comprobante'"
+                [class.text-amber-700]="act.estado === 'pendiente_validacion' || act.estado === 'pendiente_comprobante'"
+                [class.bg-red-100]="act.estado === 'rechazado'"
+                [class.text-red-700]="act.estado === 'rechazado'"
+              >{{ act.estado }}</span></td>
+              <td class="p-3.5 text-sm border-b border-[#eec997] text-right text-slate-500 text-xs">{{ act.created_at | date: 'HH:mm' }}</td>
             </tr>
           } @empty {
             <tr>
-              <td colspan="3" style="text-align: center; color: #94a3b8; padding: 1.5rem;">Sin actividad reciente</td>
+              <td colspan="3" class="text-center text-slate-400 py-6">Sin actividad reciente</td>
             </tr>
           }
         </tbody>

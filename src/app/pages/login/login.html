@@ -1,40 +1,40 @@
-<div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; background-color: #384752; padding: 2rem; margin: 0;">
+<div class="fixed inset-0 flex items-center justify-center bg-main p-8">
 
-  <div style="max-width: 36rem; width: 100%; background-color: #f4f4f3; border-radius: 2rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+  <div class="max-w-xl w-full bg-[#f4f4f3] rounded-[2rem] shadow-2xl">
 
-    <div style="text-align: center; padding-top: 2.5rem; padding-bottom: 1rem;">
-      <div style="width: 10rem; height: 10rem; margin: 0 auto; border-radius: 2rem; overflow: hidden; background-color: white; display: flex; align-items: center; justify-content: center;">
-        <img src="/logo.jpeg" alt="Meurzet" style="width: 100%; height: 100%; object-fit: cover;">
+    <div class="text-center pt-10 pb-4">
+      <div class="w-40 h-40 mx-auto rounded-[2rem] overflow-hidden bg-white flex items-center justify-center">
+        <img src="/logo.jpeg" alt="Meurzet" class="w-full h-full object-cover">
       </div>
     </div>
 
-    <form (ngSubmit)="login()" style="padding: 0 2.5rem 2.5rem 2.5rem;">
+    <form (ngSubmit)="login()" class="px-10 pb-10">
 
-      <div style="margin-bottom: 1.5rem;">
+      <div class="mb-6">
         <input
           type="email"
           name="email"
           [(ngModel)]="email"
-          style="width: 100%; padding: 1rem 1.25rem; border-radius: 1rem; border: 1.5px solid #c9a08f; background: white; font-size: 1rem; outline: none; transition: all 0.2s; box-sizing: border-box;"
+          class="w-full px-5 py-4 rounded-2xl border-[1.5px] border-outline bg-white text-base outline-none transition-all duration-200 hover:border-[#1aa7c4] focus:border-[#1aa7c4] focus:outline-none focus:ring-[3px] focus:ring-[#1aa7c4]/10"
           placeholder="Correo electrónico"
           required
         >
       </div>
 
-      <div style="margin-bottom: 1rem; position: relative;">
+      <div class="mb-4 relative">
         <input
           id="password"
           name="password"
           [type]="showPassword ? 'text' : 'password'"
           [(ngModel)]="password"
-          style="width: 100%; padding: 1rem 3rem 1rem 1.25rem; border-radius: 1rem; border: 1.5px solid #c9a08f; background: white; font-size: 1rem; outline: none; transition: all 0.2s; box-sizing: border-box;"
+          class="w-full py-4 pl-5 pr-12 rounded-2xl border-[1.5px] border-outline bg-white text-base outline-none transition-all duration-200 hover:border-[#1aa7c4] focus:border-[#1aa7c4] focus:outline-none focus:ring-[3px] focus:ring-[#1aa7c4]/10"
           placeholder="Contraseña"
           required
         >
         <button type="button" (click)="showPassword = !showPassword"
-          style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 0; line-height: 1;"
+          class="absolute right-4 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer p-0 leading-none"
           [style.color]="showPassword ? '#af4f35' : '#969fa3'" aria-label="Mostrar contraseña">
-          <svg style="width: 1.3rem; height: 1.3rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <svg class="w-[1.3rem] h-[1.3rem]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             @if (showPassword) {
               <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
             } @else {
@@ -46,44 +46,45 @@
       </div>
 
       @if (!showForgotPassword) {
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
-          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.85rem; color: #384752; font-weight: 500;">
+        <div class="flex items-center justify-between mb-6">
+          <label class="flex items-center gap-2 cursor-pointer text-sm text-[#384752] font-medium">
             <input type="checkbox" [(ngModel)]="remember" name="remember"
-              style="width: 1rem; height: 1rem; accent-color: #af4f35; cursor: pointer;">
+              class="w-4 h-4 accent-[#af4f35] cursor-pointer">
             Recordar usuario
           </label>
-          <button type="button" (click)="showForgotPassword = true" style="background: none; border: none; font-size: 0.75rem; color: #969fa3; cursor: pointer; text-decoration: underline; padding: 0;">Olvidaste tu contraseña?</button>
+          <button type="button" (click)="showForgotPassword = true" class="bg-transparent border-none text-xs text-[#969fa3] cursor-pointer underline p-0">Olvidaste tu contraseña?</button>
         </div>
       }
 
       @if (showForgotPassword) {
-        <div style="margin-bottom: 1rem;">
-          <p style="font-size: 0.85rem; color: #384752; font-weight: 600; margin-bottom: 0.75rem;">Restablecer contraseña</p>
+        <div class="mb-4">
+          <p class="text-sm text-[#384752] font-semibold mb-3">Restablecer contraseña</p>
           <input type="email" [(ngModel)]="forgotEmail" name="forgotEmail"
-            style="width: 100%; padding: 1rem 1.25rem; border-radius: 1rem; border: 1.5px solid #c9a08f; background: white; font-size: 1rem; outline: none; transition: all 0.2s; box-sizing: border-box;"
+            class="w-full px-5 py-4 rounded-2xl border-[1.5px] border-outline bg-white text-base outline-none transition-all duration-200 hover:border-[#1aa7c4] focus:border-[#1aa7c4] focus:outline-none focus:ring-[3px] focus:ring-[#1aa7c4]/10"
             placeholder="Tu correo electrónico">
           @if (resetMessage) {
-            <div style="margin-top: 0.75rem; padding: 0.75rem 1rem; border-radius: 0.75rem; font-size: 0.875rem; text-align: center; border: 1px solid;"
+            <div class="mt-3 px-4 py-3 rounded-xl text-sm text-center border"
               [style.background]="resetMessage.includes('enviamos') ? '#f0fdf4' : '#fef2f2'"
               [style.color]="resetMessage.includes('enviamos') ? '#166534' : '#991b1b'"
               [style.border-color]="resetMessage.includes('enviamos') ? '#bbf7d0' : '#fecaca'">
               {{ resetMessage }}
             </div>
           }
-          <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+          <div class="flex gap-2 mt-3">
             <button type="button" (click)="sendResetEmail()" [disabled]="loading"
-              style="flex: 1; padding: 0.75rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.9rem; color: white; background: linear-gradient(135deg, #af4f35, #e4912e); border: none; cursor: pointer; transition: all 0.2s;"
+              class="flex-1 py-3 rounded-xl font-semibold text-sm text-white border-none cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:opacity-95 active:scale-[0.98]"
+              style="background: linear-gradient(135deg, #af4f35, #e4912e);"
               [style.opacity]="loading ? '0.6' : '1'">
               {{ loading ? 'Enviando...' : 'Enviar enlace' }}
             </button>
             <button type="button" (click)="cancelForgotPassword()"
-              style="padding: 0.75rem 1rem; border-radius: 0.75rem; font-size: 0.9rem; color: #64748b; background: #e2e8f0; border: none; cursor: pointer;">Cancelar</button>
+              class="px-4 py-3 rounded-xl text-sm text-slate-500 bg-slate-200 border-none cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:opacity-95 active:scale-[0.98]">Cancelar</button>
           </div>
         </div>
       }
 
       @if (message) {
-        <div style="margin-bottom: 1rem; padding: 0.75rem 1rem; border-radius: 0.75rem; background: #fef2f2; color: #991b1b; font-size: 0.875rem; text-align: center; border: 1px solid #fecaca;">
+        <div class="mb-4 px-4 py-3 rounded-xl bg-red-50 text-red-800 text-sm text-center border border-red-200">
           {{ message }}
         </div>
       }
@@ -92,15 +93,16 @@
         <button
           type="submit"
           [disabled]="loading"
-          style="width: 100%; padding: 1rem; border-radius: 1rem; font-weight: 700; font-size: 1.1rem; color: white; background: linear-gradient(135deg, #af4f35, #e4912e); border: none; cursor: pointer; transition: all 0.2s; margin-bottom: 2rem;"
+          class="w-full py-4 rounded-2xl font-bold text-lg text-white border-none cursor-pointer transition-all duration-200 mb-8 hover:-translate-y-0.5 hover:opacity-95 active:scale-[0.98]"
+          style="background: linear-gradient(135deg, #af4f35, #e4912e);"
           [style.opacity]="loading ? '0.6' : '1'">
           {{ loading ? 'Ingresando...' : 'Iniciar Sesión' }}
         </button>
 
-        <div style="display: flex; align-items: center;">
-          <div style="flex: 1; height: 1px; background: linear-gradient(90deg, transparent, #eec997, transparent);"></div>
-          <span style="padding: 0 0.75rem; font-size: 0.75rem; color: #969fa3; font-weight: 500;">ACCESO SEGURO</span>
-          <div style="flex: 1; height: 1px; background: linear-gradient(90deg, transparent, #eec997, transparent);"></div>
+        <div class="flex items-center">
+          <div class="flex-1 h-px" style="background: linear-gradient(90deg, transparent, #eec997, transparent);"></div>
+          <span class="px-3 text-xs text-[#969fa3] font-medium">ACCESO SEGURO</span>
+          <div class="flex-1 h-px" style="background: linear-gradient(90deg, transparent, #eec997, transparent);"></div>
         </div>
       }
 

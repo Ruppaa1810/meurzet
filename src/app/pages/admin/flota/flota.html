@@ -1,51 +1,52 @@
-<div style="padding: 2rem;">
+<div class="p-8">
 
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-    <h2 style="font-size: 1.5rem; font-weight: 700; color: #384752; margin: 0;">Gestión de Flota</h2>
+  <div class="flex justify-between items-center mb-8">
+    <h2 class="text-2xl font-bold text-[#384752] m-0">Gestión de Flota</h2>
     @if (esAdmin) {
       <button (click)="abrirModal()"
-        style="padding: 0.7rem 1.5rem; border-radius: 0.75rem; font-weight: 700; font-size: 0.9rem; color: white; background: linear-gradient(135deg, #af4f35, #e4912e); border: none; cursor: pointer;">
+        class="px-6 py-3 rounded-xl font-bold text-sm text-white border-none cursor-pointer"
+        style="background: linear-gradient(135deg, #af4f35, #e4912e);">
         + Nueva Unidad
       </button>
     }
   </div>
 
-  <div style="background: white; border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); overflow: hidden;">
-    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+  <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+    <table class="w-full border-collapse text-sm">
       <thead>
-        <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
-          <th style="padding: 1rem; text-align: left; color: #64748b; font-weight: 600;">Empresa</th>
-          <th style="padding: 1rem; text-align: left; color: #64748b; font-weight: 600;">Patente</th>
-          <th style="padding: 1rem; text-align: left; color: #64748b; font-weight: 600;">Pisos</th>
-          <th style="padding: 1rem; text-align: left; color: #64748b; font-weight: 600;">Asientos</th>
-          <th style="padding: 1rem; text-align: right; color: #64748b; font-weight: 600;">Acciones</th>
+        <tr class="bg-slate-50 border-b-2 border-slate-200">
+          <th class="p-4 text-left text-slate-500 font-semibold">Empresa</th>
+          <th class="p-4 text-left text-slate-500 font-semibold">Patente</th>
+          <th class="p-4 text-left text-slate-500 font-semibold">Pisos</th>
+          <th class="p-4 text-left text-slate-500 font-semibold">Asientos</th>
+          <th class="p-4 text-right text-slate-500 font-semibold">Acciones</th>
         </tr>
       </thead>
       <tbody>
         @for (u of unidades; track u.id) {
-          <tr style="border-bottom: 1px solid #f1f5f9;">
-            <td style="padding: 1rem; font-weight: 600;">{{ u.layout_config['empresa'] || '-' }}</td>
-            <td style="padding: 1rem; font-weight: 600;">{{ u.patente }}</td>
-            <td style="padding: 1rem;">{{ u.pisos }}</td>
-            <td style="padding: 1rem;">{{ u.asientos_totales }}</td>
-            <td style="padding: 1rem; text-align: right;">
+          <tr class="border-b border-slate-100">
+            <td class="p-4 font-semibold">{{ u.layout_config['empresa'] || '-' }}</td>
+            <td class="p-4 font-semibold">{{ u.patente }}</td>
+            <td class="p-4">{{ u.pisos }}</td>
+            <td class="p-4">{{ u.asientos_totales }}</td>
+            <td class="p-4 text-right">
               @if (esAdmin) {
                 <button (click)="abrirModal(u)"
-                  style="padding: 0.4rem 0.8rem; border-radius: 0.5rem; font-size: 0.8rem; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; cursor: pointer; margin-right: 0.5rem;">
+                  class="px-3 py-1.5 rounded-lg text-xs bg-blue-50 text-blue-600 border border-blue-200 cursor-pointer mr-2">
                   Editar
                 </button>
                 <button (click)="eliminar(u.id)"
-                  style="padding: 0.4rem 0.8rem; border-radius: 0.5rem; font-size: 0.8rem; background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; cursor: pointer;">
+                  class="px-3 py-1.5 rounded-lg text-xs bg-red-50 text-red-600 border border-red-200 cursor-pointer">
                   Eliminar
                 </button>
               } @else {
-                <span style="font-size: 0.8rem; color: #94a3b8;">Solo lectura</span>
+                <span class="text-xs text-slate-400">Solo lectura</span>
               }
             </td>
           </tr>
         } @empty {
           <tr>
-            <td colspan="5" style="padding: 2rem; text-align: center; color: #94a3b8;">No hay unidades registradas</td>
+            <td colspan="5" class="p-8 text-center text-slate-400">No hay unidades registradas</td>
           </tr>
         }
       </tbody>
@@ -53,56 +54,57 @@
   </div>
 
   @if (loading) {
-    <p style="text-align: center; color: #64748b; margin-top: 1rem;">Cargando...</p>
+    <p class="text-center text-slate-500 mt-4">Cargando...</p>
   }
   @if (mensaje) {
-    <p style="text-align: center; color: #dc2626; margin-top: 1rem;">{{ mensaje }}</p>
+    <p class="text-center text-red-600 mt-4">{{ mensaje }}</p>
   }
 </div>
 
 @if (modalAbierto) {
-  <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 1000;"
+  <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
     (click)="cerrarModal()">
-    <div style="background: white; border-radius: 1.5rem; padding: 2rem; width: 90%; max-width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.15);"
+    <div class="bg-white rounded-2xl p-8 w-[90%] max-w-[400px] shadow-2xl"
       (click)="$event.stopPropagation()">
-      <h3 style="font-size: 1.2rem; font-weight: 700; color: #384752; margin: 0 0 1.5rem 0;">
+      <h3 class="text-xl font-bold text-[#384752] m-0 mb-6">
         {{ editando ? 'Editar' : 'Nueva' }} Unidad
       </h3>
 
-      <div style="margin-bottom: 1rem;">
-        <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #384752; margin-bottom: 0.3rem;">Empresa</label>
+      <div class="mb-4">
+        <label class="block text-sm font-semibold text-[#384752] mb-1">Empresa</label>
         <input [(ngModel)]="form.empresa" placeholder="Ej: Rápido Tata"
-          style="width: 100%; padding: 0.7rem; border: 1.5px solid #d1d5db; border-radius: 0.75rem; font-size: 0.9rem; box-sizing: border-box;">
+          class="w-full p-3 border-2 border-gray-300 rounded-xl text-sm box-border">
       </div>
 
-      <div style="margin-bottom: 1rem;">
-        <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #384752; margin-bottom: 0.3rem;">Patente</label>
+      <div class="mb-4">
+        <label class="block text-sm font-semibold text-[#384752] mb-1">Patente</label>
         <input [(ngModel)]="form.patente"
-          style="width: 100%; padding: 0.7rem; border: 1.5px solid #d1d5db; border-radius: 0.75rem; font-size: 0.9rem; box-sizing: border-box;">
+          class="w-full p-3 border-2 border-gray-300 rounded-xl text-sm box-border">
       </div>
 
-      <div style="margin-bottom: 1rem;">
-        <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #384752; margin-bottom: 0.3rem;">Pisos</label>
+      <div class="mb-4">
+        <label class="block text-sm font-semibold text-[#384752] mb-1">Pisos</label>
         <select [(ngModel)]="form.pisos"
-          style="width: 100%; padding: 0.7rem; border: 1.5px solid #d1d5db; border-radius: 0.75rem; font-size: 0.9rem; background: white; box-sizing: border-box;">
+          class="w-full p-3 border-2 border-gray-300 rounded-xl text-sm bg-white box-border">
           <option [ngValue]="1">1 piso</option>
           <option [ngValue]="2">2 pisos</option>
         </select>
       </div>
 
-      <div style="margin-bottom: 1.5rem;">
-        <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #384752; margin-bottom: 0.3rem;">Asientos totales</label>
+      <div class="mb-6">
+        <label class="block text-sm font-semibold text-[#384752] mb-1">Asientos totales</label>
         <input [(ngModel)]="form.asientos_totales" type="number"
-          style="width: 100%; padding: 0.7rem; border: 1.5px solid #d1d5db; border-radius: 0.75rem; font-size: 0.9rem; box-sizing: border-box;">
+          class="w-full p-3 border-2 border-gray-300 rounded-xl text-sm box-border">
       </div>
 
-      <div style="display: flex; gap: 0.75rem;">
+      <div class="flex gap-3">
         <button (click)="cerrarModal()"
-          style="flex: 1; padding: 0.8rem; border-radius: 0.75rem; font-weight: 600; background: #f1f5f9; color: #64748b; border: none; cursor: pointer;">
+          class="flex-1 py-3 rounded-xl font-semibold bg-slate-100 text-slate-500 border-none cursor-pointer">
           Cancelar
         </button>
         <button (click)="guardar()"
-          style="flex: 1; padding: 0.8rem; border-radius: 0.75rem; font-weight: 700; color: white; background: linear-gradient(135deg, #af4f35, #e4912e); border: none; cursor: pointer;">
+          class="flex-1 py-3 rounded-xl font-bold text-white border-none cursor-pointer"
+          style="background: linear-gradient(135deg, #af4f35, #e4912e);">
           {{ editando ? 'Guardar' : 'Crear' }}
         </button>
       </div>
