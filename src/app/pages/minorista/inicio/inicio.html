@@ -33,7 +33,7 @@
   <button (click)="logout()" class="h-[54px] rounded-xl flex items-center px-5 text-white/80 text-sm font-bold cursor-pointer bg-transparent transition-all hover:bg-white/10 hover:translate-x-1 hover:text-white w-full text-left">Cerrar Sesión</button>
 </aside>
 
-<!-- CONTENIDO PRINCIPAL -->
+<!-- CONTENIDO PRINCIPAL (tu diseño original, sin cambios) -->
 @if (loading) {
   <div class="flex items-center justify-center h-[60vh]">
     <p class="text-lg font-semibold text-slate-500">Cargando viajes...</p>
@@ -157,34 +157,29 @@
     to { opacity: 1; transform: translateY(0); }
   }
   
+  .sidebar {
+    transform: translateX(-100%);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+
   .sidebar.open {
     transform: translateX(0) !important;
     opacity: 1 !important;
   }
-  
-  .sidebar.open .sidebar-item {
-    animation: staggerItem 0.45s forwards;
+
+  .sidebar-overlay {
+    transition: opacity 0.25s ease, visibility 0.25s ease;
   }
-  
-  .sidebar.open .sidebar-item:nth-child(1) { animation-delay: 0.05s; }
-  .sidebar.open .sidebar-item:nth-child(2) { animation-delay: 0.10s; }
-  .sidebar.open .sidebar-item:nth-child(3) { animation-delay: 0.15s; }
-  .sidebar.open .sidebar-item:nth-child(4) { animation-delay: 0.20s; }
-  .sidebar.open .sidebar-item:nth-child(5) { animation-delay: 0.25s; }
-  
-  @keyframes staggerItem {
-    from { opacity: 0; transform: translateX(-18px); }
-    to { opacity: 1; transform: translateX(0); }
+
+  .sidebar-overlay.show {
+    opacity: 1 !important;
+    visibility: visible !important;
   }
-  
+
   .sidebar-item.active {
     background: linear-gradient(135deg, #af4f35, #e4912e);
     color: white;
     box-shadow: 0 12px 24px rgba(175, 79, 53, 0.22);
-  }
-  
-  .sidebar-overlay.show {
-    opacity: 1 !important;
-    visibility: visible !important;
   }
 </style>

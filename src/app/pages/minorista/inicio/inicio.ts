@@ -51,19 +51,48 @@ export class Inicio implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
+    this.initMenu();
+  }
+
+  initMenu() {
     const menuBtn = document.querySelector('.menu-btn');
     const sidebar = document.querySelector('.sidebar');
     const overlay = document.querySelector('.sidebar-overlay');
+    const sidebarItems = document.querySelectorAll('.sidebar-item');
 
-    menuBtn?.addEventListener('click', () => {
-      sidebar?.classList.toggle('open');
-      overlay?.classList.toggle('show');
+    if (!menuBtn || !sidebar || !overlay) return;
+
+    // Abrir/cerrar sidebar
+    menuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('show');
+      document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
     });
 
-    overlay?.addEventListener('click', () => {
-      sidebar?.classList.remove('open');
-      overlay?.classList.remove('show');
+    // Cerrar con overlay
+    overlay.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('show');
+      document.body.style.overflow = '';
     });
+
+    // Cerrar al hacer click en un item y marcar activo
+    sidebarItems.forEach(item => {
+      item.addEventListener('click', () => {
+        sidebarItems.forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        sidebar.classList.remove('open');
+        overlay.classList.remove('show');
+        document.body.style.overflow = '';
+      });
+    });
+
+    // Marcar "Inicio" como activo por defecto
+    const primerItem = document.querySelector('.sidebar-item');
+    if (primerItem && !document.querySelector('.sidebar-item.active')) {
+      primerItem.classList.add('active');
+    }
   }
 
   buscarViajes() {
