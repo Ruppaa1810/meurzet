@@ -8,6 +8,37 @@
       </div>
     </div>
 
+    @if (showRecoveryForm) {
+      <div class="px-10 pb-10">
+        <h3 class="text-xl font-bold text-[#384752] text-center mb-2">Nueva contraseña</h3>
+        <p class="text-sm text-slate-500 text-center mb-6">Elegí una contraseña nueva para tu cuenta.</p>
+
+        <div class="mb-4">
+          <input type="password" [(ngModel)]="newPassword" name="newPassword"
+            class="w-full px-5 py-4 rounded-2xl border-[1.5px] border-outline bg-white text-base outline-none transition-all"
+            placeholder="Contraseña nueva (mín. 6 caracteres)">
+        </div>
+
+        <div class="mb-4">
+          <input type="password" [(ngModel)]="newPasswordConfirm" name="newPasswordConfirm"
+            class="w-full px-5 py-4 rounded-2xl border-[1.5px] border-outline bg-white text-base outline-none transition-all"
+            placeholder="Confirmar contraseña">
+        </div>
+
+        @if (recoveryError) {
+          <div class="mb-4 px-4 py-3 rounded-xl bg-red-50 text-red-800 text-sm text-center border border-red-200">
+            {{ recoveryError }}
+          </div>
+        }
+
+        <button type="button" (click)="updatePassword()" [disabled]="recoveryLoading"
+          class="w-full py-4 rounded-2xl font-bold text-lg text-white border-none cursor-pointer transition-all mb-8"
+          style="background: linear-gradient(135deg, #af4f35, #e4912e);"
+          [style.opacity]="recoveryLoading ? '0.6' : '1'">
+          {{ recoveryLoading ? 'Guardando...' : 'Cambiar contraseña' }}
+        </button>
+      </div>
+    } @else {
     <form (ngSubmit)="login()" class="px-10 pb-10">
 
       <div class="mb-6">
@@ -71,11 +102,11 @@
             </div>
           }
           <div class="flex gap-2 mt-3">
-            <button type="button" (click)="sendResetEmail()" [disabled]="loading"
+            <button type="button" (click)="sendResetEmail()" [disabled]="loading || resetEnviado"
               class="flex-1 py-3 rounded-xl font-semibold text-sm text-white border-none cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:opacity-95 active:scale-[0.98]"
-              style="background: linear-gradient(135deg, #af4f35, #e4912e);"
-              [style.opacity]="loading ? '0.6' : '1'">
-              {{ loading ? 'Enviando...' : 'Enviar enlace' }}
+              [style.background]="resetEnviado ? '#16a34a' : 'linear-gradient(135deg, #af4f35, #e4912e)'"
+              [style.opacity]="(loading || resetEnviado) ? '0.6' : '1'">
+              {{ loading ? 'Enviando...' : (resetEnviado ? '✓ Enviado' : 'Enviar enlace') }}
             </button>
             <button type="button" (click)="cancelForgotPassword()"
               class="px-4 py-3 rounded-xl text-sm text-slate-500 bg-slate-200 border-none cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:opacity-95 active:scale-[0.98]">Cancelar</button>
@@ -84,7 +115,13 @@
       }
 
       @if (message) {
-        <div class="mb-4 px-4 py-3 rounded-xl bg-red-50 text-red-800 text-sm text-center border border-red-200">
+        <div class="mb-4 px-4 py-3 rounded-xl text-sm text-center border"
+          [class.bg-red-50]="!isSuccessMessage"
+          [class.text-red-800]="!isSuccessMessage"
+          [class.border-red-200]="!isSuccessMessage"
+          [class.bg-green-50]="isSuccessMessage"
+          [class.text-green-800]="isSuccessMessage"
+          [class.border-green-200]="isSuccessMessage">
           {{ message }}
         </div>
       }
@@ -107,5 +144,6 @@
       }
 
     </form>
+    }
   </div>
 </div>

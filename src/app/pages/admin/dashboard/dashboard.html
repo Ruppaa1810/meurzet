@@ -8,122 +8,145 @@
     </p>
   </div>
 
-  <div class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-6">
-    <div class="bg-white rounded-2xl p-5 border border-[#eec997] border-l-4 border-l-[var(--color-meurzet-accent)]">
-      <div class="flex justify-between items-center">
-        <span class="text-[#475569] text-xs font-bold uppercase tracking-wider">Bloqueados por vendedor</span>
-        <span class="text-xs font-bold text-[var(--color-meurzet-accent)] bg-orange-100 px-2 py-0.5 rounded">Pendiente</span>
-      </div>
-      <div class="text-2xl font-bold mt-2 text-[var(--color-meurzet-accent)]">{{ bloqueadosPorVendedor }}</div>
+  @if (loading) {
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-6">
+      @for (_ of [1,2,3,4]; track _) {
+        <div class="bg-white rounded-2xl p-5 border border-[#eec997] animate-pulse">
+          <div class="h-3 w-24 bg-slate-200 rounded mb-3"></div>
+          <div class="h-7 w-16 bg-slate-200 rounded"></div>
+        </div>
+      }
     </div>
-
-    <div class="bg-white rounded-2xl p-5 border border-[#eec997] border-l-4 border-l-[var(--color-meurzet-accent)]">
-      <div class="flex justify-between items-center">
-        <span class="text-[#475569] text-xs font-bold uppercase tracking-wider">Viajes activos</span>
-        <span class="text-xs font-bold text-[var(--color-meurzet-accent)] bg-orange-100 px-2 py-0.5 rounded">En curso</span>
-      </div>
-      <div class="text-2xl font-bold mt-2 text-[var(--color-meurzet-accent)]">{{ viajesActivos }}</div>
-    </div>
-
-    <div class="bg-white rounded-2xl p-5 border border-[#eec997] border-l-4 border-l-[var(--color-meurzet-accent)]">
-      <div class="flex justify-between items-center">
-        <span class="text-[#475569] text-xs font-bold uppercase tracking-wider">Confirmados hoy</span>
-        <span class="text-xs font-bold text-[var(--color-meurzet-accent)] bg-orange-100 px-2 py-0.5 rounded">Completado</span>
-      </div>
-      <div class="text-2xl font-bold mt-2 text-[var(--color-meurzet-accent)]">{{ reservasHoy }}</div>
-    </div>
-
-    <div class="bg-white rounded-2xl p-5 border border-[#eec997] border-l-4 border-l-[var(--color-meurzet-accent)]">
-      <div class="flex justify-between items-center">
-        <span class="text-[#475569] text-xs font-bold uppercase tracking-wider">Unidades</span>
-        <span class="text-xs font-bold text-[var(--color-meurzet-accent)] bg-orange-100 px-2 py-0.5 rounded">Disponibles</span>
-      </div>
-      <div class="text-2xl font-bold mt-2 text-[var(--color-meurzet-accent)]">{{ totalUnidades }}</div>
-    </div>
-  </div>
-
-  <div>
-    <h3 class="text-sm font-bold text-[var(--color-meurzet-primary)] mb-4">
-      Accesos Rápidos
-    </h3>
-    <div class="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-6">
-      <div class="bg-white rounded-2xl p-5 border border-[#eec997] flex items-start gap-4 cursor-pointer" (click)="irA('validaciones')">
-        <div class="p-2 bg-blue-50 rounded-lg text-[var(--color-meurzet-secondary)]">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </div>
-        <div>
-          <div class="font-bold text-[var(--color-meurzet-primary)] text-sm">Validar Pagos</div>
-          <div class="text-xs text-slate-500 mt-0.5">Revisar comprobantes pendientes</div>
-          <span class="text-xs text-[var(--color-meurzet-secondary)] font-semibold inline-flex items-center gap-1 mt-2">Validar pagos &rarr;</span>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-2xl p-5 border border-[#eec997] flex items-start gap-4 cursor-pointer" (click)="irA('flota')">
-        <div class="p-2 bg-orange-50 rounded-lg text-[var(--color-meurzet-accent)]">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8 17a2 2 0 11-4 0 2 2 0 014 0zM20 17a2 2 0 11-4 0 2 2 0 014 0z" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 17h2m10 0h2a2 2 0 002-2v-3a2 2 0 00-2-2h-3V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h6m2 0h2" />
-          </svg>
-        </div>
-        <div>
-          <div class="font-bold text-[var(--color-meurzet-primary)] text-sm">Gestionar Flota</div>
-          <div class="text-xs text-slate-500 mt-0.5">Agregar o editar unidades disponibles</div>
-          <span class="text-xs text-[var(--color-meurzet-accent)] font-semibold inline-flex items-center gap-1 mt-2">Ver flota &rarr;</span>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-2xl p-5 border border-[#eec997] flex items-start gap-4 cursor-pointer" (click)="irA('viajes')">
-        <div class="p-2 bg-emerald-50 rounded-lg text-emerald-500">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-          </svg>
-        </div>
-        <div>
-          <div class="font-bold text-[var(--color-meurzet-primary)] text-sm">Nuevo Viaje</div>
-          <div class="text-xs text-slate-500 mt-0.5">Crear nuevas rutas y cronogramas</div>
-          <span class="text-xs text-emerald-500 font-semibold inline-flex items-center gap-1 mt-2">Crear ruta &rarr;</span>
-        </div>
+    <div class="animate-pulse">
+      <div class="h-4 w-32 bg-slate-200 rounded mb-4"></div>
+      <div class="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-6">
+        @for (_ of [1,2,3]; track _) {
+          <div class="bg-white rounded-2xl p-5 border border-[#eec997]">
+            <div class="h-12 w-12 bg-slate-200 rounded-lg mb-3"></div>
+            <div class="h-4 w-28 bg-slate-200 rounded mb-2"></div>
+            <div class="h-3 w-40 bg-slate-200 rounded"></div>
+          </div>
+        }
       </div>
     </div>
-  </div>
+  } @else {
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-6">
+      <div class="bg-white rounded-2xl p-5 border border-[#eec997] border-l-4 border-l-[var(--color-meurzet-accent)]">
+        <div class="flex justify-between items-center">
+          <span class="text-[#475569] text-xs font-bold uppercase tracking-wider">Bloqueados por vendedor</span>
+          <span class="text-xs font-bold text-[var(--color-meurzet-accent)] bg-orange-100 px-2 py-0.5 rounded">Pendiente</span>
+        </div>
+        <div class="text-2xl font-bold mt-2 text-[var(--color-meurzet-accent)]">{{ bloqueadosPorVendedor }}</div>
+      </div>
 
-  <div>
-    <div class="flex justify-between items-center mb-4">
-      <h3 class="text-sm font-bold text-[var(--color-meurzet-primary)] m-0">Actividad Reciente</h3>
+      <div class="bg-white rounded-2xl p-5 border border-[#eec997] border-l-4 border-l-[var(--color-meurzet-accent)]">
+        <div class="flex justify-between items-center">
+          <span class="text-[#475569] text-xs font-bold uppercase tracking-wider">Viajes activos</span>
+          <span class="text-xs font-bold text-[var(--color-meurzet-accent)] bg-orange-100 px-2 py-0.5 rounded">En curso</span>
+        </div>
+        <div class="text-2xl font-bold mt-2 text-[var(--color-meurzet-accent)]">{{ viajesActivos }}</div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-5 border border-[#eec997] border-l-4 border-l-[var(--color-meurzet-accent)]">
+        <div class="flex justify-between items-center">
+          <span class="text-[#475569] text-xs font-bold uppercase tracking-wider">Confirmados hoy</span>
+          <span class="text-xs font-bold text-[var(--color-meurzet-accent)] bg-orange-100 px-2 py-0.5 rounded">Completado</span>
+        </div>
+        <div class="text-2xl font-bold mt-2 text-[var(--color-meurzet-accent)]">{{ reservasHoy }}</div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-5 border border-[#eec997] border-l-4 border-l-[var(--color-meurzet-accent)]">
+        <div class="flex justify-between items-center">
+          <span class="text-[#475569] text-xs font-bold uppercase tracking-wider">Unidades</span>
+          <span class="text-xs font-bold text-[var(--color-meurzet-accent)] bg-orange-100 px-2 py-0.5 rounded">Disponibles</span>
+        </div>
+        <div class="text-2xl font-bold mt-2 text-[var(--color-meurzet-accent)]">{{ totalUnidades }}</div>
+      </div>
     </div>
 
-    <div class="bg-white rounded-2xl border border-[#eec997] p-0 overflow-hidden">
-      <table class="w-full border-collapse">
-        <thead>
-          <tr>
-            <th class="text-xs font-semibold uppercase text-gray-400 border-b border-[#eec997] text-left p-4">Viaje</th>
-            <th class="text-xs font-semibold uppercase text-gray-400 border-b border-[#eec997] text-left p-4">Estado</th>
-            <th class="text-xs font-semibold uppercase text-gray-400 border-b border-[#eec997] text-right p-4">Creada</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (act of actividadReciente; track act.id) {
-            <tr class="hover:bg-[#f4f4f3]">
-              <td class="font-semibold p-3.5 text-sm border-b border-[#eec997]">{{ act.viaje?.origen }} → {{ act.viaje?.destino }}</td>
-              <td class="p-3.5 text-sm border-b border-[#eec997]"><span class="px-3 py-1 rounded-full text-xs font-semibold"
-                [class.bg-green-100]="act.estado === 'aprobado'"
-                [class.text-green-700]="act.estado === 'aprobado'"
-                [class.bg-amber-100]="act.estado === 'pendiente_validacion' || act.estado === 'pendiente_comprobante'"
-                [class.text-amber-700]="act.estado === 'pendiente_validacion' || act.estado === 'pendiente_comprobante'"
-                [class.bg-red-100]="act.estado === 'rechazado'"
-                [class.text-red-700]="act.estado === 'rechazado'"
-              >{{ act.estado }}</span></td>
-              <td class="p-3.5 text-sm border-b border-[#eec997] text-right text-slate-500 text-xs">{{ act.created_at | date: 'HH:mm' }}</td>
-            </tr>
-          } @empty {
+    <div>
+      <h3 class="text-sm font-bold text-[var(--color-meurzet-primary)] mb-4">
+        Accesos Rápidos
+      </h3>
+      <div class="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-6">
+        <div class="bg-white rounded-2xl p-5 border border-[#eec997] flex items-start gap-4 cursor-pointer" (click)="irA('validaciones')">
+          <div class="p-2 bg-blue-50 rounded-lg text-[var(--color-meurzet-secondary)]">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <div class="font-bold text-[var(--color-meurzet-primary)] text-sm">Validar Pagos</div>
+            <div class="text-xs text-slate-500 mt-0.5">Revisar comprobantes pendientes</div>
+            <span class="text-xs text-[var(--color-meurzet-secondary)] font-semibold inline-flex items-center gap-1 mt-2">Validar pagos &rarr;</span>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-[#eec997] flex items-start gap-4 cursor-pointer" (click)="irA('flota')">
+          <div class="p-2 bg-orange-50 rounded-lg text-[var(--color-meurzet-accent)]">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 17a2 2 0 11-4 0 2 2 0 014 0zM20 17a2 2 0 11-4 0 2 2 0 014 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 17h2m10 0h2a2 2 0 002-2v-3a2 2 0 00-2-2h-3V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h6m2 0h2" />
+            </svg>
+          </div>
+          <div>
+            <div class="font-bold text-[var(--color-meurzet-primary)] text-sm">Gestionar Flota</div>
+            <div class="text-xs text-slate-500 mt-0.5">Agregar o editar unidades disponibles</div>
+            <span class="text-xs text-[var(--color-meurzet-accent)] font-semibold inline-flex items-center gap-1 mt-2">Ver flota &rarr;</span>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-[#eec997] flex items-start gap-4 cursor-pointer" (click)="irA('viajes')">
+          <div class="p-2 bg-emerald-50 rounded-lg text-emerald-500">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+          </div>
+          <div>
+            <div class="font-bold text-[var(--color-meurzet-primary)] text-sm">Nuevo Viaje</div>
+            <div class="text-xs text-slate-500 mt-0.5">Crear nuevas rutas y cronogramas</div>
+            <span class="text-xs text-emerald-500 font-semibold inline-flex items-center gap-1 mt-2">Crear ruta &rarr;</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-sm font-bold text-[var(--color-meurzet-primary)] m-0">Actividad Reciente</h3>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-[#eec997] p-0 overflow-hidden">
+        <table class="w-full border-collapse">
+          <thead>
             <tr>
-              <td colspan="3" class="text-center text-slate-400 py-6">Sin actividad reciente</td>
+              <th class="text-xs font-semibold uppercase text-gray-400 border-b border-[#eec997] text-left p-4">Viaje</th>
+              <th class="text-xs font-semibold uppercase text-gray-400 border-b border-[#eec997] text-left p-4">Estado</th>
+              <th class="text-xs font-semibold uppercase text-gray-400 border-b border-[#eec997] text-right p-4">Creada</th>
             </tr>
-          }
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            @for (act of actividadReciente; track act.id) {
+              <tr class="hover:bg-[#f4f4f3]">
+                <td class="font-semibold p-3.5 text-sm border-b border-[#eec997]">{{ act.viaje?.origen }} → {{ act.viaje?.destino }}</td>
+                <td class="p-3.5 text-sm border-b border-[#eec997]"><span class="px-3 py-1 rounded-full text-xs font-semibold"
+                  [class.bg-green-100]="act.estado === 'aprobado'"
+                  [class.text-green-700]="act.estado === 'aprobado'"
+                  [class.bg-amber-100]="act.estado === 'pendiente_validacion' || act.estado === 'pendiente_comprobante'"
+                  [class.text-amber-700]="act.estado === 'pendiente_validacion' || act.estado === 'pendiente_comprobante'"
+                  [class.bg-red-100]="act.estado === 'rechazado'"
+                  [class.text-red-700]="act.estado === 'rechazado'"
+                >{{ act.estado }}</span></td>
+                <td class="p-3.5 text-sm border-b border-[#eec997] text-right text-slate-500 text-xs">{{ act.created_at | date: 'HH:mm' }}</td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="3" class="text-center text-slate-400 py-6">Sin actividad reciente</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
-  </div>
+  }
 </div>

@@ -1,23 +1,22 @@
-import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
+
 
 import { SupabaseService } from '../../../services/supabase.service';
-import type { Viaje, Perfil } from '../../../models/database.types';
+import type { Viaje } from '../../../models/database.types';
 
 @Component({
   selector: 'app-inicio',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './inicio.html',
-  styleUrl: './inicio.css',
 })
-export class Inicio implements OnInit, AfterViewInit {
+export class Inicio implements OnInit {
   todosViajes: Viaje[] = [];
   viajesFiltrados: Viaje[] = [];
   loading = true;
-  perfil: Perfil | null = null;
 
   filtroOrigen = '';
   filtroDestino = '';
@@ -26,71 +25,22 @@ export class Inicio implements OnInit, AfterViewInit {
 
   constructor(
     private supabaseService: SupabaseService,
-    private router: Router,
     private cdr: ChangeDetectorRef,
   ) {}
 
   async ngOnInit() {
     try {
-      const { data: perfil } = await this.supabaseService.getCurrentProfile();
-      this.perfil = perfil;
-
       const { data, error } = await this.supabaseService.getViajes();
       if (!error && data) {
         this.todosViajes = data;
         this.viajesFiltrados = data;
       }
-    } catch {
+    } catch (e: any) {
+      console.error('Error al cargar inicio:', e?.message);
     }
     this.loading = false;
     this.cdr.detectChanges();
   }
-
-  ngAfterViewInit() {
-    this.initMenu();
-  }
-
-  initMenu() {
-    const menuBtn = document.querySelector('.menu-btn');
-    const sidebar = document.querySelector('.sidebar');
-    const overlay = document.querySelector('.sidebar-overlay');
-    const sidebarItems = document.querySelectorAll('.sidebar-item');
-
-    if (!menuBtn || !sidebar || !overlay) return;
-
-    // Abrir/cerrar sidebar
-    menuBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      sidebar.classList.toggle('open');
-      overlay.classList.toggle('show');
-      document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
-    });
-
-    // Cerrar con overlay
-    overlay.addEventListener('click', () => {
-      sidebar.classList.remove('open');
-      overlay.classList.remove('show');
-      document.body.style.overflow = '';
-    });
-
-    // Cerrar al hacer click en un item y marcar activo
-    sidebarItems.forEach(item => {
-      item.addEventListener('click', () => {
-        sidebarItems.forEach(i => i.classList.remove('active'));
-        item.classList.add('active');
-        sidebar.classList.remove('open');
-        overlay.classList.remove('show');
-        document.body.style.overflow = '';
-      });
-    });
-
-    // Marcar "Inicio" como activo por defecto
-    const primerItem = document.querySelector('.sidebar-item');
-    if (primerItem && !document.querySelector('.sidebar-item.active')) {
-      primerItem.classList.add('active');
-    }
-  }
-
   buscarViajes() {
     this.viajesFiltrados = this.todosViajes.filter(v => {
       if (this.filtroOrigen && !v.origen.toLowerCase().includes(this.filtroOrigen.toLowerCase())) return false;
@@ -108,11 +58,6 @@ export class Inicio implements OnInit, AfterViewInit {
       return true;
     });
     this.cdr.detectChanges();
-  }
-
-  async logout() {
-    await this.supabaseService.signOut();
-    this.router.navigate(['/']);
   }
 
   formatHora(fecha: string): string {

@@ -9,8 +9,13 @@ import type { Viaje, MapaAsientoViaje, Perfil, Reserva, Unidad } from '../models
 export class SupabaseService {
 
   supabase: SupabaseClient;
+  isPasswordRecovery = false;
 
   constructor() {
+    this.isPasswordRecovery = localStorage.getItem('meurzet_recovery') === 'true';
+    if (this.isPasswordRecovery) {
+      localStorage.removeItem('meurzet_recovery');
+    }
 
     this.supabase = createClient(
       environment.supabaseUrl,
@@ -32,9 +37,15 @@ export class SupabaseService {
   }
 
   async resetPassword(email: string) {
-    return await this.supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/login`,
-    });
+    const res = await Promise.race([
+      this.supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/?recovery=true`,
+      }),
+      new Promise<any>((_, reject) =>
+        setTimeout(() => reject(new Error('timeout')), 15000)
+      ),
+    ]);
+    return res;
   }
 
   // ===========================================================================
@@ -61,7 +72,7 @@ export class SupabaseService {
       .from('perfiles')
       .select('*')
       .eq('rol', 'vendedor_minorista')
-      .order('nombre', { ascending: true });
+      .order('created_at', { ascending: false });
   }
 
   async togglePerfilActivo(id: string, activo: boolean) {
@@ -92,7 +103,7 @@ export class SupabaseService {
         method: 'POST',
         headers: adminHeaders,
         body: JSON.stringify({
-          email, password, email_confirm: false,
+          email, password, email_confirm: true,
           user_metadata: { nombre, agencia_nombre: agenciaNombre, rol: 'vendedor_minorista' },
         }),
       });

@@ -43,7 +43,7 @@
                   class="px-3 py-1.5 rounded-lg text-xs bg-blue-50 text-blue-600 border border-blue-200 cursor-pointer mr-2">
                   Editar
                 </button>
-                <button (click)="eliminar(v.id)"
+                <button (click)="confirmarEliminar(v.id)"
                   class="px-3 py-1.5 rounded-lg text-xs bg-red-50 text-red-600 border border-red-200 cursor-pointer">
                   Eliminar
                 </button>
@@ -61,6 +61,13 @@
     </table>
   </div>
 
+  @if (successMensaje) {
+    <div class="mt-4 p-3 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm flex justify-between items-center">
+      <span>✓ {{ successMensaje }}</span>
+      <button (click)="successMensaje = ''" class="bg-transparent border-none text-green-500 cursor-pointer text-base leading-none">&times;</button>
+    </div>
+  }
+
   @if (loading) {
     <p class="text-center text-slate-500 mt-4">Cargando...</p>
   }
@@ -68,6 +75,29 @@
     <p class="text-center text-red-600 mt-4">{{ mensaje }}</p>
   }
 </div>
+
+@if (mostrarModalEliminar) {
+  <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+    (click)="cerrarModalEliminar()">
+    <div class="bg-white rounded-2xl p-8 w-[90%] max-w-[400px] shadow-2xl"
+      (click)="$event.stopPropagation()">
+      <h3 class="text-xl font-bold text-[#384752] m-0 mb-2">¿Eliminar viaje?</h3>
+      <p class="text-sm text-slate-500 mb-6">Esta acción no se puede deshacer.</p>
+
+      <div class="flex gap-3">
+        <button (click)="cerrarModalEliminar()" [disabled]="eliminando"
+          class="flex-1 py-3 rounded-xl font-semibold bg-slate-100 text-slate-500 border-none cursor-pointer">
+          Cancelar
+        </button>
+        <button (click)="ejecutarEliminar()" [disabled]="eliminando"
+          class="flex-1 py-3 rounded-xl font-bold text-white border-none cursor-pointer bg-red-600"
+          [class.opacity-60]="eliminando">
+          {{ eliminando ? 'Eliminando...' : 'Eliminar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
 
 @if (modalAbierto) {
   <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
@@ -131,10 +161,11 @@
           class="flex-1 py-3 rounded-xl font-semibold bg-slate-100 text-slate-500 border-none cursor-pointer">
           Cancelar
         </button>
-        <button (click)="guardar()"
+        <button (click)="guardar()" [disabled]="guardando"
           class="flex-1 py-3 rounded-xl font-bold text-white border-none cursor-pointer"
-          style="background: linear-gradient(135deg, #af4f35, #e4912e);">
-          {{ editando ? 'Guardar' : 'Crear' }}
+          style="background: linear-gradient(135deg, #af4f35, #e4912e);"
+          [class.opacity-60]="guardando">
+          {{ guardando ? 'Guardando...' : (editando ? 'Guardar' : 'Crear') }}
         </button>
       </div>
     </div>

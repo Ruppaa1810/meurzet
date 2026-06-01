@@ -28,11 +28,14 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     data: { roles: ['vendedor_minorista'] },
     children: [
-      { path: 'inicio', loadComponent: () => import('./pages/minorista/inicio/inicio').then(m => m.Inicio) },
+      { path: 'vender', loadComponent: () => import('./pages/minorista/inicio/inicio').then(m => m.Inicio) },
+      { path: 'inicio', redirectTo: 'vender' },
       { path: 'seleccion/:viajeId', loadComponent: () => import('./pages/minorista/seleccion/seleccion').then(m => m.Seleccion) },
       { path: 'reserva', loadComponent: () => import('./pages/minorista/reserva/reserva').then(m => m.Reserva) },
       { path: 'confirmacion', loadComponent: () => import('./pages/minorista/confirmacion/confirmacion').then(m => m.Confirmacion) },
-      { path: '', redirectTo: 'inicio', pathMatch: 'full' }
+      { path: 'mis-reservas', loadComponent: () => import('./pages/minorista/mis-reservas/mis-reservas').then(m => m.MisReservas) },
+      { path: 'perfil', loadComponent: () => import('./pages/minorista/perfil/perfil').then(m => m.Perfil) },
+      { path: '', redirectTo: 'vender', pathMatch: 'full' }
     ]
   }
 ];
