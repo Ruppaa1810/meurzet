@@ -1,22 +1,26 @@
 <div class="min-h-screen flex flex-col bg-[#f4f4f3]">
   
-  <!-- HEADER GRIS OSCURO - RESPONSIVE -->
+  <!-- HEADER GRIS OSCURO CON LOGO -->
   <div class="bg-[#384752] w-full shrink-0">
-    <div class="max-w-4xl mx-auto px-4 md:px-8 py-4 md:py-5 text-center">
-      <h2 class="text-lg md:text-xl font-bold text-white mb-1">
-        Confirmar Reserva
-      </h2>
-      <p class="text-[#eec997] text-[10px] md:text-xs">
-        {{ reservaState.viaje?.origen }} → {{ reservaState.viaje?.destino }} · {{ reservaState.asientos.length }} asiento{{ reservaState.asientos.length > 1 ? 's' : '' }}
-      </p>
+    <div class="max-w-4xl mx-auto px-4 md:px-8 py-4 md:py-5">
+      <div class="flex flex-col items-center text-center">
+        <!-- Logo -->
+        <img src="/logo.jpeg" class="w-12 h-12 md:w-[60px] md:h-[60px] rounded-full object-cover bg-white mb-2 md:mb-3 shadow-md" />
+        <h2 class="text-lg md:text-xl font-bold text-white mb-1">
+          Confirmar Reserva
+        </h2>
+        <p class="text-[#eec997] text-[10px] md:text-xs">
+          {{ reservaState.viaje?.origen }} → {{ reservaState.viaje?.destino }} · {{ reservaState.asientos.length }} asiento{{ reservaState.asientos.length > 1 ? 's' : '' }}
+        </p>
+      </div>
     </div>
   </div>
 
-  <!-- CONTENIDO PRINCIPAL - RESPONSIVE -->
+  <!-- CONTENIDO PRINCIPAL -->
   <div class="flex-1 flex flex-col">
     <div class="max-w-4xl mx-auto px-4 md:px-8 py-4 md:py-6 w-full space-y-4 md:space-y-5">
 
-      <!-- Tarjetas de pasajeros - RESPONSIVE -->
+      <!-- Tarjetas de pasajeros -->
       @for (asiento of reservaState.asientos; track asiento.asientoId; let i = $index) {
         <div class="bg-white rounded-xl md:rounded-2xl p-5 md:p-6 shadow-lg border-2 border-[#af4f35]/20 hover:border-[#1aa7c4] hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
           <h3 class="text-sm md:text-base font-bold text-[#384752] mb-3 md:mb-4">
@@ -53,7 +57,7 @@
         </div>
       }
 
-      <!-- Selección de monto - RESPONSIVE -->
+      <!-- Selección de monto -->
       <div class="bg-white rounded-xl md:rounded-2xl p-5 md:p-6 shadow-lg border-2 border-[#af4f35]/20 hover:border-[#1aa7c4] hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
         <h3 class="text-sm md:text-base font-bold text-[#384752] mb-3 md:mb-4">
           Seleccioná el monto a pagar
@@ -93,7 +97,7 @@
           </div>
         }
 
-        <!-- Resumen pago - RESPONSIVE -->
+        <!-- Resumen pago -->
         <div class="mt-4 md:mt-5 p-4 md:p-5 bg-[#fff5f2] rounded-xl text-center border-2 border-[#eec997]">
           <div class="text-[10px] md:text-xs text-slate-500">Monto a pagar ahora</div>
           <div class="text-xl md:text-2xl font-extrabold text-[#af4f35] my-1">{{ formatPrecio(montoAPagar) }}</div>
@@ -101,7 +105,7 @@
         </div>
       </div>
 
-      <!-- Mensaje de error - RESPONSIVE -->
+      <!-- Mensaje de error -->
       @if (message) {
         <div class="px-4 md:px-5 py-2 md:py-3 rounded-xl bg-red-50 text-red-600 text-[10px] md:text-xs text-center border border-red-200">
           {{ message }}
@@ -111,7 +115,7 @@
     </div>
   </div>
 
-  <!-- BOTÓN CONFIRMAR - RESPONSIVE -->
+  <!-- BOTÓN CONFIRMAR -->
   <div class="w-full bg-transparent">
     <div class="max-w-4xl mx-auto px-4 md:px-8 pb-6 md:pb-8">
       <button (click)="confirmarReserva()" [disabled]="loading"

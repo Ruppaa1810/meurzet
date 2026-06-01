@@ -1,6 +1,5 @@
 <header class="topbar">
   <div class="topbar-left">
-    <button class="menu-btn" aria-label="Menú"><span></span><span></span><span></span></button>
     <img src="/logo.jpeg" class="logo-img" alt="Meurzet" />
     <div>
       <h1 class="brand-title">Meurzet</h1>
@@ -12,16 +11,6 @@
   </div>
 </header>
 
-<div class="sidebar-overlay"></div>
-
-<aside class="sidebar">
-  <div class="sidebar-item active">Reservar Pasajes</div>
-  <div class="sidebar-item">Mis Reservas</div>
-  <div class="sidebar-item">Pagos Pendientes</div>
-  <div class="sidebar-item">Historial</div>
-  <div class="sidebar-divider"></div>
-  <button class="sidebar-logout" (click)="logout()">Cerrar Sesi&oacute;n</button>
-</aside>
 
 @if (loading) {
   <div class="content-wrapper" style="display: flex; align-items: center; justify-content: center; height: 60vh;">

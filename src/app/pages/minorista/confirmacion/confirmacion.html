@@ -1,98 +1,96 @@
 <div class="min-h-screen flex flex-col bg-[#f4f4f3]">
   
-  <!-- HEADER COMPACTO -->
+  <!-- HEADER GRIS OSCURO CON LOGO -->
   <div class="bg-[#384752] w-full shrink-0">
-    <div class="max-w-6xl mx-auto px-8 py-4 text-center">
-      <div class="w-11 h-11 mx-auto mb-1.5 rounded-full bg-green-500/20 flex items-center justify-center">
-        <svg class="w-5.5 h-5.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
-        </svg>
+    <div class="max-w-4xl mx-auto px-4 md:px-8 py-4 md:py-5">
+      <div class="flex flex-col items-center text-center">
+        <!-- Logo -->
+        <img src="/logo.jpeg" class="w-12 h-12 md:w-[60px] md:h-[60px] rounded-full object-cover bg-white mb-2 md:mb-3 shadow-md" />
+        <h2 class="text-lg md:text-xl font-bold text-white mb-1">
+          Reserva{{ reservaState.asientos.length > 1 ? 's' : '' }} Registrada{{ reservaState.asientos.length > 1 ? 's' : '' }}
+        </h2>
+        <p class="text-[#eec997] text-[10px] md:text-xs">
+          {{ reservaState.asientos.length }} asiento{{ reservaState.asientos.length > 1 ? 's' : '' }} registrado{{ reservaState.asientos.length > 1 ? 's' : '' }} correctamente
+        </p>
       </div>
-      <h1 class="text-xl font-bold text-white mb-0.5">
-        Reserva{{ reservaState.asientos.length > 1 ? 's' : '' }} Registrada{{ reservaState.asientos.length > 1 ? 's' : '' }}
-      </h1>
-      <p class="text-[#eec997] text-[11px]">
-        {{ reservaState.asientos.length }} asiento{{ reservaState.asientos.length > 1 ? 's' : '' }} registrado{{ reservaState.asientos.length > 1 ? 's' : '' }} correctamente
-      </p>
     </div>
   </div>
 
-  <!-- CONTENIDO PRINCIPAL - CENTRADO VERTICALMENTE -->
-  <div class="flex-1 flex flex-col justify-center">
-    <div class="max-w-6xl mx-auto px-8 py-6 w-full space-y-5">
-      
+  <!-- CONTENIDO PRINCIPAL -->
+  <div class="flex-1 flex flex-col">
+    <div class="max-w-4xl mx-auto px-4 md:px-8 py-4 md:py-6 w-full space-y-4 md:space-y-5">
+
       <!-- CÓDIGO DE RESERVA -->
-      <div class="bg-white rounded-xl shadow-lg border-2 border-[#af4f35]/30 hover:border-[#1aa7c4] hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 p-4">
+      <div class="bg-white rounded-xl shadow-lg border-2 border-[#af4f35]/30 hover:border-[#1aa7c4] hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 p-4 md:p-5">
         <div class="flex flex-col gap-2 md:flex-row md:justify-between md:items-center">
           <div>
-            <span class="text-[11px] text-slate-400 uppercase tracking-wide">Código de reserva</span>
-            <p class="font-mono font-bold text-2xl text-[#384752]">MEU-000001</p>
+            <span class="text-[10px] md:text-xs text-slate-400 uppercase tracking-wide">Código de reserva</span>
+            <p class="font-mono font-bold text-xl md:text-2xl text-[#384752]">MEU-000001</p>
           </div>
-          <div class="bg-[#fff5f2] rounded-lg px-3 py-1 border border-[#eec997] text-xs font-bold text-[#af4f35] inline-flex items-center justify-center">
+          <div class="bg-[#fff5f2] rounded-lg px-3 py-1 border border-[#eec997] text-[10px] md:text-xs font-bold text-[#af4f35] inline-flex items-center justify-center">
             Pendiente de pago
           </div>
         </div>
       </div>
 
       <!-- DETALLE DE RESERVA -->
-      <div class="bg-white rounded-xl shadow-lg border-2 border-[#af4f35]/30 hover:border-[#1aa7c4] hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 overflow-hidden">
-        <div class="bg-[#384752]/5 px-5 py-2.5 border-b border-[#eec997]">
+      <div class="bg-white rounded-xl md:rounded-2xl shadow-lg border-2 border-[#af4f35]/20 hover:border-[#1aa7c4] hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 overflow-hidden">
+        <div class="bg-[#384752]/5 px-4 md:px-6 py-2 md:py-3 border-b border-[#eec997]">
           <div class="flex flex-col gap-1 md:flex-row md:justify-between md:items-center">
-            <h2 class="font-bold text-sm text-[#384752]">Detalle de tu reserva</h2>
-            <p class="text-[11px] text-slate-500">{{ reservaState.viaje?.origen }} → {{ reservaState.viaje?.destino }} · {{ reservaState.viaje?.fecha_salida | date:'HH:mm' }} hs</p>
+            <h2 class="font-bold text-sm md:text-base text-[#384752]">Detalle de tu reserva</h2>
+            <p class="text-[10px] md:text-xs text-slate-500">{{ reservaState.viaje?.origen }} → {{ reservaState.viaje?.destino }} · {{ reservaState.viaje?.fecha_salida | date:'HH:mm' }} hs</p>
           </div>
         </div>
-        
-        <div class="p-5">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        <div class="p-4 md:p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
             @for (asiento of reservaState.asientos; track asiento.asientoId; let i = $index) {
-              <div class="bg-[#f4f4f3] rounded-lg p-3.5 border-2 border-[#af4f35]/15 hover:border-[#1aa7c4] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+              <div class="bg-[#f4f4f3] rounded-xl p-3 md:p-4 border-2 border-[#af4f35]/15 hover:border-[#1aa7c4] hover:shadow-md transition-all duration-200">
                 <div class="flex justify-between items-center gap-2 mb-2">
-                  <span class="text-[11px] text-slate-400">Asiento</span>
-                  <span class="text-sm font-bold text-[#af4f35] bg-white px-2 py-0.5 rounded-full">{{ asiento.nroAsiento }}</span>
+                  <span class="text-[10px] md:text-xs text-slate-400">Asiento</span>
+                  <span class="text-sm md:text-base font-bold text-[#af4f35] bg-white px-2 py-0.5 rounded-full">{{ asiento.nroAsiento }}</span>
                 </div>
-                <div class="space-y-1.5">
-                  <p class="font-bold text-sm text-[#384752]">{{ reservaState.pasajeros[i]?.nombre }} {{ reservaState.pasajeros[i]?.apellido }}</p>
-                  <p class="text-[10px] text-slate-400">DNI: {{ reservaState.pasajeros[i]?.documento }}</p>
-                  <p class="text-[10px] text-slate-400">Email: {{ reservaState.pasajeros[i]?.email }}</p>
-                  <p class="text-[10px] text-slate-400">Tel: {{ reservaState.pasajeros[i]?.telefono }}</p>
-                  <p class="text-[10px] text-slate-400">Planta {{ asiento.piso === 1 ? 'Baja' : 'Alta' }}</p>
+                <div class="space-y-1">
+                  <p class="font-bold text-xs md:text-sm text-[#384752]">{{ reservaState.pasajeros[i]?.nombre }} {{ reservaState.pasajeros[i]?.apellido }}</p>
+                  <p class="text-[9px] md:text-[10px] text-slate-400">DNI: {{ reservaState.pasajeros[i]?.documento }}</p>
+                  <p class="text-[9px] md:text-[10px] text-slate-400">Email: {{ reservaState.pasajeros[i]?.email }}</p>
+                  <p class="text-[9px] md:text-[10px] text-slate-400">Tel: {{ reservaState.pasajeros[i]?.telefono }}</p>
+                  <p class="text-[9px] md:text-[10px] text-slate-400">Planta {{ asiento.piso === 1 ? 'Baja' : 'Alta' }}</p>
                 </div>
               </div>
             }
           </div>
         </div>
-        
-        <div class="bg-[#f4f4f3] px-5 py-3 border-t border-[#eec997]">
-          <div class="grid grid-cols-3 gap-3 text-center">
+
+        <div class="bg-[#f4f4f3] px-4 md:px-6 py-3 md:py-4 border-t border-[#eec997]">
+          <div class="grid grid-cols-3 gap-2 md:gap-4 text-center">
             <div>
-              <span class="text-slate-500 text-[11px]">Total</span>
-              <p class="font-bold text-lg text-[#384752]">{{ formatPrecio(total) }}</p>
+              <span class="text-slate-500 text-[10px] md:text-xs">Total</span>
+              <p class="font-bold text-base md:text-xl text-[#384752]">{{ formatPrecio(total) }}</p>
             </div>
             <div class="border-l border-r border-[#eec997]">
-              <span class="text-slate-500 text-[11px]">Tipo de pago</span>
-              <p class="font-semibold text-sm text-[#384752]">{{ pagoLabel }}</p>
+              <span class="text-slate-500 text-[10px] md:text-xs">Tipo de pago</span>
+              <p class="font-semibold text-xs md:text-sm text-[#384752]">{{ pagoLabel }}</p>
             </div>
             <div>
-              <span class="text-slate-500 text-[11px]">A pagar ahora</span>
-              <p class="font-bold text-lg text-[#af4f35]">{{ formatPrecio(montoAPagar) }}</p>
+              <span class="text-slate-500 text-[10px] md:text-xs">A pagar ahora</span>
+              <p class="font-bold text-base md:text-xl text-[#af4f35]">{{ formatPrecio(montoAPagar) }}</p>
             </div>
           </div>
         </div>
       </div>
 
       <!-- DATOS TRANSFERENCIA + SUBIR COMPROBANTE -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         
-        <!-- DATOS TRANSFERENCIA -->
-        <div class="bg-[#fff5f2] rounded-xl p-4 border-2 border-[#af4f35]/20 hover:border-[#1aa7c4] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+        <div class="bg-[#fff5f2] rounded-xl p-4 md:p-5 border-2 border-[#af4f35]/20 hover:border-[#1aa7c4] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
           <div class="flex items-center gap-2 mb-3">
             <svg class="w-5 h-5 text-[#af4f35]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
-            <h3 class="text-sm font-bold text-[#384752]">Datos para transferencia</h3>
+            <h3 class="text-sm md:text-base font-bold text-[#384752]">Datos para transferencia</h3>
           </div>
-          <div class="space-y-2.5 text-sm">
+          <div class="space-y-2 text-xs md:text-sm">
             <div class="flex justify-between">
               <span class="text-slate-500">Banco:</span>
               <span class="font-medium text-[#384752]">Meurzet S.A.</span>
@@ -103,7 +101,7 @@
             </div>
             <div class="flex justify-between">
               <span class="text-slate-500">CBU:</span>
-              <span class="font-medium text-[#384752] font-mono text-[11px]">1234567890123456789012</span>
+              <span class="font-medium text-[#384752] font-mono text-[10px] md:text-xs">1234567890123456789012</span>
             </div>
             <div class="flex justify-between">
               <span class="text-slate-500">Titular:</span>
@@ -111,34 +109,34 @@
             </div>
           </div>
           <div class="mt-3 pt-2 border-t border-[#eec997]">
-            <p class="text-[10px] text-slate-500">📌 Subí el comprobante para validar tu reserva</p>
+            <p class="text-[9px] md:text-[10px] text-slate-500">📌 Subí el comprobante para validar tu reserva</p>
           </div>
         </div>
 
         <!-- SUBIR COMPROBANTE -->
         @if (!comprobanteSubido) {
-          <div class="bg-white rounded-xl p-4 border-2 border-[#af4f35]/30 hover:border-[#1aa7c4] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
-            <h3 class="text-sm font-bold text-[#384752] mb-2">Subir Comprobante de Pago</h3>
-            <p class="text-[11px] text-slate-500 mb-3">
+          <div class="bg-white rounded-xl p-4 md:p-5 border-2 border-[#af4f35]/30 hover:border-[#1aa7c4] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+            <h3 class="text-sm md:text-base font-bold text-[#384752] mb-2">Subir Comprobante de Pago</h3>
+            <p class="text-[11px] md:text-sm text-slate-500 mb-3">
               Adjuntá el comprobante (PDF o imagen)
             </p>
             <input type="file" accept=".pdf,image/*" (change)="subirComprobante($event)" 
-              class="w-full p-2.5 border-2 border-dashed border-[#c9a08f] rounded-lg text-xs bg-slate-50 
-                     file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold 
+              class="w-full p-2 md:p-2.5 border-2 border-dashed border-[#c9a08f] rounded-lg text-xs md:text-sm bg-slate-50 
+                     file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] md:file:text-[11px] file:font-semibold 
                      file:bg-[#af4f35] file:text-white file:cursor-pointer
                      hover:file:bg-[#1aa7c4] hover:file:to-[#384752]
                      hover:border-[#1aa7c4] focus:outline-none focus:border-[#1aa7c4] focus:ring-1 focus:ring-[#1aa7c4] 
                      transition-all duration-200 cursor-pointer">
             @if (subiendo) {
-              <p class="text-[11px] text-[#e4912e] mt-2 animate-pulse">Subiendo comprobante...</p>
+              <p class="text-[11px] md:text-sm text-[#e4912e] mt-2 animate-pulse">Subiendo comprobante...</p>
             }
             @if (mensaje) {
-              <p class="text-[11px] text-red-500 mt-2">{{ mensaje }}</p>
+              <p class="text-[11px] md:text-sm text-red-500 mt-2">{{ mensaje }}</p>
             }
           </div>
         } @else {
-          <div class="bg-green-50 rounded-xl p-4 border border-green-300 text-center hover:border-[#1aa7c4] hover:shadow-md transition-all duration-300">
-            <p class="text-green-600 font-semibold text-[11px] flex items-center justify-center gap-1">
+          <div class="bg-green-50 rounded-xl p-4 md:p-5 border border-green-300 text-center hover:border-[#1aa7c4] transition-all">
+            <p class="text-green-600 font-semibold text-[11px] md:text-sm flex items-center justify-center gap-1">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
               </svg>
@@ -151,16 +149,16 @@
 
       <!-- BOTÓN VOLVER -->
       <button routerLink="/minorista/inicio" 
-        class="w-full py-3 rounded-xl font-bold text-sm text-white 
+        class="w-full py-3 md:py-4 rounded-xl font-bold text-sm md:text-base text-white 
                bg-gradient-to-r from-[#af4f35] to-[#e4912e] 
                hover:from-[#1aa7c4] hover:to-[#384752]
-               hover:shadow-lg transform hover:-translate-y-0.5 
+               hover:shadow-xl transform hover:-translate-y-0.5 
                transition-all duration-300 cursor-pointer">
         Volver al Inicio
       </button>
 
       <!-- ADVERTENCIA -->
-      <p class="text-[10px] text-slate-400 text-center pb-1">
+      <p class="text-[9px] md:text-[10px] text-slate-400 text-center pb-2">
         La reserva se mantiene por 24 horas. Pasado ese tiempo, los asientos quedarán libres nuevamente.
       </p>
       
