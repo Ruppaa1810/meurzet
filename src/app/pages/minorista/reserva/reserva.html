@@ -1,147 +1,109 @@
-<div>
+<div class="max-w-[700px] mx-auto p-8 font-sans">
+  <h2 class="text-2xl font-bold text-[#384752] mb-2">
+    Confirmar Reserva
+  </h2>
+  <p class="text-slate-500 text-sm mb-8">
+    {{ reservaState.viaje?.origen }} → {{ reservaState.viaje?.destino }} · {{ reservaState.asientos.length }} asiento{{ reservaState.asientos.length > 1 ? 's' : '' }}
+  </p>
 
-  <!-- HEADER GRIS OSCURO - OCUPA TODO EL ANCHO -->
-  <div class="bg-[#384752] w-full">
-    <div class="max-w-6xl mx-auto px-4 py-6">
-      <div class="flex items-center justify-between flex-wrap gap-4">
+  @for (asiento of reservaState.asientos; track asiento.asientoId; let i = $index) {
+    <div class="bg-white rounded-2xl p-6 shadow-sm mb-6">
+      <h3 class="text-base font-bold mb-1 text-[#384752]">
+        Pasajero {{ i + 1 }} — Asiento N° {{ asiento.nroAsiento }} · Planta {{ asiento.piso === 1 ? 'Baja' : 'Alta' }}
+      </h3>
+
+      <div class="grid grid-cols-2 gap-4 mt-4">
         <div>
-          <h2 class="text-2xl font-bold text-white mb-1">Confirmar Reserva</h2>
-          <p class="text-[#eec997] text-sm">Completá los datos para finalizar la reserva</p>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Nombre</label>
+          <input type="text" [(ngModel)]="reservaState.pasajeros[i].nombre" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm">
         </div>
-        <div class="bg-white/10 rounded-xl px-4 py-2">
-          <span class="text-white font-bold">{{ reservaState.asientos.length }} asiento{{ reservaState.asientos.length > 1 ? 's' : '' }}</span>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Apellido</label>
+          <input type="text" [(ngModel)]="reservaState.pasajeros[i].apellido" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm">
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- INFO DEL VIAJE - BORDE CELESTE Y SOMBRA MÁS FUERTE -->
-  <div class="bg-white border-b-2 border-[#1aa7c4]/40 shadow-lg">
-    <div class="max-w-6xl mx-auto px-4 py-4">
-      <div class="flex flex-wrap items-center justify-between gap-4">
-        <div class="flex flex-wrap items-center gap-4">
-          <div>
-            <div class="text-xs text-slate-400 uppercase">Origen</div>
-            <div class="text-xl font-bold text-[#384752]">{{ reservaState.viaje?.origen }}</div>
-          </div>
-          <div class="text-2xl text-[#af4f35]">→</div>
-          <div>
-            <div class="text-xs text-slate-400 uppercase">Destino</div>
-            <div class="text-xl font-bold text-[#384752]">{{ reservaState.viaje?.destino }}</div>
-          </div>
-          <div class="w-px h-8 bg-[#eec997] hidden md:block"></div>
-          <div>
-            <div class="text-xs text-slate-400 uppercase">Salida</div>
-            <div class="text-base font-bold text-[#384752]">{{ reservaState.viaje?.fecha_salida | date:'dd/MM/yyyy' }}</div>
-          </div>
-          <div>
-            <div class="text-xs text-slate-400 uppercase">Horario</div>
-            <div class="text-base font-bold text-[#384752]">{{ reservaState.viaje?.fecha_salida | date:'HH:mm' }} hs</div>
-          </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Documento</label>
+          <input type="text" [(ngModel)]="reservaState.pasajeros[i].documento" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm">
         </div>
-        <div class="bg-[#fff5f2] rounded-xl px-5 py-2 text-center shadow-md">
-          <div class="text-xs text-slate-500">Total a pagar</div>
-          <div class="text-2xl font-extrabold text-[#af4f35]">{{ formatPrecio(total) }}</div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Email</label>
+          <input type="email" [(ngModel)]="reservaState.pasajeros[i].email" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm">
+        </div>
+        <div class="col-span-2">
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Teléfono</label>
+          <input type="text" [(ngModel)]="reservaState.pasajeros[i].telefono" class="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm">
         </div>
       </div>
     </div>
-  </div>
+  }
 
-  <!-- CONTENIDO PRINCIPAL -->
-  <div class="max-w-6xl mx-auto px-4 py-8">
+  <div class="bg-white rounded-2xl p-6 shadow-sm mb-6">
+    <h3 class="text-base font-bold mb-4 text-[#384752]">
+      Seleccioná el monto a pagar
+    </h3>
 
-    <!-- FORMULARIO DE PASAJEROS -->
-    <div class="space-y-6">
-      
-      <div *ngFor="let asiento of reservaState.asientos; let i = index" class="bg-white rounded-2xl p-6 shadow-xl border-2 border-[#af4f35]/20 hover:border-[#1aa7c4] hover:shadow-2xl transition-all duration-200">
-        <!-- SIN LÍNEA DEBAJO DEL TÍTULO -->
-        <div class="font-bold text-[#384752] text-base mb-4">
-          Pasajero {{ i + 1 }} — Asiento N° {{ asiento.nroAsiento }} · Planta {{ asiento.piso === 1 ? 'Baja' : 'Alta' }}
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Nombre</label>
-            <input type="text" [(ngModel)]="reservaState.pasajeros[i].nombre" 
-              class="w-full px-4 py-2.5 border-2 border-[#af4f35]/30 rounded-xl text-sm focus:outline-none focus:border-[#1aa7c4] focus:ring-2 focus:ring-[#1aa7c4]/20 hover:border-[#1aa7c4] transition-all duration-200">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Apellido</label>
-            <input type="text" [(ngModel)]="reservaState.pasajeros[i].apellido" 
-              class="w-full px-4 py-2.5 border-2 border-[#af4f35]/30 rounded-xl text-sm focus:outline-none focus:border-[#1aa7c4] focus:ring-2 focus:ring-[#1aa7c4]/20 hover:border-[#1aa7c4] transition-all duration-200">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Documento</label>
-            <input type="text" [(ngModel)]="reservaState.pasajeros[i].documento" 
-              class="w-full px-4 py-2.5 border-2 border-[#af4f35]/30 rounded-xl text-sm focus:outline-none focus:border-[#1aa7c4] focus:ring-2 focus:ring-[#1aa7c4]/20 hover:border-[#1aa7c4] transition-all duration-200">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Email</label>
-            <input type="email" [(ngModel)]="reservaState.pasajeros[i].email" 
-              class="w-full px-4 py-2.5 border-2 border-[#af4f35]/30 rounded-xl text-sm focus:outline-none focus:border-[#1aa7c4] focus:ring-2 focus:ring-[#1aa7c4]/20 hover:border-[#1aa7c4] transition-all duration-200">
-          </div>
-          <div class="md:col-span-2">
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Teléfono</label>
-            <input type="text" [(ngModel)]="reservaState.pasajeros[i].telefono" 
-              class="w-full px-4 py-2.5 border-2 border-[#af4f35]/30 rounded-xl text-sm focus:outline-none focus:border-[#1aa7c4] focus:ring-2 focus:ring-[#1aa7c4]/20 hover:border-[#1aa7c4] transition-all duration-200">
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SELECCIÓN DE MONTO (debajo del formulario) -->
-    <div class="mt-8">
-      <div class="bg-white rounded-2xl p-6 shadow-xl border-2 border-[#af4f35]/20 hover:border-[#1aa7c4] hover:shadow-2xl transition-all duration-200">
-        <div class="font-bold text-[#384752] text-base mb-4">Seleccioná el monto a pagar</div>
-
-        <div class="flex gap-2 mb-4 flex-wrap">
-          <button (click)="reservaState.tipoPagoMode = 'total'"
-            class="flex-1 py-2 rounded-xl text-sm font-bold border-2 transition-all duration-200 cursor-pointer"
-            [class]="reservaState.tipoPagoMode === 'total' ? 'border-[#af4f35] bg-[#fff5f2] text-[#af4f35] shadow-md' : 'border-slate-200 bg-white text-slate-600 hover:border-[#af4f35]'">
-            Total
-          </button>
-          <button (click)="reservaState.tipoPagoMode = 'parcial'"
-            class="flex-1 py-2 rounded-xl text-sm font-bold border-2 transition-all duration-200 cursor-pointer"
-            [class]="reservaState.tipoPagoMode === 'parcial' ? 'border-[#af4f35] bg-[#fff5f2] text-[#af4f35] shadow-md' : 'border-slate-200 bg-white text-slate-600 hover:border-[#af4f35]'">
-            30%
-          </button>
-          <button (click)="reservaState.tipoPagoMode = 'personalizado'"
-            class="flex-1 py-2 rounded-xl text-sm font-bold border-2 transition-all duration-200 cursor-pointer"
-            [class]="reservaState.tipoPagoMode === 'personalizado' ? 'border-[#af4f35] bg-[#fff5f2] text-[#af4f35] shadow-md' : 'border-slate-200 bg-white text-slate-600 hover:border-[#af4f35]'">
-            Personalizado
-          </button>
-        </div>
-
-        <div *ngIf="reservaState.tipoPagoMode === 'personalizado'" class="mb-4">
-          <label class="text-xs font-semibold text-slate-600 mb-1 block">Monto (mínimo ${{ formatPrecio(montoMinimo) }})</label>
-          <div class="relative">
-            <span class="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-slate-500">$</span>
-            <input type="number" [min]="montoMinimo" [max]="total" [(ngModel)]="reservaState.montoPersonalizado"
-              class="w-full pl-8 pr-3 py-3 border-2 border-[#af4f35]/30 rounded-xl text-lg font-bold focus:outline-none focus:border-[#1aa7c4] focus:ring-2 focus:ring-[#1aa7c4]/20 hover:border-[#1aa7c4] transition-all duration-200">
-          </div>
-        </div>
-
-        <div class="mt-4 p-4 bg-[#fff5f2] rounded-xl text-center shadow-inner">
-          <div class="text-xs text-slate-500">Monto a pagar ahora</div>
-          <div class="text-3xl font-extrabold text-[#af4f35]">{{ formatPrecio(montoAPagar) }}</div>
-          <div class="text-xs text-slate-400 mt-1">{{ reservaState.porcentajePago }}% del total ({{ formatPrecio(total) }})</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- BOTÓN CONFIRMAR -->
-    <div class="mt-6">
-      <button (click)="confirmarReserva()" [disabled]="loading"
-        class="w-full py-4 rounded-2xl font-bold text-white text-lg bg-gradient-to-r from-[#af4f35] to-[#e4912e] hover:from-[#1aa7c4] hover:to-[#384752] hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed shadow-md">
-        {{ loading ? 'Confirmando...' : 'Confirmar Reserva' }}
+    <div class="flex gap-2 mb-6">
+      <button (click)="reservaState.tipoPagoMode = 'total'"
+        class="flex-1 py-2.5 px-3 rounded-xl text-sm font-bold cursor-pointer border-2 transition-all duration-200"
+        [class.border-[#af4f35]]="reservaState.tipoPagoMode === 'total'"
+        [class.border-slate-200]="reservaState.tipoPagoMode !== 'total'"
+        [class.bg-[#fff5f2]]="reservaState.tipoPagoMode === 'total'"
+        [class.bg-white]="reservaState.tipoPagoMode !== 'total'">
+        Total
+      </button>
+      <button (click)="reservaState.tipoPagoMode = 'parcial'"
+        class="flex-1 py-2.5 px-3 rounded-xl text-sm font-bold cursor-pointer border-2 transition-all duration-200"
+        [class.border-[#af4f35]]="reservaState.tipoPagoMode === 'parcial'"
+        [class.border-slate-200]="reservaState.tipoPagoMode !== 'parcial'"
+        [class.bg-[#fff5f2]]="reservaState.tipoPagoMode === 'parcial'"
+        [class.bg-white]="reservaState.tipoPagoMode !== 'parcial'">
+        Parcial (30%)
+      </button>
+      <button (click)="reservaState.tipoPagoMode = 'personalizado'"
+        class="flex-1 py-2.5 px-3 rounded-xl text-sm font-bold cursor-pointer border-2 transition-all duration-200"
+        [class.border-[#af4f35]]="reservaState.tipoPagoMode === 'personalizado'"
+        [class.border-slate-200]="reservaState.tipoPagoMode !== 'personalizado'"
+        [class.bg-[#fff5f2]]="reservaState.tipoPagoMode === 'personalizado'"
+        [class.bg-white]="reservaState.tipoPagoMode !== 'personalizado'">
+        Personalizado
       </button>
     </div>
 
-    <!-- MENSAJE DE ERROR -->
-    <div *ngIf="message" class="mt-4 px-4 py-3 rounded-xl bg-red-50 text-red-700 text-sm text-center border border-red-200 shadow-sm">
-      {{ message }}
-    </div>
+    @if (reservaState.tipoPagoMode === 'personalizado') {
+      <div class="mb-4">
+        <label class="text-xs font-semibold text-slate-600 mb-1 block">
+          Ingresá el monto a pagar (mínimo ${{ formatPrecio(montoMinimo) }} · máximo ${{ formatPrecio(total) }})
+        </label>
+        <div class="relative">
+          <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-500">$</span>
+          <input type="number" [(ngModel)]="reservaState.montoPersonalizado"
+            [class.border-red-400]="montoError"
+            [class.border-slate-200]="!montoError"
+            class="w-full py-3 pl-8 pr-4 border-2 rounded-xl text-lg font-bold outline-none transition-all">
+        </div>
+        @if (montoError) {
+          <p class="text-red-600 text-xs mt-1 font-semibold">{{ montoError }}</p>
+        }
+      </div>
+    }
 
+    <div class="mt-4 p-4 bg-[#fff5f2] rounded-xl text-center">
+      <div class="text-xs text-slate-500">Monto a pagar ahora</div>
+      <div class="text-2xl font-extrabold text-[#af4f35]">{{ formatPrecio(montoAPagar) }}</div>
+      <div class="text-xs text-slate-400">{{ reservaState.porcentajePago }}% del total ({{ formatPrecio(total) }})</div>
+    </div>
   </div>
 
+  @if (message) {
+    <div class="mb-4 px-4 py-3 rounded-xl bg-red-50 text-red-800 text-sm text-center border border-red-200">
+      {{ message }}
+    </div>
+  }
+
+  <button (click)="confirmarReserva()" [disabled]="loading"
+    class="w-full py-4 rounded-2xl font-bold text-lg text-white border-none cursor-pointer transition-all duration-200"
+    [class.opacity-60]="loading"
+    style="background: linear-gradient(135deg, #af4f35, #e4912e);">
+    {{ loading ? 'Confirmando...' : 'Confirmar Reserva' }}
+  </button>
 </div>

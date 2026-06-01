@@ -1,17 +1,14 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 import { SupabaseService } from '../../services/supabase.service';
-import { AuthStore } from '../../services/auth-store.service';
 import type { Perfil } from '../../models/database.types';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive],
   templateUrl: './admin.html',
-  styleUrl: './admin.css',
 })
 export class Admin implements OnInit {
   perfil: Perfil | null = null;
@@ -19,20 +16,13 @@ export class Admin implements OnInit {
   constructor(
     private supabaseService: SupabaseService,
     private router: Router,
-    private authStore: AuthStore,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   async ngOnInit() {
-    const session = await this.supabaseService.supabase.auth.getSession();
-    const userId = session.data.session?.user?.id;
-    if (userId) {
-      const { data } = await this.supabaseService.getPerfil(userId);
-      this.perfil = data;
-    }
-  }
-
-  get esAdmin(): boolean {
-    return this.authStore.rol === 'admin_mayorista';
+    const { data } = await this.supabaseService.getCurrentProfile();
+    this.perfil = data;
+    this.cdr.detectChanges();
   }
 
   get nombreUsuario(): string {

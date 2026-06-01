@@ -9,7 +9,6 @@ import { ReservaStateService } from '../../../services/reserva-state.service';
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './confirmacion.html',
-  styleUrl: './confirmacion.css',
 })
 export class Confirmacion implements OnInit {
   subiendo = false;
@@ -29,7 +28,7 @@ export class Confirmacion implements OnInit {
   }
 
   get total(): number {
-    return this.reservaState.precio * this.reservaState.asientos.length;
+    return this.reservaState.total;
   }
 
   get montoAPagar(): number {

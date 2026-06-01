@@ -38,10 +38,8 @@ export class Seleccion implements OnInit, AfterViewInit {
     try {
       const session = await this.supabaseService.supabase.auth.getSession();
       this.userId = session.data.session?.user?.id ?? null;
-      if (this.userId) {
-        const { data } = await this.supabaseService.getPerfil(this.userId);
-        this.perfil = data;
-      }
+      const { data } = await this.supabaseService.getCurrentProfile();
+      this.perfil = data;
 
       const viajeId = Number(this.route.snapshot.paramMap.get('viajeId'));
       if (!viajeId) return;

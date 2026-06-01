@@ -1,32 +1,32 @@
 @import "tailwindcss";
+@layer base {
+  html, body { min-height: 100%; }
+  body { margin: 0; }
+}
 
 @theme {
-  /* Paleta Corporativa de RetailReserve */
   --color-primary: #00236f;
   --color-primary-hover: #1e3a8a;
-  
-  /* Tonos de fondo y contenedores (Material 3 Surface) */
   --color-surface-low: #f4f3fa;
   --color-surface-container: #e9e7ef;
   --color-surface-lowest: #ffffff;
   --color-bg-main: #faf8ff;
-  
-  /* Textos y Bordes */
   --color-on-surface: #1a1b21;
   --color-on-surface-variant: #444651;
   --color-outline: #757682;
   --color-outline-variant: #c5c5d3;
-  
-  /* Estados (Alertas, Éxito y Errores) */
   --color-error: #ba1a1a;
   --color-error-container: #ffdad6;
   --color-on-error-container: #93000a;
-  
   --color-warning-container: #ffdbcb;
   --color-on-warning-container: #341100;
-  
   --color-success-container: #86f2e4;
   --color-on-success-container: #00201d;
+  
+  /* Meurzet brand colors */
+  --color-meurzet-primary: #384752;
+  --color-meurzet-accent: #af4f35;
+  --color-meurzet-secondary: #e4912e;
 }
 
 body {

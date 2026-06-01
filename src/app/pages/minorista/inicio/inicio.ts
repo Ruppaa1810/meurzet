@@ -32,12 +32,8 @@ export class Inicio implements OnInit, AfterViewInit {
 
   async ngOnInit() {
     try {
-      const session = await this.supabaseService.supabase.auth.getSession();
-      const userId = session.data.session?.user?.id;
-      if (userId) {
-        const { data } = await this.supabaseService.getPerfil(userId);
-        this.perfil = data;
-      }
+      const { data: perfil } = await this.supabaseService.getCurrentProfile();
+      this.perfil = perfil;
 
       const { data, error } = await this.supabaseService.getViajes();
       if (!error && data) {

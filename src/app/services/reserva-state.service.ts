@@ -28,12 +28,19 @@ export class ReservaStateService {
   precio: number = 0;
   reservaIds: number[] = [];
 
+  get total(): number {
+    return this.precio * this.asientos.length;
+  }
+
+  get montoMinimo(): number {
+    return Math.round(this.total * 0.3);
+  }
+
   get porcentajePago(): number {
     if (this.tipoPagoMode === 'total') return 100;
     if (this.tipoPagoMode === 'parcial') return 30;
-    const total = this.precio * this.asientos.length;
-    if (total === 0) return 0;
-    return Math.round(this.montoPersonalizado / total * 100);
+    if (this.total === 0) return 0;
+    return Math.min(100, Math.round(this.montoPersonalizado / this.total * 100));
   }
 
   iniciar(viaje: Viaje, asientos: MapaAsientoViaje[]) {
