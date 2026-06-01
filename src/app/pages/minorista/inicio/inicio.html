@@ -1,19 +1,19 @@
-<!-- HEADER (TOPBAR) -->
-<header class="h-[78px] px-7 bg-[#384752] border-b-3 border-[#af4f35] sticky top-0 z-50 flex items-center justify-between">
-  <div class="flex items-center gap-4">
-    <button class="menu-btn w-12 h-12 rounded-xl bg-white/10 flex flex-col justify-center items-center gap-1 hover:bg-white/20 hover:scale-105 transition-all">
-      <span class="w-[22px] h-[2px] bg-white rounded-full"></span>
-      <span class="w-[22px] h-[2px] bg-white rounded-full"></span>
-      <span class="w-[22px] h-[2px] bg-white rounded-full"></span>
+<!-- HEADER (TOPBAR) - RESPONSIVE -->
+<header class="h-[70px] md:h-[78px] px-4 md:px-7 bg-[#384752] border-b-3 border-[#af4f35] sticky top-0 z-50 flex items-center justify-between">
+  <div class="flex items-center gap-2 md:gap-4">
+    <button class="menu-btn w-10 h-10 md:w-12 md:h-12 rounded-xl bg-white/10 flex flex-col justify-center items-center gap-1 hover:bg-white/20 hover:scale-105 transition-all">
+      <span class="w-[18px] md:w-[22px] h-[2px] bg-white rounded-full"></span>
+      <span class="w-[18px] md:w-[22px] h-[2px] bg-white rounded-full"></span>
+      <span class="w-[18px] md:w-[22px] h-[2px] bg-white rounded-full"></span>
     </button>
-    <img src="/logo.jpeg" class="w-[52px] h-[52px] rounded-full object-cover bg-white" />
+    <img src="/logo.jpeg" class="w-10 h-10 md:w-[52px] md:h-[52px] rounded-full object-cover bg-white" />
     <div>
-      <h1 class="text-white text-[22px] font-black m-0">Meurzet</h1>
-      <p class="text-[#eec997] text-[11px] uppercase tracking-[2px] mt-0.5">Portal Minorista</p>
+      <h1 class="text-white text-lg md:text-[22px] font-black m-0">Meurzet</h1>
+      <p class="text-[#eec997] text-[9px] md:text-[11px] uppercase tracking-[1px] md:tracking-[2px] mt-0.5">Portal Minorista</p>
     </div>
   </div>
-  <div class="flex items-center gap-3">
-    <div class="px-4 py-2.5 rounded-xl bg-white/10 text-white text-[13px] font-bold backdrop-blur-sm">
+  <div class="flex items-center gap-2 md:gap-3">
+    <div class="px-2 py-1.5 md:px-4 md:py-2.5 rounded-xl bg-white/10 text-white text-[10px] md:text-[13px] font-bold backdrop-blur-sm whitespace-nowrap">
       {{ perfil?.agencia_nombre || perfil?.nombre || 'Minorista' }}
     </div>
   </div>
@@ -23,61 +23,61 @@
 <div class="sidebar-overlay fixed inset-0 bg-slate-800/45 backdrop-blur-sm opacity-0 invisible transition-all duration-200 z-50"></div>
 
 <!-- SIDEBAR -->
-<aside class="sidebar fixed top-[78px] left-0 w-[290px] h-[calc(100vh-78px)] bg-[#384752] border-r border-white/10 p-6 flex flex-col gap-2.5 -translate-x-full opacity-0 transition-all duration-300 z-60 shadow-xl">
-  <div class="sidebar-item h-[54px] rounded-xl flex items-center px-5 text-white/80 text-sm font-bold cursor-pointer bg-transparent transition-all hover:bg-white/10 hover:translate-x-1 hover:text-white active:bg-gradient-to-r active:from-[#af4f35] active:to-[#e4912e] active:text-white active:shadow-[0_12px_24px_rgba(175,79,53,0.22)]">Inicio</div>
-  <div class="sidebar-item h-[54px] rounded-xl flex items-center px-5 text-white/80 text-sm font-bold cursor-pointer bg-transparent transition-all hover:bg-white/10 hover:translate-x-1 hover:text-white">Reservas de Hoy</div>
-  <div class="sidebar-item h-[54px] rounded-xl flex items-center px-5 text-white/80 text-sm font-bold cursor-pointer bg-transparent transition-all hover:bg-white/10 hover:translate-x-1 hover:text-white">Próximas Reservas</div>
-  <div class="sidebar-item h-[54px] rounded-xl flex items-center px-5 text-white/80 text-sm font-bold cursor-pointer bg-transparent transition-all hover:bg-white/10 hover:translate-x-1 hover:text-white">Historial</div>
-  <div class="sidebar-item h-[54px] rounded-xl flex items-center px-5 text-white/80 text-sm font-bold cursor-pointer bg-transparent transition-all hover:bg-white/10 hover:translate-x-1 hover:text-white">Pagos Pendientes</div>
+<aside class="sidebar fixed top-[70px] md:top-[78px] left-0 w-[260px] md:w-[290px] h-[calc(100vh-70px)] md:h-[calc(100vh-78px)] bg-[#384752] border-r border-white/10 p-4 md:p-6 flex flex-col gap-2 -translate-x-full opacity-0 transition-all duration-300 z-60 shadow-xl">
+  <div class="sidebar-item h-[46px] md:h-[54px] rounded-xl flex items-center px-4 md:px-5 text-white/80 text-xs md:text-sm font-bold cursor-pointer bg-transparent transition-all hover:bg-white/10 hover:translate-x-1 hover:text-white active:bg-gradient-to-r active:from-[#af4f35] active:to-[#e4912e] active:text-white active:shadow-[0_12px_24px_rgba(175,79,53,0.22)]">Inicio</div>
+  <div class="sidebar-item h-[46px] md:h-[54px] rounded-xl flex items-center px-4 md:px-5 text-white/80 text-xs md:text-sm font-bold cursor-pointer bg-transparent transition-all hover:bg-white/10 hover:translate-x-1 hover:text-white">Reservas de Hoy</div>
+  <div class="sidebar-item h-[46px] md:h-[54px] rounded-xl flex items-center px-4 md:px-5 text-white/80 text-xs md:text-sm font-bold cursor-pointer bg-transparent transition-all hover:bg-white/10 hover:translate-x-1 hover:text-white">Próximas Reservas</div>
+  <div class="sidebar-item h-[46px] md:h-[54px] rounded-xl flex items-center px-4 md:px-5 text-white/80 text-xs md:text-sm font-bold cursor-pointer bg-transparent transition-all hover:bg-white/10 hover:translate-x-1 hover:text-white">Historial</div>
+  <div class="sidebar-item h-[46px] md:h-[54px] rounded-xl flex items-center px-4 md:px-5 text-white/80 text-xs md:text-sm font-bold cursor-pointer bg-transparent transition-all hover:bg-white/10 hover:translate-x-1 hover:text-white">Pagos Pendientes</div>
   <div class="h-px bg-white/10 my-2"></div>
-  <button (click)="logout()" class="h-[54px] rounded-xl flex items-center px-5 text-white/80 text-sm font-bold cursor-pointer bg-transparent transition-all hover:bg-white/10 hover:translate-x-1 hover:text-white w-full text-left">Cerrar Sesión</button>
+  <button (click)="logout()" class="h-[46px] md:h-[54px] rounded-xl flex items-center px-4 md:px-5 text-white/80 text-xs md:text-sm font-bold cursor-pointer bg-transparent transition-all hover:bg-white/10 hover:translate-x-1 hover:text-white w-full text-left">Cerrar Sesión</button>
 </aside>
 
-<!-- CONTENIDO PRINCIPAL (tu diseño original, sin cambios) -->
+<!-- CONTENIDO PRINCIPAL - RESPONSIVE -->
 @if (loading) {
   <div class="flex items-center justify-center h-[60vh]">
-    <p class="text-lg font-semibold text-slate-500">Cargando viajes...</p>
+    <p class="text-base md:text-lg font-semibold text-slate-500">Cargando viajes...</p>
   </div>
 } @else if (todosViajes.length === 0) {
   <div class="flex items-center justify-center h-[60vh] flex-col gap-4">
-    <p class="text-lg font-semibold text-slate-500">No hay viajes disponibles</p>
-    <p class="text-sm text-slate-400">Ejecutá el script seed.sql en Supabase</p>
+    <p class="text-base md:text-lg font-semibold text-slate-500">No hay viajes disponibles</p>
+    <p class="text-xs md:text-sm text-slate-400">Ejecutá el script seed.sql en Supabase</p>
   </div>
 } @else {
-  <div class="inicio-layout w-full max-w-[1400px] mx-auto px-6 py-10 flex flex-col items-center gap-8 transition-all duration-350">
+  <div class="inicio-layout w-full max-w-[1400px] mx-auto px-4 md:px-6 py-6 md:py-10 flex flex-col items-center gap-6 md:gap-8 transition-all duration-350">
     
-    <!-- PANEL DE BÚSQUEDA -->
-    <aside class="search-panel w-full max-w-[1050px] bg-white/70 backdrop-blur-md border border-[#af4f35]/20 rounded-[30px] p-8 transition-all duration-300 hover:scale-[1.01] hover:border-[#1aa7c4]/30 hover:shadow-[0_22px_48px_rgba(26,167,196,0.10)]">
+    <!-- PANEL DE BÚSQUEDA - RESPONSIVE -->
+    <aside class="search-panel w-full max-w-[1050px] bg-white/70 backdrop-blur-md border border-[#af4f35]/20 rounded-2xl md:rounded-[30px] p-4 md:p-8 transition-all duration-300 hover:scale-[1.01] hover:border-[#1aa7c4]/30 hover:shadow-[0_22px_48px_rgba(26,167,196,0.10)]">
       
-      <div class="search-header text-center mb-8 transition-all">
-        <h2 class="text-[38px] font-black text-[#384752] tracking-tighter m-0">Buscar Pasajes</h2>
-        <p class="text-slate-500 text-sm mt-2.5 leading-relaxed">Consultá servicios disponibles y seleccioná asientos.</p>
+      <div class="search-header text-center mb-4 md:mb-8 transition-all">
+        <h2 class="text-2xl md:text-[38px] font-black text-[#384752] tracking-tighter m-0">Buscar Pasajes</h2>
+        <p class="text-slate-500 text-xs md:text-sm mt-2 leading-relaxed">Consultá servicios disponibles y seleccioná asientos.</p>
       </div>
 
-      <div class="search-grid grid grid-cols-2 gap-5 transition-all">
+      <div class="search-grid grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5 transition-all">
         
         <div class="field-group flex flex-col">
-          <label class="text-[11px] font-extrabold tracking-wide uppercase text-slate-500 mb-2">Origen</label>
+          <label class="text-[10px] md:text-[11px] font-extrabold tracking-wide uppercase text-slate-500 mb-1 md:mb-2">Origen</label>
           <input type="text" [(ngModel)]="filtroOrigen" placeholder="Mendoza"
-            class="w-full h-[58px] rounded-2xl border-2 border-[#af4f35]/15 bg-white px-5 text-sm text-[#384752] outline-none transition-all hover:border-[#1aa7c4] hover:-translate-y-px hover:shadow-[0_0_0_4px_rgba(26,167,196,0.08)] focus:border-[#1aa7c4] focus:shadow-[0_0_0_5px_rgba(26,167,196,0.12)] focus:bg-white">
+            class="w-full h-[48px] md:h-[58px] rounded-xl md:rounded-2xl border-2 border-[#af4f35]/15 bg-white px-4 md:px-5 text-sm text-[#384752] outline-none transition-all hover:border-[#1aa7c4] hover:-translate-y-px hover:shadow-[0_0_0_4px_rgba(26,167,196,0.08)] focus:border-[#1aa7c4] focus:shadow-[0_0_0_5px_rgba(26,167,196,0.12)] focus:bg-white">
         </div>
 
         <div class="field-group flex flex-col">
-          <label class="text-[11px] font-extrabold tracking-wide uppercase text-slate-500 mb-2">Destino</label>
+          <label class="text-[10px] md:text-[11px] font-extrabold tracking-wide uppercase text-slate-500 mb-1 md:mb-2">Destino</label>
           <input type="text" [(ngModel)]="filtroDestino" placeholder="Buenos Aires"
-            class="w-full h-[58px] rounded-2xl border-2 border-[#af4f35]/15 bg-white px-5 text-sm text-[#384752] outline-none transition-all hover:border-[#1aa7c4] hover:-translate-y-px hover:shadow-[0_0_0_4px_rgba(26,167,196,0.08)] focus:border-[#1aa7c4] focus:shadow-[0_0_0_5px_rgba(26,167,196,0.12)] focus:bg-white">
+            class="w-full h-[48px] md:h-[58px] rounded-xl md:rounded-2xl border-2 border-[#af4f35]/15 bg-white px-4 md:px-5 text-sm text-[#384752] outline-none transition-all hover:border-[#1aa7c4] hover:-translate-y-px hover:shadow-[0_0_0_4px_rgba(26,167,196,0.08)] focus:border-[#1aa7c4] focus:shadow-[0_0_0_5px_rgba(26,167,196,0.12)] focus:bg-white">
         </div>
 
         <div class="field-group flex flex-col">
-          <label class="text-[11px] font-extrabold tracking-wide uppercase text-slate-500 mb-2">Fecha</label>
+          <label class="text-[10px] md:text-[11px] font-extrabold tracking-wide uppercase text-slate-500 mb-1 md:mb-2">Fecha</label>
           <input type="date" [(ngModel)]="filtroFecha"
-            class="w-full h-[58px] rounded-2xl border-2 border-[#af4f35]/15 bg-white px-5 text-sm text-[#384752] outline-none transition-all hover:border-[#1aa7c4] hover:-translate-y-px hover:shadow-[0_0_0_4px_rgba(26,167,196,0.08)] focus:border-[#1aa7c4] focus:shadow-[0_0_0_5px_rgba(26,167,196,0.12)] focus:bg-white">
+            class="w-full h-[48px] md:h-[58px] rounded-xl md:rounded-2xl border-2 border-[#af4f35]/15 bg-white px-4 md:px-5 text-sm text-[#384752] outline-none transition-all hover:border-[#1aa7c4] hover:-translate-y-px hover:shadow-[0_0_0_4px_rgba(26,167,196,0.08)] focus:border-[#1aa7c4] focus:shadow-[0_0_0_5px_rgba(26,167,196,0.12)] focus:bg-white">
         </div>
 
         <div class="field-group flex flex-col">
-          <label class="text-[11px] font-extrabold tracking-wide uppercase text-slate-500 mb-2">Horario</label>
+          <label class="text-[10px] md:text-[11px] font-extrabold tracking-wide uppercase text-slate-500 mb-1 md:mb-2">Horario</label>
           <select [(ngModel)]="filtroHorario"
-            class="w-full h-[58px] rounded-2xl border-2 border-[#af4f35]/15 bg-white px-5 text-sm text-[#384752] outline-none transition-all hover:border-[#1aa7c4] hover:-translate-y-px hover:shadow-[0_0_0_4px_rgba(26,167,196,0.08)] focus:border-[#1aa7c4] focus:shadow-[0_0_0_5px_rgba(26,167,196,0.12)] focus:bg-white">
+            class="w-full h-[48px] md:h-[58px] rounded-xl md:rounded-2xl border-2 border-[#af4f35]/15 bg-white px-4 md:px-5 text-sm text-[#384752] outline-none transition-all hover:border-[#1aa7c4] hover:-translate-y-px hover:shadow-[0_0_0_4px_rgba(26,167,196,0.08)] focus:border-[#1aa7c4] focus:shadow-[0_0_0_5px_rgba(26,167,196,0.12)] focus:bg-white">
             <option value="todos">Todos los horarios</option>
             <option value="manana">Mañana</option>
             <option value="tarde">Tarde</option>
@@ -86,59 +86,59 @@
         </div>
 
         <button (click)="buscarViajes()"
-          class="search-btn h-[58px] rounded-2xl border-none bg-gradient-to-r from-[#af4f35] to-[#e4912e] text-white text-sm font-extrabold tracking-wide cursor-pointer transition-all hover:-translate-y-1 hover:shadow-[0_14px_26px_rgba(175,79,53,0.22)] hover:opacity-95 active:scale-[0.98]">
+          class="search-btn h-[48px] md:h-[58px] rounded-xl md:rounded-2xl border-none bg-gradient-to-r from-[#af4f35] to-[#e4912e] text-white text-sm font-extrabold tracking-wide cursor-pointer transition-all hover:-translate-y-1 hover:shadow-[0_14px_26px_rgba(175,79,53,0.22)] hover:opacity-95 active:scale-[0.98]">
           Buscar Viajes
         </button>
 
       </div>
     </aside>
 
-    <!-- RESULTADOS -->
+    <!-- RESULTADOS - RESPONSIVE -->
     <main class="results-panel w-full max-w-[1200px] animate-[fadeUp_0.45s_ease]">
       
-      <div class="results-header flex items-center justify-between mb-7">
+      <div class="results-header flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5 md:mb-7">
         <div>
-          <h2 class="text-[32px] font-black text-[#384752] m-0">Viajes Disponibles</h2>
-          <p class="text-slate-500 text-sm mt-1.5">Seleccioná un servicio para continuar con la reserva.</p>
+          <h2 class="text-xl md:text-[32px] font-black text-[#384752] m-0">Viajes Disponibles</h2>
+          <p class="text-slate-500 text-xs md:text-sm mt-1">Seleccioná un servicio para continuar con la reserva.</p>
         </div>
-        <div class="results-count bg-[#eec997] text-[#af4f35] px-4 py-3 rounded-xl text-[13px] font-extrabold">
+        <div class="results-count bg-[#eec997] text-[#af4f35] px-3 py-1.5 md:px-4 md:py-3 rounded-xl text-xs md:text-[13px] font-extrabold">
           {{ viajesFiltrados.length }} servicio{{ viajesFiltrados.length !== 1 ? 's' : '' }}
         </div>
       </div>
 
-      <div class="results-list grid grid-cols-[repeat(auto-fit,minmax(420px,1fr))] gap-6">
+      <div class="results-list grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         @for (viaje of viajesFiltrados; track viaje.id) {
-          <div class="trip-card bg-white/80 backdrop-blur-sm border border-white/60 rounded-3xl p-6 flex flex-col gap-6 transition-all hover:-translate-y-1 hover:border-[#1aa7c4]/20 hover:shadow-[0_24px_52px_rgba(15,23,42,0.10)]">
+          <div class="trip-card bg-white/80 backdrop-blur-sm border border-white/60 rounded-2xl md:rounded-3xl p-4 md:p-6 flex flex-col gap-4 md:gap-6 transition-all hover:-translate-y-1 hover:border-[#1aa7c4]/20 hover:shadow-[0_24px_52px_rgba(15,23,42,0.10)]">
             
-            <div class="trip-route flex items-center gap-4 mb-2">
-              <div class="city text-[24px] font-black text-[#384752] whitespace-nowrap">{{ viaje.origen }}</div>
+            <div class="trip-route flex items-center gap-2 md:gap-4 mb-2">
+              <div class="city text-lg md:text-[24px] font-black text-[#384752] whitespace-nowrap">{{ viaje.origen }}</div>
               <div class="trip-line flex-1 h-0.5 rounded-full bg-gradient-to-r from-[#af4f35] to-[#e4912e]"></div>
-              <div class="city text-[24px] font-black text-[#384752] whitespace-nowrap">{{ viaje.destino }}</div>
+              <div class="city text-lg md:text-[24px] font-black text-[#384752] whitespace-nowrap">{{ viaje.destino }}</div>
             </div>
 
-            <div class="trip-info grid grid-cols-2 gap-5">
-              <div class="trip-block bg-[#f4f4f3]/70 border border-[#af4f35]/10 rounded-xl p-3.5">
-                <span class="block text-[11px] font-extrabold text-slate-400 uppercase mb-1.5">Salida</span>
-                <strong class="text-base text-[#384752]">{{ formatHora(viaje.fecha_salida) }} hs</strong>
+            <div class="trip-info grid grid-cols-2 gap-3 md:gap-5">
+              <div class="trip-block bg-[#f4f4f3]/70 border border-[#af4f35]/10 rounded-xl p-2 md:p-3.5">
+                <span class="block text-[9px] md:text-[11px] font-extrabold text-slate-400 uppercase mb-1">Salida</span>
+                <strong class="text-xs md:text-base text-[#384752]">{{ formatHora(viaje.fecha_salida) }} hs</strong>
               </div>
-              <div class="trip-block bg-[#f4f4f3]/70 border border-[#af4f35]/10 rounded-xl p-3.5">
-                <span class="block text-[11px] font-extrabold text-slate-400 uppercase mb-1.5">Llegada</span>
-                <strong class="text-base text-[#384752]">{{ formatHora(viaje.fecha_llegada) }} hs</strong>
+              <div class="trip-block bg-[#f4f4f3]/70 border border-[#af4f35]/10 rounded-xl p-2 md:p-3.5">
+                <span class="block text-[9px] md:text-[11px] font-extrabold text-slate-400 uppercase mb-1">Llegada</span>
+                <strong class="text-xs md:text-base text-[#384752]">{{ formatHora(viaje.fecha_llegada) }} hs</strong>
               </div>
-              <div class="trip-block bg-[#f4f4f3]/70 border border-[#af4f35]/10 rounded-xl p-3.5">
-                <span class="block text-[11px] font-extrabold text-slate-400 uppercase mb-1.5">Servicio</span>
-                <strong class="text-base text-[#384752]">Cama Ejecutivo</strong>
+              <div class="trip-block bg-[#f4f4f3]/70 border border-[#af4f35]/10 rounded-xl p-2 md:p-3.5">
+                <span class="block text-[9px] md:text-[11px] font-extrabold text-slate-400 uppercase mb-1">Servicio</span>
+                <strong class="text-xs md:text-base text-[#384752]">Cama Ejecutivo</strong>
               </div>
-              <div class="trip-block bg-[#f4f4f3]/70 border border-[#af4f35]/10 rounded-xl p-3.5">
-                <span class="block text-[11px] font-extrabold text-slate-400 uppercase mb-1.5">Disponibles</span>
-                <strong class="text-base text-green-600">Consultar</strong>
+              <div class="trip-block bg-[#f4f4f3]/70 border border-[#af4f35]/10 rounded-xl p-2 md:p-3.5">
+                <span class="block text-[9px] md:text-[11px] font-extrabold text-slate-400 uppercase mb-1">Disponibles</span>
+                <strong class="text-xs md:text-base text-green-600">Consultar</strong>
               </div>
             </div>
 
-            <div class="trip-actions flex items-center justify-between gap-4 pt-2">
-              <div class="trip-price text-[32px] font-black text-[#af4f35]">{{ formatPrecio(viaje.precio_base) }}</div>
+            <div class="trip-actions flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+              <div class="trip-price text-2xl md:text-[32px] font-black text-[#af4f35]">{{ formatPrecio(viaje.precio_base) }}</div>
               <button [routerLink]="['/minorista/seleccion', viaje.id]"
-                class="select-btn h-[52px] px-8 rounded-2xl border-none bg-gradient-to-r from-[#af4f35] to-[#e4912e] text-white text-[13px] font-extrabold whitespace-nowrap cursor-pointer transition-all hover:bg-gradient-to-r hover:from-[#1aa7c4] hover:to-[#384752] hover:-translate-y-0.5">
+                class="select-btn h-[44px] md:h-[52px] px-6 md:px-8 rounded-xl md:rounded-2xl border-none bg-gradient-to-r from-[#af4f35] to-[#e4912e] text-white text-xs md:text-[13px] font-extrabold whitespace-nowrap cursor-pointer transition-all hover:bg-gradient-to-r hover:from-[#1aa7c4] hover:to-[#384752] hover:-translate-y-0.5 w-full sm:w-auto">
                 Seleccionar Asientos
               </button>
             </div>
@@ -181,5 +181,22 @@
     background: linear-gradient(135deg, #af4f35, #e4912e);
     color: white;
     box-shadow: 0 12px 24px rgba(175, 79, 53, 0.22);
+  }
+
+  /* Responsive adicional */
+  @media (max-width: 640px) {
+    .inicio-layout {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+    
+    .trip-route {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    .city {
+      font-size: 1rem !important;
+    }
   }
 </style>
