@@ -1,7 +1,5 @@
-<div class="min-h-screen flex flex-col bg-[#f4f4f3] m-0 p-0" style="margin: 0; padding: 0;">
-
-  <!-- HEADER GRIS OSCURO - PEGADO ARRIBA -->
-  <div class="bg-[#384752] w-full shrink-0" style="margin: 0; padding: 0;">
+<div class="min-h-screen flex flex-col bg-[#f4f4f3]">
+  <div class="bg-[#384752] w-full shrink-0">
     <div class="max-w-6xl mx-auto px-8 py-5 text-center">
       <div class="w-12 h-12 mx-auto mb-2 rounded-full bg-green-500/20 flex items-center justify-center">
         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -17,65 +15,53 @@
     </div>
   </div>
 
-  <!-- CONTENIDO PRINCIPAL -->
   <div class="flex-1 flex flex-col">
-    <div class="max-w-6xl mx-auto px-8 py-6 w-full">
-
-      <!-- CÓDIGO DE RESERVA FLOTANTE -->
-      <div class="bg-white rounded-xl shadow-lg border-2 border-[#af4f35]/30 hover:border-[#1aa7c4] hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 p-5 mb-6 relative z-10">
-        <div class="flex justify-between items-center flex-wrap gap-3">
+    <div class="max-w-6xl mx-auto px-8 py-6 w-full space-y-6">
+      <div class="bg-white rounded-xl shadow-lg border-2 border-[#af4f35]/30 p-5">
+        <div class="flex flex-col gap-4 md:flex-row md:justify-between md:items-center">
           <div>
             <span class="text-xs text-slate-400 uppercase tracking-wide">Código de reserva</span>
             <p class="font-mono font-bold text-2xl text-[#384752]">MEU-000001</p>
           </div>
-          <div class="bg-[#fff5f2] rounded-lg px-4 py-1.5 border border-[#eec997]">
-            <span class="text-sm text-[#af4f35] font-bold">Pendiente de pago</span>
+          <div class="bg-[#fff5f2] rounded-lg px-4 py-1.5 border border-[#eec997] text-sm font-bold text-[#af4f35] inline-flex items-center justify-center">
+            Pendiente de pago
           </div>
         </div>
       </div>
 
-      <!-- TARJETA PRINCIPAL -->
-      <div class="bg-white rounded-xl shadow-lg border-2 border-[#af4f35]/30 hover:border-[#1aa7c4] hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 overflow-hidden mb-6">
-        
+      <div class="bg-white rounded-xl shadow-lg border-2 border-[#af4f35]/30 overflow-hidden">
         <div class="bg-[#384752]/5 px-6 py-3 border-b border-[#eec997]">
-          <div class="flex justify-between items-center">
+          <div class="flex flex-col gap-2 md:flex-row md:justify-between md:items-center">
             <h2 class="font-bold text-base text-[#384752]">Detalle de tu reserva</h2>
             <p class="text-xs text-slate-500">{{ reservaState.viaje?.origen }} → {{ reservaState.viaje?.destino }} · {{ reservaState.viaje?.fecha_salida | date:'HH:mm' }} hs</p>
           </div>
         </div>
-
         <div class="p-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             @for (asiento of reservaState.asientos; track asiento.asientoId; let i = $index) {
               <div class="bg-[#f4f4f3] rounded-xl p-4 border-2 border-[#af4f35]/15 hover:border-[#1aa7c4] hover:shadow-md transition-all duration-200">
-                <div class="flex justify-end items-center gap-2 mb-3">
+                <div class="flex justify-between items-center gap-2 mb-3">
                   <span class="text-xs text-slate-400">Asiento</span>
                   <span class="text-base font-bold text-[#af4f35] bg-white px-2 py-0.5 rounded-full">{{ asiento.nroAsiento }}</span>
-                  <span class="text-[10px] text-slate-400">Planta {{ asiento.piso === 1 ? 'Baja' : 'Alta' }}</span>
                 </div>
-                <div class="flex justify-between items-start">
-                  <div>
-                    <p class="font-bold text-sm text-[#384752]">{{ reservaState.pasajeros[i]?.nombre }} {{ reservaState.pasajeros[i]?.apellido }}</p>
-                    <p class="text-[10px] text-slate-400 mt-0.5">{{ reservaState.pasajeros[i]?.documento }}</p>
-                    <p class="text-[10px] text-slate-400 mt-0.5">{{ reservaState.pasajeros[i]?.email }}</p>
-                  </div>
-                  <div class="text-right">
-                    <p class="text-[10px] text-slate-400">Teléfono</p>
-                    <p class="text-xs font-medium text-[#384752]">{{ reservaState.pasajeros[i]?.telefono }}</p>
-                  </div>
+                <div class="space-y-2">
+                  <p class="font-bold text-sm text-[#384752]">{{ reservaState.pasajeros[i]?.nombre }} {{ reservaState.pasajeros[i]?.apellido }}</p>
+                  <p class="text-[10px] text-slate-400">{{ reservaState.pasajeros[i]?.documento }}</p>
+                  <p class="text-[10px] text-slate-400">{{ reservaState.pasajeros[i]?.email }}</p>
+                  <p class="text-[10px] text-slate-400">Teléfono: {{ reservaState.pasajeros[i]?.telefono }}</p>
+                  <p class="text-[10px] text-slate-400">Planta {{ asiento.piso === 1 ? 'Baja' : 'Alta' }}</p>
                 </div>
               </div>
             }
           </div>
         </div>
-
         <div class="bg-[#f4f4f3] px-6 py-4 border-t border-[#eec997]">
-          <div class="grid grid-cols-3 gap-4 text-center">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
             <div>
               <span class="text-slate-500 text-xs">Total</span>
               <p class="font-bold text-xl text-[#384752]">{{ formatPrecio(total) }}</p>
             </div>
-            <div class="border-l border-r border-[#eec997]">
+            <div class="border-t md:border-t-0 md:border-l md:border-r border-[#eec997] py-4 md:py-0">
               <span class="text-slate-500 text-xs">Tipo de pago</span>
               <p class="font-semibold text-sm text-[#384752]">{{ pagoLabel }}</p>
             </div>
@@ -87,10 +73,8 @@
         </div>
       </div>
 
-      <!-- DATOS TRANSFERENCIA + SUBIR COMPROBANTE -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        
-        <div class="bg-[#fff5f2] rounded-xl p-6 border-2 border-[#af4f35]/20 hover:border-[#1aa7c4] hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-[#fff5f2] rounded-xl p-6 border-2 border-[#af4f35]/20">
           <div class="flex items-center gap-3 mb-4">
             <svg class="w-6 h-6 text-[#af4f35]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -120,139 +104,34 @@
           </div>
         </div>
 
-        <!-- SUBIR COMPROBANTE - BOTÓN CELESTE AL HOVER -->
         @if (!comprobanteSubido) {
-          <div class="bg-white rounded-xl p-6 border-2 border-[#af4f35]/30 hover:border-[#1aa7c4] hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
+          <div class="bg-white rounded-xl p-6 border-2 border-[#af4f35]/30">
             <h3 class="text-base font-bold text-[#384752] mb-3">Subir Comprobante de Pago</h3>
             <p class="text-sm text-slate-500 mb-4">
               Adjuntá el comprobante (PDF o imagen) para que podamos validar tu reserva.
             </p>
-            <input type="file" accept=".pdf,image/*" (change)="subirComprobante($event)" 
-              class="w-full p-3 border-2 border-dashed border-[#c9a08f] rounded-xl text-sm bg-slate-50 
-                     file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold 
-                     file:bg-[#af4f35] file:text-white file:cursor-pointer
-                     hover:file:bg-[#1aa7c4] hover:file:from-[#1aa7c4] hover:file:to-[#384752]
-                     hover:border-[#1aa7c4] focus:outline-none focus:border-[#1aa7c4] focus:ring-1 focus:ring-[#1aa7c4] 
-                     transition-all duration-200 cursor-pointer">
+            <input type="file" accept=".pdf,image/*" (change)="subirComprobante($event)" class="w-full p-3 border-2 border-dashed border-[#c9a08f] rounded-xl text-sm bg-slate-50">
             @if (subiendo) {
-              <p class="text-sm text-[#e4912e] mt-2 animate-pulse">Subiendo comprobante...</p>
+              <p class="text-sm text-[#e4912e] mt-2">Subiendo comprobante...</p>
             }
             @if (mensaje) {
               <p class="text-sm text-red-500 mt-2">{{ mensaje }}</p>
             }
           </div>
         } @else {
-          <div class="bg-green-50 border-2 border-green-300 rounded-xl p-6 text-center hover:border-[#1aa7c4] transition-all">
-            <p class="text-green-600 font-semibold text-sm flex items-center justify-center gap-2">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-              </svg>
-              Comprobante subido correctamente — pendiente de validación
-            </p>
+          <div class="bg-green-50 rounded-xl p-6 border border-green-300 text-center">
+            <p class="text-green-600 font-semibold text-sm">&#10004; Comprobante subido correctamente — pendiente de validación</p>
           </div>
         }
-
       </div>
 
-      <!-- BOTÓN VOLVER -->
-      <button routerLink="/minorista/inicio"
-        class="w-full py-4 rounded-xl font-bold text-base text-white 
-               bg-gradient-to-r from-[#af4f35] to-[#e4912e] 
-               hover:from-[#1aa7c4] hover:to-[#384752]
-               hover:shadow-xl transform hover:-translate-y-0.5 
-               transition-all duration-300 cursor-pointer">
+      <button routerLink="/minorista/inicio" class="w-full py-4 rounded-xl font-bold text-base text-white bg-gradient-to-r from-[#af4f35] to-[#e4912e] hover:from-[#1aa7c4] hover:to-[#384752] transition-all duration-300">
         Volver al Inicio
       </button>
 
-      <!-- ADVERTENCIA -->
-      <p class="text-xs text-slate-400 text-center mt-4">
+      <p class="text-xs text-slate-400 text-center">
         La reserva se mantiene por 24 horas. Pasado ese tiempo, los asientos quedarán libres nuevamente.
       </p>
-
-<div class="max-w-[500px] mx-auto p-8 text-center font-sans">
-
-  <div class="text-6xl mb-4">&#10004;</div>
-
-  <h2 class="text-2xl font-bold text-green-600 mb-2">
-    Reserva{{ reservaState.asientos.length > 1 ? 's' : '' }} Registrada{{ reservaState.asientos.length > 1 ? 's' : '' }}
-  </h2>
-
-  <p class="text-slate-500 mb-8">
-    {{ reservaState.asientos.length }} asiento{{ reservaState.asientos.length > 1 ? 's' : '' }} registrado{{ reservaState.asientos.length > 1 ? 's' : '' }} correctamente.
-  </p>
-
-  @for (asiento of reservaState.asientos; track asiento.asientoId; let i = $index) {
-    <div class="bg-white rounded-2xl p-6 shadow-sm mb-4 text-left">
-      <div class="flex justify-between py-2 border-b border-slate-100">
-        <span class="text-slate-500 text-sm">Viaje</span>
-        <span class="font-semibold text-sm">{{ reservaState.viaje?.origen }} → {{ reservaState.viaje?.destino }}</span>
-      </div>
-      <div class="flex justify-between py-2 border-b border-slate-100">
-        <span class="text-slate-500 text-sm">Asiento</span>
-        <span class="font-semibold text-sm">N° {{ asiento.nroAsiento }} · Planta {{ pisoLabel(asiento.piso) }}</span>
-      </div>
-      <div class="flex justify-between py-2">
-        <span class="text-slate-500 text-sm">Pasajero {{ i + 1 }}</span>
-        <span class="font-semibold text-sm">{{ reservaState.pasajeros[i]?.nombre || '' }} {{ reservaState.pasajeros[i]?.apellido || '' }}</span>
-      </div>
-    </div>
-  }
-
-  <div class="bg-white rounded-2xl p-6 shadow-sm mb-6 text-left">
-    <div class="flex justify-between py-2">
-      <span class="text-slate-500 text-sm">Total</span>
-      <span class="font-bold text-base text-[#384752]">{{ formatPrecio(total) }}</span>
-    </div>
-    <div class="flex justify-between py-2">
-      <span class="text-slate-500 text-sm">Pago</span>
-      <span class="font-semibold text-sm">{{ pagoLabel }}</span>
-    </div>
-    <div class="flex justify-between py-2 border-t border-slate-100">
-      <span class="text-slate-500 text-sm">A pagar ahora</span>
-      <span class="font-bold text-base text-[#af4f35]">{{ formatPrecio(montoAPagar) }}</span>
     </div>
   </div>
-
-  @if (!comprobanteSubido) {
-    <div class="bg-white rounded-2xl p-6 shadow-sm mb-6 text-left">
-      <h3 class="text-base font-bold text-[#384752] mb-2">Subir Comprobante de Pago</h3>
-      <p class="text-xs text-slate-500 mb-4">
-        Adjuntá el comprobante (PDF o imagen) para que podamos validar tu reserva.
-      </p>
-      <input type="file" accept=".pdf,image/*" (change)="subirComprobante($event)" class="block w-full p-2 border border-dashed border-[#c9a08f] rounded-xl text-sm bg-[#fafafa]">
-      @if (subiendo) {
-        <p class="text-sm text-[#e4912e] mt-2">Subiendo comprobante...</p>
-      }
-      @if (mensaje) {
-        <p class="text-sm text-red-600 mt-2">{{ mensaje }}</p>
-      }
-    </div>
-  } @else {
-    <div class="bg-green-50 border border-green-200 rounded-2xl p-4 mb-6">
-      <p class="text-green-600 font-semibold text-sm">&#10004; Comprobante subido correctamente — pendiente de validación</p>
-  
-    </div>
-  }
-  </div>
-
 </div>
-
-<style>
-  /* Eliminar márgenes del body */
-  html, body {
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-
-  body {
-    background-color: #f4f4f3;
-  }
-</style>
-
-  <button routerLink="/minorista/inicio"
-    class="w-full py-4 rounded-2xl font-bold text-base text-white border-none cursor-pointer transition-all duration-200"
-    style="background: linear-gradient(135deg, #af4f35, #e4912e);">
-    Volver al Inicio
-  </button>
-</div>
-
