@@ -55,9 +55,8 @@
       </div>
       <div class="legend">
         <div class="legend-item"><div class="legend-dot free"></div><span>Libre</span></div>
-        <div class="legend-item"><div class="legend-dot occupied"></div><span>Ocupado</span></div>
         <div class="legend-item"><div class="legend-dot blocked"></div><span>Bloqueado</span></div>
-        <div class="legend-item"><div class="legend-dot selected"></div><span>Seleccionado</span></div>
+        <div class="legend-item"><div class="legend-dot occupied"></div><span>Ocupado</span></div>
       </div>
     </div>
 
@@ -95,8 +94,8 @@
               <div class="seats-col">
                 @for (pair of seatRowsIzq(1); track pair[0].id) {
                   <div class="seat-pair">
-                    <button class="seat {{ seatClasses(pair[0]) }}" (click)="toggleSeat(pair[0].id)" [disabled]="pair[0].estado === 'confirmado'">{{ pair[0].nro_asiento }}</button>
-                    <button class="seat {{ seatClasses(pair[1]) }}" (click)="toggleSeat(pair[1].id)" [disabled]="pair[1].estado === 'confirmado'">{{ pair[1].nro_asiento }}</button>
+                    <button class="seat {{ seatClasses(pair[0]) }}" (click)="toggleSeat(pair[0].id)" [disabled]="!canToggle(pair[0])">{{ pair[0].nro_asiento }}</button>
+                    <button class="seat {{ seatClasses(pair[1]) }}" (click)="toggleSeat(pair[1].id)" [disabled]="!canToggle(pair[1])">{{ pair[1].nro_asiento }}</button>
                   </div>
                 }
               </div>
@@ -120,8 +119,8 @@
               <div class="seats-col single">
                 @for (pair of seatRowsDer(1); track pair[0].id) {
                   <div class="seat-pair">
-                    <button class="seat {{ seatClasses(pair[0]) }}" (click)="toggleSeat(pair[0].id)" [disabled]="pair[0].estado === 'confirmado'">{{ pair[0].nro_asiento }}</button>
-                    <button class="seat {{ seatClasses(pair[1]) }}" (click)="toggleSeat(pair[1].id)" [disabled]="pair[1].estado === 'confirmado'">{{ pair[1].nro_asiento }}</button>
+                    <button class="seat {{ seatClasses(pair[0]) }}" (click)="toggleSeat(pair[0].id)" [disabled]="!canToggle(pair[0])">{{ pair[0].nro_asiento }}</button>
+                    <button class="seat {{ seatClasses(pair[1]) }}" (click)="toggleSeat(pair[1].id)" [disabled]="!canToggle(pair[1])">{{ pair[1].nro_asiento }}</button>
                   </div>
                 }
               </div>
@@ -159,8 +158,8 @@
               <div class="seats-col">
                 @for (pair of seatRowsIzq(2); track pair[0].id) {
                   <div class="seat-pair">
-                    <button class="seat {{ seatClasses(pair[0]) }}" (click)="toggleSeat(pair[0].id)" [disabled]="pair[0].estado === 'confirmado'">{{ pair[0].nro_asiento }}</button>
-                    <button class="seat {{ seatClasses(pair[1]) }}" (click)="toggleSeat(pair[1].id)" [disabled]="pair[1].estado === 'confirmado'">{{ pair[1].nro_asiento }}</button>
+                    <button class="seat {{ seatClasses(pair[0]) }}" (click)="toggleSeat(pair[0].id)" [disabled]="!canToggle(pair[0])">{{ pair[0].nro_asiento }}</button>
+                    <button class="seat {{ seatClasses(pair[1]) }}" (click)="toggleSeat(pair[1].id)" [disabled]="!canToggle(pair[1])">{{ pair[1].nro_asiento }}</button>
                   </div>
                 }
               </div>
@@ -178,8 +177,8 @@
                 </div>
                 @for (pair of seatRowsDer(2); track pair[0].id) {
                   <div class="seat-pair">
-                    <button class="seat {{ seatClasses(pair[0]) }}" (click)="toggleSeat(pair[0].id)" [disabled]="pair[0].estado === 'confirmado'">{{ pair[0].nro_asiento }}</button>
-                    <button class="seat {{ seatClasses(pair[1]) }}" (click)="toggleSeat(pair[1].id)" [disabled]="pair[1].estado === 'confirmado'">{{ pair[1].nro_asiento }}</button>
+                    <button class="seat {{ seatClasses(pair[0]) }}" (click)="toggleSeat(pair[0].id)" [disabled]="!canToggle(pair[0])">{{ pair[0].nro_asiento }}</button>
+                    <button class="seat {{ seatClasses(pair[1]) }}" (click)="toggleSeat(pair[1].id)" [disabled]="!canToggle(pair[1])">{{ pair[1].nro_asiento }}</button>
                   </div>
                 }
               </div>
@@ -194,12 +193,6 @@
       </div>
 
     </div>
-
-    @if (mensajeError) {
-      <div style="padding: 0.75rem 1rem; margin: 0 2.5rem; background: #fef2f2; color: #991b1b; border-radius: 0.75rem; font-size: 0.875rem; text-align: center; border: 1px solid #fecaca;">
-        {{ mensajeError }}
-      </div>
-    }
 
     <div class="continue-bar">
       <div class="continue-info">

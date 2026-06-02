@@ -27,6 +27,9 @@
   --color-meurzet-primary: #384752;
   --color-meurzet-accent: #af4f35;
   --color-meurzet-secondary: #e4912e;
+  --color-meurzet-muted: #969fa3;
+  --color-meurzet-light: #eec997;
+  --color-meurzet-info: #1aa7c4;
 }
 
 body {

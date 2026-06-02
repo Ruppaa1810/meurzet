@@ -10,7 +10,7 @@ body {
     radial-gradient(circle at top left, rgba(26,167,196,0.05), transparent 30%),
     radial-gradient(circle at bottom right, rgba(175,79,53,0.08), transparent 30%),
     #f4f4f3;
-  color: #384752;
+  color: var(--color-meurzet-primary);
 }
 
 /* =========================================================
@@ -30,7 +30,7 @@ TRIP PANEL
   width: 200px;
   min-width: 200px;
 
-  background: #384752;
+  background: var(--color-meurzet-primary);
 
   border-right: 1px solid rgba(228,145,46,.2);
 
@@ -63,8 +63,8 @@ TRIP PANEL
 
   border-radius: 50%;
 
-  background: #e4912e;
-  border: 2px solid #eec997;
+  background: var(--color-meurzet-secondary);
+  border: 2px solid var(--color-meurzet-light);
 }
 
 .trip-line-v {
@@ -73,7 +73,7 @@ TRIP PANEL
 
   min-height: 60px;
 
-  background: linear-gradient(to bottom,#e4912e,#af4f35);
+  background: linear-gradient(to bottom,var(--color-meurzet-secondary),var(--color-meurzet-accent));
 
   margin: 6px 0;
 }
@@ -93,7 +93,7 @@ TRIP PANEL
 }
 
 .trip-panel-city.dest {
-  color: #eec997;
+  color: var(--color-meurzet-light);
 }
 
 .trip-panel-blocks {
@@ -115,7 +115,7 @@ TRIP PANEL
   text-transform: uppercase;
   letter-spacing: 1px;
 
-  color: #969fa3;
+  color: var(--color-meurzet-muted);
 }
 
 .trip-panel-block strong {
@@ -131,12 +131,12 @@ TRIP PANEL
 }
 
 .price-tag {
-  color: #e4912e !important;
+  color: var(--color-meurzet-secondary) !important;
   font-size: 15px !important;
 }
 
 .avail-tag {
-  color: #1aa7c4 !important;
+  color: var(--color-meurzet-info) !important;
 }
 
 /* =========================================================
@@ -164,12 +164,12 @@ BUS MAIN
 .section-title {
   font-size: 22px;
   font-weight: 900;
-  color: #384752;
+  color: var(--color-meurzet-primary);
 }
 
 .section-sub {
   font-size: 13px;
-  color: #969fa3;
+  color: var(--color-meurzet-muted);
   margin-top: 4px;
 }
 
@@ -216,7 +216,7 @@ LEGEND
 
 .legend-dot.selected {
   background: white;
-  border: 2px solid #af4f35;
+  border: 2px solid var(--color-meurzet-accent);
 }
 
 /* =========================================================
@@ -243,13 +243,13 @@ BUSES
   font-size: 16px;
   font-weight: 700;
 
-  color: #384752;
+  color: var(--color-meurzet-primary);
 
   margin-bottom: 14px;
 }
 
 .bus-floor-title strong {
-  color: #af4f35;
+  color: var(--color-meurzet-accent);
 }
 
 /* =========================================================
@@ -297,9 +297,9 @@ BUS BODY
   background:
     linear-gradient(
       to bottom,
-      #e4912e,
-      #af4f35,
-      #e4912e
+      var(--color-meurzet-secondary),
+      var(--color-meurzet-accent),
+      var(--color-meurzet-secondary)
     );
 }
 
@@ -317,9 +317,9 @@ BUS BODY
   background:
     linear-gradient(
       to bottom,
-      #e4912e,
-      #af4f35,
-      #e4912e
+      var(--color-meurzet-secondary),
+      var(--color-meurzet-accent),
+      var(--color-meurzet-secondary)
     );
 }
 
@@ -328,7 +328,7 @@ NARIZ
 ========================================================= */
 
 .bus-nose {
-  background: linear-gradient(to bottom,#2c3a44,#384752);
+  background: linear-gradient(to bottom,#2c3a44,var(--color-meurzet-primary));
 
   padding: 14px 16px 12px;
 
@@ -666,7 +666,7 @@ BOXES
   background: rgba(26,167,196,.1);
   border-color: rgba(26,167,196,.3);
 
-  color: #1aa7c4;
+  color: var(--color-meurzet-info);
 }
 
 .stairs-box {
@@ -677,7 +677,7 @@ BOXES
 
   border-color: #c9a08f;
 
-  color: #384752;
+  color: var(--color-meurzet-primary);
 }
 
 .door-box {
@@ -688,7 +688,7 @@ BOXES
 
   border-color: rgba(228,145,46,.35);
 
-  color: #e4912e;
+  color: var(--color-meurzet-secondary);
 }
 
 .stairs-pa {
@@ -819,9 +819,9 @@ SEATS
 .seat-selected {
   background: white;
 
-  border: 2px solid #af4f35;
+  border: 2px solid var(--color-meurzet-accent);
 
-  color: #af4f35;
+  color: var(--color-meurzet-accent);
 
   box-shadow:
     0 0 0 4px rgba(175,79,53,.15);
@@ -837,7 +837,7 @@ COLA
   background:
     linear-gradient(
       to bottom,
-      #384752,
+      var(--color-meurzet-primary),
       #2c3a44
     );
 
@@ -899,14 +899,14 @@ CONTINUE BAR
   text-transform: uppercase;
   letter-spacing: 1px;
 
-  color: #969fa3;
+  color: var(--color-meurzet-muted);
 }
 
 .continue-seat {
   font-size: 18px;
   font-weight: 900;
 
-  color: #af4f35;
+  color: var(--color-meurzet-accent);
 }
 
 .continue-btn {
@@ -927,8 +927,8 @@ CONTINUE BAR
   background:
     linear-gradient(
       135deg,
-      #af4f35,
-      #e4912e
+      var(--color-meurzet-accent),
+      var(--color-meurzet-secondary)
     );
 
   transition:

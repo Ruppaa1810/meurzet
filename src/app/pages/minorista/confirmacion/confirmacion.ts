@@ -24,7 +24,7 @@ export class Confirmacion implements OnInit {
 
   ngOnInit() {
     if (!this.reservaState.viaje || this.reservaState.asientos.length === 0) {
-      this.router.navigate(['/minorista/vender']);
+      this.router.navigate(['/minorista/vender'], { replaceUrl: true });
     }
   }
 

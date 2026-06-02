@@ -1,11 +1,10 @@
 <div class="p-8">
 
   <div class="flex justify-between items-center mb-8">
-    <h2 class="text-2xl font-bold text-[#384752] m-0">Gestión de Viajes</h2>
+    <h2 class="text-2xl font-bold text-meurzet-primary m-0">Gestión de Viajes</h2>
     @if (esAdmin) {
       <button (click)="abrirModal()"
-        class="px-6 py-3 rounded-xl font-bold text-sm text-white border-none cursor-pointer"
-        style="background: linear-gradient(135deg, #af4f35, #e4912e);">
+        class="px-6 py-3 rounded-xl font-bold text-sm text-white border-none cursor-pointer bg-gradient-to-br from-meurzet-accent to-meurzet-secondary">
         + Nuevo Viaje
       </button>
     }
@@ -81,7 +80,7 @@
     (click)="cerrarModalEliminar()">
     <div class="bg-white rounded-2xl p-8 w-[90%] max-w-[400px] shadow-2xl"
       (click)="$event.stopPropagation()">
-      <h3 class="text-xl font-bold text-[#384752] m-0 mb-2">¿Eliminar viaje?</h3>
+      <h3 class="text-xl font-bold text-meurzet-primary m-0 mb-2">¿Eliminar viaje?</h3>
       <p class="text-sm text-slate-500 mb-6">Esta acción no se puede deshacer.</p>
 
       <div class="flex gap-3">
@@ -104,18 +103,18 @@
     (click)="cerrarModal()">
     <div class="bg-white rounded-2xl p-8 w-[90%] max-w-[450px] shadow-2xl"
       (click)="$event.stopPropagation()">
-      <h3 class="text-xl font-bold text-[#384752] m-0 mb-6">
+      <h3 class="text-xl font-bold text-meurzet-primary m-0 mb-6">
         {{ editando ? 'Editar' : 'Nuevo' }} Viaje
       </h3>
 
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-semibold text-[#384752] mb-1">Origen</label>
+          <label class="block text-sm font-semibold text-meurzet-primary mb-1">Origen</label>
           <input [(ngModel)]="form.origen"
             class="w-full p-3 border-2 border-gray-300 rounded-xl text-sm box-border">
         </div>
         <div>
-          <label class="block text-sm font-semibold text-[#384752] mb-1">Destino</label>
+          <label class="block text-sm font-semibold text-meurzet-primary mb-1">Destino</label>
           <input [(ngModel)]="form.destino"
             class="w-full p-3 border-2 border-gray-300 rounded-xl text-sm box-border">
         </div>
@@ -123,19 +122,19 @@
 
       <div class="grid grid-cols-2 gap-4 mt-4">
         <div>
-          <label class="block text-sm font-semibold text-[#384752] mb-1">Salida</label>
+          <label class="block text-sm font-semibold text-meurzet-primary mb-1">Salida</label>
           <input [(ngModel)]="form.fecha_salida" type="datetime-local"
             class="w-full p-3 border-2 border-gray-300 rounded-xl text-sm box-border">
         </div>
         <div>
-          <label class="block text-sm font-semibold text-[#384752] mb-1">Llegada</label>
+          <label class="block text-sm font-semibold text-meurzet-primary mb-1">Llegada</label>
           <input [(ngModel)]="form.fecha_llegada" type="datetime-local"
             class="w-full p-3 border-2 border-gray-300 rounded-xl text-sm box-border">
         </div>
       </div>
 
       <div class="mt-4">
-        <label class="block text-sm font-semibold text-[#384752] mb-1">Unidad</label>
+        <label class="block text-sm font-semibold text-meurzet-primary mb-1">Unidad</label>
         <select [(ngModel)]="form.unidad_id"
           class="w-full p-3 border-2 border-gray-300 rounded-xl text-sm bg-white box-border">
           <option [ngValue]="null">Sin asignar</option>
@@ -146,14 +145,14 @@
       </div>
 
       <div class="mt-4">
-        <label class="block text-sm font-semibold text-[#384752] mb-1">Precio base ($)</label>
+        <label class="block text-sm font-semibold text-meurzet-primary mb-1">Precio base ($)</label>
         <input [(ngModel)]="form.precio_base" type="number"
           class="w-full p-3 border-2 border-gray-300 rounded-xl text-sm box-border">
       </div>
 
       <div class="mt-4 flex items-center gap-2">
         <input [(ngModel)]="form.activo" type="checkbox" id="activo-check">
-        <label for="activo-check" class="text-sm font-semibold text-[#384752]">Viaje activo</label>
+        <label for="activo-check" class="text-sm font-semibold text-meurzet-primary">Viaje activo</label>
       </div>
 
       <div class="flex gap-3 mt-6">
@@ -162,8 +161,7 @@
           Cancelar
         </button>
         <button (click)="guardar()" [disabled]="guardando"
-          class="flex-1 py-3 rounded-xl font-bold text-white border-none cursor-pointer"
-          style="background: linear-gradient(135deg, #af4f35, #e4912e);"
+          class="flex-1 py-3 rounded-xl font-bold text-white border-none cursor-pointer bg-gradient-to-br from-meurzet-accent to-meurzet-secondary"
           [class.opacity-60]="guardando">
           {{ guardando ? 'Guardando...' : (editando ? 'Guardar' : 'Crear') }}
         </button>

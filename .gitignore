@@ -29,6 +29,9 @@ yarn-error.log
 !.vscode/mcp.json
 .history/*
 
+# Sensitive scripts
+crear-funcion.cjs
+
 # Miscellaneous
 /.angular/cache
 .sass-cache/

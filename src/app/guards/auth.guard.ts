@@ -13,19 +13,19 @@ export class AuthGuard implements CanActivate {
   async canActivate(route: ActivatedRouteSnapshot): Promise<boolean> {
     const session = (await this.supabaseService.supabase.auth.getSession()).data.session;
     if (!session) {
-      this.router.navigate(['/']);
+      this.router.navigate(['/'], { replaceUrl: true });
       return false;
     }
 
     const { data: perfil } = await this.supabaseService.getPerfil(session.user.id);
     if (!perfil) {
-      this.router.navigate(['/']);
+      this.router.navigate(['/'], { replaceUrl: true });
       return false;
     }
 
     const allowedRoles = route.data['roles'] as UserRole[] | undefined;
     if (allowedRoles && !allowedRoles.includes(perfil.rol)) {
-      this.router.navigate(['/']);
+      this.router.navigate(['/'], { replaceUrl: true });
       return false;
     }
 
