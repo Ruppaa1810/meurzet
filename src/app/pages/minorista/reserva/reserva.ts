@@ -29,6 +29,15 @@ export class Reserva implements OnInit {
     }
   }
 
+  volver() {
+    const viajeId = this.reservaState.viaje?.id;
+    if (viajeId) {
+      this.router.navigate(['/minorista/seleccion', viajeId]);
+    } else {
+      this.router.navigate(['/minorista/vender']);
+    }
+  }
+
   get total(): number {
     return this.reservaState.total;
   }

@@ -41,7 +41,9 @@ export class Minorista implements OnInit, OnDestroy {
   }
 
   get hideSidebar(): boolean {
-    return this.router.url.includes('/minorista/seleccion/');
+    return this.router.url.includes('/minorista/seleccion/')
+      || this.router.url.includes('/minorista/reserva')
+      || this.router.url.includes('/minorista/confirmacion');
   }
 
   get contentMargin(): string {
