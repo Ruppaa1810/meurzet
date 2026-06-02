@@ -59,12 +59,15 @@ TRIP PANEL
 
   padding: 28px 16px;
 
-  position: sticky;
-  top: 0;
-
-  height: 100vh;
-
   overflow-y: auto;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+
+.trip-panel-inner {
+  display: flex;
+  gap: 12px;
 }
 
 .trip-panel-inner {
@@ -779,6 +782,10 @@ SEATS
   background: rgba(255,255,255,.5);
 }
 
+.seat:disabled {
+  cursor: not-allowed;
+}
+
 .seat-free {
   background:
     linear-gradient(
@@ -821,7 +828,6 @@ SEATS
   color: #dc2626;
 
   opacity: .8;
-  cursor: not-allowed;
 }
 
 .seat-blocked {
@@ -835,8 +841,6 @@ SEATS
   border: 1px solid #fcd34d;
 
   color: #a16207;
-
-  cursor: not-allowed;
 }
 
 .seat-selected {

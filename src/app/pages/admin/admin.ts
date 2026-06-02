@@ -21,6 +21,10 @@ export class Admin implements OnInit {
     private cdr: ChangeDetectorRef,
   ) {}
 
+  get esAdmin(): boolean {
+    return this.perfil?.rol === 'admin_mayorista';
+  }
+
   async ngOnInit() {
     const { data } = await this.supabaseService.getCurrentProfile();
     this.perfil = data;

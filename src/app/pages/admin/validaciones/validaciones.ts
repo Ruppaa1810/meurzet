@@ -34,8 +34,8 @@ export class Validaciones implements OnInit {
     private cdr: ChangeDetectorRef,
   ) {}
 
-  get esAdmin(): boolean {
-    return this.rol === 'admin_mayorista';
+  get puedeGestionar(): boolean {
+    return this.rol === 'admin_mayorista' || this.rol === 'operador_admin';
   }
 
   async ngOnInit() {
@@ -83,7 +83,7 @@ export class Validaciones implements OnInit {
 
   async ejecutarAccion() {
     const reserva = this.reservaAccion;
-    if (!this.esAdmin || !reserva?.asiento_viaje_id) return;
+    if (!this.puedeGestionar || !reserva?.asiento_viaje_id) return;
 
     if (this.accion === 'rechazar' && !this.motivoRechazo.trim()) return;
 

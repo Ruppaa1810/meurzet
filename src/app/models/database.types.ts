@@ -17,6 +17,7 @@ export interface Perfil {
   agencia_nombre: string | null;
   rol: UserRole;
   activo: boolean | null;
+  created_by: string | null;
   created_at: string;
 }
 

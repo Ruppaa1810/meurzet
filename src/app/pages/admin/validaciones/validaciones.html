@@ -33,7 +33,7 @@
                 {{ reserva.estado === 'pendiente_comprobante' ? 'Esperando comprobante' : 'Pendiente de validación' }}
               </span>
             </div>
-            @if (esAdmin && reserva.estado === 'pendiente_validacion' && reserva.comprobante_url) {
+            @if (puedeGestionar && reserva.estado === 'pendiente_validacion' && reserva.comprobante_url) {
               <div class="flex gap-2">
                 <button (click)="verComprobante(reserva.comprobante_url!)"
                   class="px-3 py-2 bg-blue-600 text-white rounded-lg border-none cursor-pointer text-sm flex items-center gap-1.5">

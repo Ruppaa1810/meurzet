@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { SupabaseService } from '../../../services/supabase.service';
 import { ReservaStateService } from '../../../services/reserva-state.service';
@@ -13,7 +13,7 @@ interface SeatView extends MapaAsientoViaje {
 @Component({
   selector: 'app-seleccion',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './seleccion.html',
   styleUrl: './seleccion.css',
 })
@@ -214,5 +214,13 @@ export class Seleccion implements OnInit, OnDestroy {
     if (sel.length === 0 || !this.viaje) return;
     this.reservaState.iniciar(this.viaje, sel);
     this.router.navigate(['/minorista/reserva']);
+  }
+
+  async volver() {
+    const misBloqueados = this.asientos.filter(a => a.estado === 'bloqueado' && a.vendedor_bloqueo_id === this.userId);
+    await Promise.allSettled(
+      misBloqueados.map(a => this.supabaseService.liberarAsiento(a.viaje_id!, a.nro_asiento))
+    );
+    this.router.navigate(['/minorista/vender']);
   }
 }

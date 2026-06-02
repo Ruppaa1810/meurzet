@@ -85,7 +85,7 @@
             <div class="trip-info grid grid-cols-2 gap-3 md:gap-5">
               <div class="trip-block bg-[#f4f4f3]/70 border border-[#af4f35]/10 rounded-xl p-2 md:p-3.5">
                 <span class="block text-[9px] md:text-[11px] font-extrabold text-slate-400 uppercase mb-1">Salida</span>
-                <strong class="text-xs md:text-base text-[#384752]">{{ formatHora(viaje.fecha_salida) }} hs</strong>
+                <strong class="text-xs md:text-base text-[#384752]">{{ formatFechaCorta(viaje.fecha_salida) }} · {{ formatHora(viaje.fecha_salida) }} hs</strong>
               </div>
               <div class="trip-block bg-[#f4f4f3]/70 border border-[#af4f35]/10 rounded-xl p-2 md:p-3.5">
                 <span class="block text-[9px] md:text-[11px] font-extrabold text-slate-400 uppercase mb-1">Llegada</span>

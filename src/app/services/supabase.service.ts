@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
-import type { Viaje, MapaAsientoViaje, Perfil, Reserva, Unidad } from '../models/database.types';
+import type { Viaje, MapaAsientoViaje, Perfil, Reserva, Unidad, UserRole } from '../models/database.types';
 
 @Injectable({
   providedIn: 'root'
@@ -71,7 +71,7 @@ export class SupabaseService {
     return await this.supabase
       .from('perfiles')
       .select('*')
-      .eq('rol', 'vendedor_minorista')
+      .in('rol', ['vendedor_minorista', 'operador_admin'])
       .order('created_at', { ascending: false });
   }
 
@@ -84,7 +84,7 @@ export class SupabaseService {
       .single<Perfil>();
   }
 
-  async crearVendedorMinorista(email: string, password: string, nombre: string, agenciaNombre: string) {
+  async crearVendedorMinorista(email: string, password: string, nombre: string, agenciaNombre: string, rol: UserRole = 'vendedor_minorista', createdBy?: string) {
     const adminHeaders = {
       'apikey': environment.serviceRoleKey,
       'Authorization': `Bearer ${environment.serviceRoleKey}`,
@@ -104,7 +104,7 @@ export class SupabaseService {
         headers: adminHeaders,
         body: JSON.stringify({
           email, password, email_confirm: true,
-          user_metadata: { nombre, agencia_nombre: agenciaNombre, rol: 'vendedor_minorista' },
+          user_metadata: { nombre, agencia_nombre: agenciaNombre, rol },
         }),
       });
       const authData = await authRes.json();
@@ -118,7 +118,8 @@ export class SupabaseService {
         headers: { ...adminHeaders, 'Prefer': 'resolution=merge-duplicates' },
         body: JSON.stringify({
           id: userId, nombre, agencia_nombre: agenciaNombre,
-          rol: 'vendedor_minorista', activo: true,
+          rol, activo: true,
+          ...(createdBy ? { created_by: createdBy } : {}),
         }),
       });
       if (!perfilRes.ok) {
@@ -133,13 +134,47 @@ export class SupabaseService {
     }
   }
 
-  async actualizarPerfil(id: string, datos: Partial<Pick<Perfil, 'nombre' | 'agencia_nombre'>>) {
+  async actualizarPerfil(id: string, datos: Partial<Pick<Perfil, 'nombre' | 'agencia_nombre' | 'rol'>>) {
     return await this.supabase
       .from('perfiles')
       .update(datos)
       .eq('id', id)
       .select()
       .single<Perfil>();
+  }
+
+  async actualizarAuthUser(userId: string, data: { email?: string; password?: string }) {
+    const adminHeaders = {
+      'apikey': environment.serviceRoleKey,
+      'Authorization': `Bearer ${environment.serviceRoleKey}`,
+      'Content-Type': 'application/json',
+    };
+
+    const fetchWithTimeout = (url: string, opts: RequestInit, ms = 15000) => {
+      const ctrl = new AbortController();
+      const id = setTimeout(() => ctrl.abort(), ms);
+      return fetch(url, { ...opts, signal: ctrl.signal }).finally(() => clearTimeout(id));
+    };
+
+    try {
+      const body: any = {};
+      if (data.email) body.email = data.email;
+      if (data.password) body.password = data.password;
+
+      if (Object.keys(body).length === 0) return { error: null };
+
+      const res = await fetchWithTimeout(`${environment.supabaseUrl}/auth/v1/admin/users/${userId}`, {
+        method: 'PUT',
+        headers: adminHeaders,
+        body: JSON.stringify(body),
+      });
+      const resData = await res.json();
+      if (!res.ok) return { error: new Error(resData.msg || resData.error || 'Error al actualizar usuario') };
+      return { error: null };
+    } catch (err: any) {
+      if (err.name === 'AbortError') return { error: new Error('La operación tardó demasiado') };
+      return { error: new Error(err.message || 'Error de conexión') };
+    }
   }
 
   // ===========================================================================
