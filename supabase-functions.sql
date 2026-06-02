@@ -1,9 +1,9 @@
 CREATE OR REPLACE FUNCTION bloquear_asiento(
   p_viaje_id INTEGER,
   p_nro_asiento INTEGER,
-  p_vendedor_id TEXT
-) RETURNS VOID
-LANGUAGE plpgsql SECURITY DEFINER AS $$
+  p_vendedor_id UUID
+) RETURNS boolean
+LANGUAGE plpgsql SECURITY DEFINER AS $func$
 BEGIN
   UPDATE mapa_asientos_viaje
   SET estado = 'bloqueado',
@@ -14,16 +14,17 @@ BEGIN
     AND estado = 'libre';
 
   IF NOT FOUND THEN
-    RAISE EXCEPTION 'El asiento ya no está disponible';
+    RAISE EXCEPTION 'El asiento ya no est� disponible';
   END IF;
+  RETURN true;
 END;
-$$;
+$func$;
 
 CREATE OR REPLACE FUNCTION liberar_asiento(
   p_viaje_id INTEGER,
   p_nro_asiento INTEGER
-) RETURNS VOID
-LANGUAGE plpgsql SECURITY DEFINER AS $$
+) RETURNS boolean
+LANGUAGE plpgsql SECURITY DEFINER AS $func$
 BEGIN
   UPDATE mapa_asientos_viaje
   SET estado = 'libre',
@@ -34,7 +35,8 @@ BEGIN
     AND estado = 'bloqueado';
 
   IF NOT FOUND THEN
-    RAISE EXCEPTION 'El asiento no está bloqueado';
+    RAISE EXCEPTION 'El asiento no est� bloqueado';
   END IF;
+  RETURN true;
 END;
-$$;
+$func$;
