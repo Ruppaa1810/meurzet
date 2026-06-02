@@ -50,8 +50,9 @@
           </select>
         </div>
 
+        <!-- BOTÓN BUSCAR VIAJES - HOVER CELESTE -->
         <button (click)="buscarViajes()"
-          class="search-btn h-[48px] md:h-[58px] rounded-xl md:rounded-2xl border-none bg-gradient-to-r from-[#af4f35] to-[#e4912e] text-white text-sm font-extrabold tracking-wide cursor-pointer transition-all hover:-translate-y-1 hover:shadow-[0_14px_26px_rgba(175,79,53,0.22)] hover:opacity-95 active:scale-[0.98]">
+          class="search-btn h-[48px] md:h-[58px] rounded-xl md:rounded-2xl border-none text-white text-sm font-extrabold tracking-wide cursor-pointer transition-all hover:-translate-y-1 hover:shadow-[0_14px_26px_rgba(26,167,196,0.25)] hover:opacity-95 active:scale-[0.98] bg-gradient-to-r from-[#af4f35] to-[#e4912e] hover:from-[#1aa7c4] hover:to-[#384752]">
           Buscar Viajes
         </button>
 
@@ -103,7 +104,7 @@
             <div class="trip-actions flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
               <div class="trip-price text-2xl md:text-[32px] font-black text-[#af4f35]">{{ formatPrecio(viaje.precio_base) }}</div>
               <button [routerLink]="['/minorista/seleccion', viaje.id]"
-                class="select-btn h-[44px] md:h-[52px] px-6 md:px-8 rounded-xl md:rounded-2xl border-none bg-gradient-to-r from-[#af4f35] to-[#e4912e] text-white text-xs md:text-[13px] font-extrabold whitespace-nowrap cursor-pointer transition-all hover:bg-gradient-to-r hover:from-[#1aa7c4] hover:to-[#384752] hover:-translate-y-0.5 w-full sm:w-auto">
+                class="select-btn h-[44px] md:h-[52px] px-6 md:px-8 rounded-xl md:rounded-2xl border-none text-white text-xs md:text-[13px] font-extrabold whitespace-nowrap cursor-pointer transition-all hover:-translate-y-0.5 w-full sm:w-auto bg-gradient-to-r from-[#af4f35] to-[#e4912e] hover:from-[#1aa7c4] hover:to-[#384752]">
                 Seleccionar Asientos
               </button>
             </div>
@@ -120,6 +121,72 @@
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(18px); }
     to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* =========================================================
+     SIDEBAR - HOVER CELESTE
+  ========================================================= */
+  .sidebar-item {
+    height: 54px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    color: rgba(255,255,255,0.82);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    background: transparent;
+    transition: all 0.22s ease;
+  }
+
+  .sidebar-item:hover {
+    background: linear-gradient(135deg, #1aa7c4, #384752);
+    transform: translateX(4px);
+    color: white;
+  }
+
+  .sidebar-item.active {
+    background: linear-gradient(135deg, #af4f35, #e4912e);
+    color: white;
+    box-shadow: 0 12px 24px rgba(175,79,53,0.22);
+  }
+
+  .sidebar-logout {
+    height: 54px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    color: rgba(255,255,255,0.82);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    width: 100%;
+    text-align: left;
+    transition: all 0.22s ease;
+  }
+
+  .sidebar-logout:hover {
+    background: linear-gradient(135deg, #1aa7c4, #384752);
+    transform: translateX(4px);
+    color: white;
+  }
+
+  /* =========================================================
+     BOTÓN SELECCIONAR ASIENTOS - HOVER CELESTE
+  ========================================================= */
+  .select-btn {
+    background: linear-gradient(135deg, #af4f35, #e4912e);
+    transition: all 0.3s ease;
+  }
+
+  .select-btn:hover {
+    background: linear-gradient(135deg, #1aa7c4, #384752) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(26, 167, 196, 0.3);
   }
 
   /* Responsive adicional */
