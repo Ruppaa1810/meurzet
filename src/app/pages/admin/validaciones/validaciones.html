@@ -1,5 +1,5 @@
 <div class="p-10">
-  <h2 class="text-lg font-bold text-[#384752] m-0 mb-1">Validaciones</h2>
+  <h2 class="text-lg font-bold text-meurzet-primary m-0 mb-1">Validaciones</h2>
   <p class="text-sm text-slate-500 mb-6">Revisar y aprobar comprobantes de pago</p>
 
   @if (mostrarSuccessMensaje) {
@@ -63,10 +63,10 @@
     <div class="bg-white rounded-2xl p-8 w-[420px] max-w-[90vw] shadow-2xl"
       (click)="$event.stopPropagation()">
       @if (accion === 'aprobar') {
-        <h3 class="text-xl font-bold text-[#384752] m-0 mb-2">¿Aprobar reserva #{{ reservaAccion.id }}?</h3>
+        <h3 class="text-xl font-bold text-meurzet-primary m-0 mb-2">¿Aprobar reserva #{{ reservaAccion.id }}?</h3>
         <p class="text-sm text-slate-500 mb-6">Se confirmará el asiento y la reserva quedará como aprobada.</p>
       } @else {
-        <h3 class="text-xl font-bold text-[#384752] m-0 mb-2">Rechazar reserva #{{ reservaAccion.id }}</h3>
+        <h3 class="text-xl font-bold text-meurzet-primary m-0 mb-2">Rechazar reserva #{{ reservaAccion.id }}</h3>
         <div class="mb-4">
           <label class="block text-xs font-semibold text-slate-600 mb-1">Motivo del rechazo</label>
           <textarea [(ngModel)]="motivoRechazo" placeholder="Ej: Comprobante ilegible, datos incorrectos..."

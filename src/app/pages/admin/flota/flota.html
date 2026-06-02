@@ -1,11 +1,10 @@
 <div class="p-8">
 
   <div class="flex justify-between items-center mb-8">
-    <h2 class="text-2xl font-bold text-[#384752] m-0">Gestión de Flota</h2>
+    <h2 class="text-2xl font-bold text-meurzet-primary m-0">Gestión de Flota</h2>
     @if (esAdmin) {
       <button (click)="abrirModal()"
-        class="px-6 py-3 rounded-xl font-bold text-sm text-white border-none cursor-pointer"
-        style="background: linear-gradient(135deg, #af4f35, #e4912e);">
+        class="px-6 py-3 rounded-xl font-bold text-sm text-white border-none cursor-pointer bg-gradient-to-br from-meurzet-accent to-meurzet-secondary">
         + Nueva Unidad
       </button>
     }
@@ -73,7 +72,7 @@
     (click)="cerrarModalEliminar()">
     <div class="bg-white rounded-2xl p-8 w-[90%] max-w-[400px] shadow-2xl"
       (click)="$event.stopPropagation()">
-      <h3 class="text-xl font-bold text-[#384752] m-0 mb-2">¿Eliminar unidad?</h3>
+      <h3 class="text-xl font-bold text-meurzet-primary m-0 mb-2">¿Eliminar unidad?</h3>
       <p class="text-sm text-slate-500 mb-6">Esta acción no se puede deshacer.</p>
 
       <div class="flex gap-3">
@@ -96,24 +95,24 @@
     (click)="cerrarModal()">
     <div class="bg-white rounded-2xl p-8 w-[90%] max-w-[400px] shadow-2xl"
       (click)="$event.stopPropagation()">
-      <h3 class="text-xl font-bold text-[#384752] m-0 mb-6">
+      <h3 class="text-xl font-bold text-meurzet-primary m-0 mb-6">
         {{ editando ? 'Editar' : 'Nueva' }} Unidad
       </h3>
 
       <div class="mb-4">
-        <label class="block text-sm font-semibold text-[#384752] mb-1">Empresa</label>
+        <label class="block text-sm font-semibold text-meurzet-primary mb-1">Empresa</label>
         <input [(ngModel)]="form.empresa" placeholder="Ej: Rápido Tata"
           class="w-full p-3 border-2 border-gray-300 rounded-xl text-sm box-border">
       </div>
 
       <div class="mb-4">
-        <label class="block text-sm font-semibold text-[#384752] mb-1">Patente</label>
+        <label class="block text-sm font-semibold text-meurzet-primary mb-1">Patente</label>
         <input [(ngModel)]="form.patente"
           class="w-full p-3 border-2 border-gray-300 rounded-xl text-sm box-border">
       </div>
 
       <div class="mb-4">
-        <label class="block text-sm font-semibold text-[#384752] mb-1">Pisos</label>
+        <label class="block text-sm font-semibold text-meurzet-primary mb-1">Pisos</label>
         <select [(ngModel)]="form.pisos"
           class="w-full p-3 border-2 border-gray-300 rounded-xl text-sm bg-white box-border">
           <option [ngValue]="1">1 piso</option>
@@ -122,7 +121,7 @@
       </div>
 
       <div class="mb-6">
-        <label class="block text-sm font-semibold text-[#384752] mb-1">Asientos totales</label>
+        <label class="block text-sm font-semibold text-meurzet-primary mb-1">Asientos totales</label>
         <input [(ngModel)]="form.asientos_totales" type="number"
           class="w-full p-3 border-2 border-gray-300 rounded-xl text-sm box-border">
       </div>
@@ -133,8 +132,7 @@
           Cancelar
         </button>
         <button (click)="guardar()" [disabled]="guardando"
-          class="flex-1 py-3 rounded-xl font-bold text-white border-none cursor-pointer"
-          style="background: linear-gradient(135deg, #af4f35, #e4912e);"
+          class="flex-1 py-3 rounded-xl font-bold text-white border-none cursor-pointer bg-gradient-to-br from-meurzet-accent to-meurzet-secondary"
           [class.opacity-60]="guardando">
           {{ guardando ? 'Guardando...' : (editando ? 'Guardar' : 'Crear') }}
         </button>

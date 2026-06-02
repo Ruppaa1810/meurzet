@@ -25,7 +25,7 @@ export class Reserva implements OnInit {
 
   ngOnInit() {
     if (!this.reservaState.viaje || this.reservaState.asientos.length === 0) {
-      this.router.navigate(['/minorista/vender']);
+      this.router.navigate(['/minorista/vender'], { replaceUrl: true });
     }
   }
 
@@ -117,11 +117,17 @@ export class Reserva implements OnInit {
           return;
         }
 
-        if (data) ids.push(data.id);
+        if (data) {
+          ids.push(data.id);
+          await this.supabaseService.supabase
+            .from('mapa_asientos_viaje')
+            .update({ estado: 'confirmado', vendedor_bloqueo_id: null, bloqueado_hasta: null })
+            .eq('id', asientos[i].asientoId);
+        }
       }
 
       this.reservaState.reservaIds = ids;
-      this.router.navigate(['/minorista/confirmacion'], { replaceUrl: true });
+      this.router.navigate(['/minorista/confirmacion']);
     } catch (e: any) {
       this.message = e?.message || 'Error inesperado al confirmar la reserva';
     } finally {

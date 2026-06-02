@@ -12,6 +12,8 @@ import type { Perfil } from '../../models/database.types';
 })
 export class Admin implements OnInit {
   perfil: Perfil | null = null;
+  sidebarOpen = false;
+  private touchStartX = 0;
 
   constructor(
     private supabaseService: SupabaseService,
@@ -33,8 +35,29 @@ export class Admin implements OnInit {
     return this.perfil?.agencia_nombre || 'admin@meurzet.com';
   }
 
+  toggleSidebar() {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar() {
+    this.sidebarOpen = false;
+  }
+
+  onTouchStart(event: TouchEvent) {
+    this.touchStartX = event.touches[0].clientX;
+  }
+
+  onTouchEnd(event: TouchEvent) {
+    const dx = event.changedTouches[0].clientX - this.touchStartX;
+    if (this.sidebarOpen && dx < -60) {
+      this.closeSidebar();
+    } else if (!this.sidebarOpen && this.touchStartX < 40 && dx > 60) {
+      this.sidebarOpen = true;
+    }
+  }
+
   async logout() {
     await this.supabaseService.signOut();
-    this.router.navigate(['/']);
+    this.router.navigate(['/'], { replaceUrl: true });
   }
 }
