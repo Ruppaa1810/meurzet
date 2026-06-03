@@ -26,6 +26,29 @@ export class Viajes implements OnInit {
   eliminarId: number | null = null;
   eliminando = false;
 
+  // Paginación
+  currentPage = 1;
+  readonly itemsPerPage = 6;
+
+  get paginatedViajes(): Viaje[] {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    return this.viajes.slice(start, start + this.itemsPerPage);
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.viajes.length / this.itemsPerPage));
+  }
+
+  get pages(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  irAPagina(page: number) {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+    }
+  }
+
   rol: UserRole | null = null;
 
   form = {
@@ -59,6 +82,7 @@ export class Viajes implements OnInit {
   async cargar() {
     this.loading = true;
     this.mensaje = '';
+    this.currentPage = 1;
     try {
       const [viajesRes, unidadesRes] = await Promise.all([
         this.supabaseService.getViajesAdmin(),
