@@ -1,4 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { SupabaseService } from '../../../services/supabase.service';
 import { ReservaStateService } from '../../../services/reserva-state.service';
@@ -6,7 +7,7 @@ import { ReservaStateService } from '../../../services/reserva-state.service';
 @Component({
   selector: 'app-confirmacion',
   standalone: true,
-  imports: [RouterLink],
+  imports: [DatePipe, RouterLink],
   templateUrl: './confirmacion.html',
 })
 export class Confirmacion implements OnInit {

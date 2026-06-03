@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../../services/supabase.service';
 import type { Reserva, Viaje, UserRole } from '../../../models/database.types';
@@ -8,7 +9,7 @@ type ReservaConViaje = Reserva & { viaje?: Viaje };
 @Component({
   selector: 'app-validaciones',
   standalone: true,
-  imports: [FormsModule],
+  imports: [DatePipe, FormsModule],
   templateUrl: './validaciones.html',
 })
 export class Validaciones implements OnInit, OnDestroy {
