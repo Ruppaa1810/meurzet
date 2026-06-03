@@ -1,19 +1,18 @@
 <div class="p-8">
 
-  <div class="flex justify-between items-center mb-8">
-    <h2 class="text-2xl font-bold text-meurzet-primary m-0">Gestión de Flota</h2>
+  <div class="flex justify-end items-center mb-8">
     @if (esAdmin) {
       <button (click)="abrirModal()"
-        class="px-6 py-3 rounded-xl font-bold text-sm text-white border-none cursor-pointer bg-gradient-to-br from-meurzet-accent to-meurzet-secondary">
+        class="px-6 py-3 rounded-xl font-bold text-sm text-white border-none cursor-pointer bg-gradient-to-br from-meurzet-accent to-meurzet-secondary hover:bg-[#1aa7c4] hover:from-[#1aa7c4] hover:to-[#1aa7c4] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
         + Nueva Unidad
       </button>
     }
   </div>
 
-  <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+  <div class="bg-white rounded-2xl shadow-sm border-2 border-[#af4f35]/30 overflow-hidden">
     <table class="w-full border-collapse text-sm">
       <thead>
-        <tr class="bg-slate-50 border-b-2 border-slate-200">
+        <tr class="bg-slate-50 border-b-2 border-[#af4f35]/20">
           <th class="p-4 text-left text-slate-500 font-semibold">Empresa</th>
           <th class="p-4 text-left text-slate-500 font-semibold">Patente</th>
           <th class="p-4 text-left text-slate-500 font-semibold">Pisos</th>
@@ -22,8 +21,8 @@
         </tr>
       </thead>
       <tbody>
-        @for (u of unidades; track u.id) {
-          <tr class="border-b border-slate-100">
+        @for (u of paginatedUnidades; track u.id) {
+          <tr class="hover:bg-[#1aa7c4]/10 transition-all duration-200">
             <td class="p-4 font-semibold">{{ u.layout_config['empresa'] || '-' }}</td>
             <td class="p-4 font-semibold">{{ u.patente }}</td>
             <td class="p-4">{{ u.pisos }}</td>
@@ -31,14 +30,15 @@
             <td class="p-4 text-right">
               @if (esAdmin) {
                 <button (click)="abrirModal(u)"
-                  class="px-3 py-1.5 rounded-lg text-xs bg-blue-50 text-blue-600 border border-blue-200 cursor-pointer mr-2">
+                  class="px-3 py-1.5 rounded-lg text-xs bg-blue-50 text-blue-600 border border-blue-200 cursor-pointer mr-2 hover:bg-[#1aa7c4] hover:text-white hover:border-[#1aa7c4] transition-all duration-200">
                   Editar
                 </button>
                 <button (click)="confirmarEliminar(u.id)"
-                  class="px-3 py-1.5 rounded-lg text-xs bg-red-50 text-red-600 border border-red-200 cursor-pointer">
+                  class="px-3 py-1.5 rounded-lg text-xs bg-red-50 text-red-600 border border-red-200 cursor-pointer hover:bg-red-600 hover:text-white hover:border-red-600 transition-all duration-200">
                   Eliminar
                 </button>
-              } @else {
+              }
+              @if (!esAdmin) {
                 <span class="text-xs text-slate-400">Solo lectura</span>
               }
             </td>
@@ -52,6 +52,28 @@
     </table>
   </div>
 
+  <div class="flex items-center justify-between mt-3">
+    <p class="text-xs text-slate-400">{{ unidades.length }} unidad{{ unidades.length !== 1 ? 'es' : '' }} registrada{{ unidades.length !== 1 ? 's' : '' }}</p>
+    @if (unidades.length > 10) {
+      <div class="flex items-center gap-2">
+        <button (click)="irAPagina(currentPage - 1)" [disabled]="currentPage === 1"
+          class="px-2.5 py-1 rounded-lg text-xs font-semibold border border-[#af4f35]/30 text-slate-500 bg-white hover:bg-[#1aa7c4] hover:text-white hover:border-[#1aa7c4] transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-500 disabled:hover:border-[#af4f35]/30">
+          Anterior
+        </button>
+        @for (page of pages; track page) {
+          <button (click)="irAPagina(page)"
+            [class]="'px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all duration-200 ' + (currentPage === page ? 'bg-[#1aa7c4] text-white border-[#1aa7c4]' : 'border-[#af4f35]/30 text-slate-500 bg-white hover:bg-[#1aa7c4] hover:text-white hover:border-[#1aa7c4]')">
+            {{ page }}
+          </button>
+        }
+        <button (click)="irAPagina(currentPage + 1)" [disabled]="currentPage === totalPages"
+          class="px-2.5 py-1 rounded-lg text-xs font-semibold border border-[#af4f35]/30 text-slate-500 bg-white hover:bg-[#1aa7c4] hover:text-white hover:border-[#1aa7c4] transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-500 disabled:hover:border-[#af4f35]/30">
+          Siguiente
+        </button>
+      </div>
+    }
+  </div>
+
   @if (successMensaje) {
     <div class="mt-4 p-3 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm flex justify-between items-center">
       <span>✓ {{ successMensaje }}</span>
@@ -60,40 +82,61 @@
   }
 
   @if (loading) {
-    <p class="text-center text-slate-500 mt-4">Cargando...</p>
+    <div class="mt-6 grid grid-cols-1 gap-4">
+      @for (_ of [1,2,3]; track _) {
+        <div class="bg-white rounded-2xl p-5 border-2 border-[#eec997] animate-pulse">
+          <div class="h-4 w-32 bg-slate-200 rounded mb-3"></div>
+          <div class="h-3 w-48 bg-slate-200 rounded"></div>
+        </div>
+      }
+    </div>
   }
   @if (mensaje) {
-    <p class="text-center text-red-600 mt-4">{{ mensaje }}</p>
+    <div class="mt-4 p-4 rounded-xl bg-red-50 text-red-700 text-sm border border-red-200 flex items-center gap-2">
+      <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      {{ mensaje }}
+    </div>
   }
 </div>
 
-@if (mostrarModalEliminar) {
-  <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
-    (click)="cerrarModalEliminar()">
-    <div class="bg-white rounded-2xl p-8 w-[90%] max-w-[400px] shadow-2xl"
+<!-- Overlay + Modal Eliminar -->
+<div class="fixed inset-0 z-50 transition-all duration-300"
+  [class.opacity-0]="!mostrarModalEliminar" [class.pointer-events-none]="!mostrarModalEliminar"
+  [class.opacity-100]="mostrarModalEliminar" [class.pointer-events-auto]="mostrarModalEliminar">
+  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" (click)="cerrarModalEliminar()"></div>
+  <div class="relative h-full flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl p-8 w-full max-w-[400px] shadow-2xl shadow-[#af4f35]/30 transition-all duration-300"
+      [class.scale-95]="!mostrarModalEliminar" [class.scale-100]="mostrarModalEliminar"
       (click)="$event.stopPropagation()">
       <h3 class="text-xl font-bold text-meurzet-primary m-0 mb-2">¿Eliminar unidad?</h3>
-      <p class="text-sm text-slate-500 mb-6">Esta acción no se puede deshacer.</p>
+      <p class="text-sm text-slate-500 mb-4">Se eliminará la unidad <span class="font-semibold text-[#384752]">{{ unidades.find(u => u.id === eliminarId)?.patente || '' }}</span></p>
+      <p class="text-sm text-red-500 mb-6">Esta acción no se puede deshacer.</p>
 
       <div class="flex gap-3">
         <button (click)="cerrarModalEliminar()" [disabled]="eliminando"
-          class="flex-1 py-3 rounded-xl font-semibold bg-slate-100 text-slate-500 border-none cursor-pointer">
+          class="flex-1 py-3 rounded-xl font-semibold bg-slate-100 text-slate-500 border-none cursor-pointer hover:bg-slate-200 hover:-translate-y-0.5 transition-all duration-200">
           Cancelar
         </button>
         <button (click)="ejecutarEliminar()" [disabled]="eliminando"
-          class="flex-1 py-3 rounded-xl font-bold text-white border-none cursor-pointer bg-red-600"
+          class="flex-1 py-3 rounded-xl font-bold text-white border-none cursor-pointer bg-red-600 hover:bg-red-700 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
           [class.opacity-60]="eliminando">
           {{ eliminando ? 'Eliminando...' : 'Eliminar' }}
         </button>
       </div>
     </div>
   </div>
-}
+</div>
 
-@if (modalAbierto) {
-  <div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
-    (click)="cerrarModal()">
-    <div class="bg-white rounded-2xl p-8 w-[90%] max-w-[400px] shadow-2xl"
+<!-- Overlay + Modal Nueva/Editar -->
+<div class="fixed inset-0 z-50 transition-all duration-300"
+  [class.opacity-0]="!modalAbierto" [class.pointer-events-none]="!modalAbierto"
+  [class.opacity-100]="modalAbierto" [class.pointer-events-auto]="modalAbierto">
+  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" (click)="cerrarModal()"></div>
+  <div class="relative h-full flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl p-8 w-full max-w-[400px] border-2 border-[#af4f35]/30 shadow-2xl shadow-[#af4f35]/30 transition-all duration-300"
+      [class.scale-95]="!modalAbierto" [class.scale-100]="modalAbierto"
       (click)="$event.stopPropagation()">
       <h3 class="text-xl font-bold text-meurzet-primary m-0 mb-6">
         {{ editando ? 'Editar' : 'Nueva' }} Unidad
@@ -102,19 +145,19 @@
       <div class="mb-4">
         <label class="block text-sm font-semibold text-meurzet-primary mb-1">Empresa</label>
         <input [(ngModel)]="form.empresa" placeholder="Ej: Rápido Tata"
-          class="w-full p-3 border-2 border-gray-300 rounded-xl text-sm box-border">
+          class="w-full p-3 border-2 border-slate-200 rounded-xl text-sm box-border outline-none bg-[#1aa7c4]/5 focus:border-[#1aa7c4] focus:ring-2 focus:ring-[#1aa7c4]/20 transition-all">
       </div>
 
       <div class="mb-4">
         <label class="block text-sm font-semibold text-meurzet-primary mb-1">Patente</label>
         <input [(ngModel)]="form.patente"
-          class="w-full p-3 border-2 border-gray-300 rounded-xl text-sm box-border">
+          class="w-full p-3 border-2 border-slate-200 rounded-xl text-sm box-border outline-none bg-[#1aa7c4]/5 focus:border-[#1aa7c4] focus:ring-2 focus:ring-[#1aa7c4]/20 transition-all">
       </div>
 
       <div class="mb-4">
         <label class="block text-sm font-semibold text-meurzet-primary mb-1">Pisos</label>
         <select [(ngModel)]="form.pisos"
-          class="w-full p-3 border-2 border-gray-300 rounded-xl text-sm bg-white box-border">
+          class="w-full p-3 border-2 border-slate-200 rounded-xl text-sm box-border outline-none bg-[#1aa7c4]/5 focus:border-[#1aa7c4] focus:ring-2 focus:ring-[#1aa7c4]/20 transition-all">
           <option [ngValue]="1">1 piso</option>
           <option [ngValue]="2">2 pisos</option>
         </select>
@@ -123,20 +166,20 @@
       <div class="mb-6">
         <label class="block text-sm font-semibold text-meurzet-primary mb-1">Asientos totales</label>
         <input [(ngModel)]="form.asientos_totales" type="number"
-          class="w-full p-3 border-2 border-gray-300 rounded-xl text-sm box-border">
+          class="w-full p-3 border-2 border-slate-200 rounded-xl text-sm box-border outline-none bg-[#1aa7c4]/5 focus:border-[#1aa7c4] focus:ring-2 focus:ring-[#1aa7c4]/20 transition-all">
       </div>
 
       <div class="flex gap-3">
         <button (click)="cerrarModal()"
-          class="flex-1 py-3 rounded-xl font-semibold bg-slate-100 text-slate-500 border-none cursor-pointer">
+          class="flex-1 py-3 rounded-xl font-semibold bg-slate-100 text-slate-500 border-none cursor-pointer hover:bg-slate-200 hover:-translate-y-0.5 transition-all duration-200">
           Cancelar
         </button>
         <button (click)="guardar()" [disabled]="guardando"
-          class="flex-1 py-3 rounded-xl font-bold text-white border-none cursor-pointer bg-gradient-to-br from-meurzet-accent to-meurzet-secondary"
+          class="flex-1 py-3 rounded-xl font-bold text-white border-none cursor-pointer bg-gradient-to-br from-meurzet-accent to-meurzet-secondary hover:from-[#1aa7c4] hover:to-[#1aa7c4] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
           [class.opacity-60]="guardando">
           {{ guardando ? 'Guardando...' : (editando ? 'Guardar' : 'Crear') }}
         </button>
       </div>
     </div>
   </div>
-}
+</div>

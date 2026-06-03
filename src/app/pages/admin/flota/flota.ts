@@ -20,6 +20,29 @@ export class Flota implements OnInit {
   editando = false;
   editandoId: number | null = null;
 
+  // Paginación
+  currentPage = 1;
+  readonly itemsPerPage = 6;
+
+  get paginatedUnidades(): Unidad[] {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    return this.unidades.slice(start, start + this.itemsPerPage);
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.unidades.length / this.itemsPerPage));
+  }
+
+  get pages(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  irAPagina(page: number) {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+    }
+  }
+
   // Modal eliminar
   mostrarModalEliminar = false;
   eliminarId: number | null = null;

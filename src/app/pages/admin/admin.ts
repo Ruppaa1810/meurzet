@@ -23,6 +23,7 @@ export class Admin implements OnInit {
 
   get tituloPagina(): string {
     if (this.router.url.includes('validaciones')) return 'Validaciones';
+    if (this.router.url.includes('flota')) return 'Gestión de Flota';
     return 'Administración';
   }
 
