@@ -1,22 +1,21 @@
-import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, Router } from '@angular/router';
+import { RouterLink } from '@angular/router';
+
 
 import { SupabaseService } from '../../../services/supabase.service';
-import type { Viaje, Perfil } from '../../../models/database.types';
+import type { Viaje } from '../../../models/database.types';
 
 @Component({
   selector: 'app-inicio',
   standalone: true,
   imports: [FormsModule, RouterLink],
   templateUrl: './inicio.html',
-  styleUrl: './inicio.css',
 })
-export class Inicio implements OnInit, AfterViewInit {
+export class Inicio implements OnInit {
   todosViajes: Viaje[] = [];
   viajesFiltrados: Viaje[] = [];
   loading = true;
-  perfil: Perfil | null = null;
 
   filtroOrigen = '';
   filtroDestino = '';
@@ -25,46 +24,22 @@ export class Inicio implements OnInit, AfterViewInit {
 
   constructor(
     private supabaseService: SupabaseService,
-    private router: Router,
     private cdr: ChangeDetectorRef,
   ) {}
 
   async ngOnInit() {
     try {
-      const session = await this.supabaseService.supabase.auth.getSession();
-      const userId = session.data.session?.user?.id;
-      if (userId) {
-        const { data } = await this.supabaseService.getPerfil(userId);
-        this.perfil = data;
-      }
-
       const { data, error } = await this.supabaseService.getViajes();
       if (!error && data) {
         this.todosViajes = data;
         this.viajesFiltrados = data;
       }
-    } catch {
+    } catch (e: any) {
+      console.error('Error al cargar inicio:', e?.message);
     }
     this.loading = false;
     this.cdr.detectChanges();
   }
-
-  ngAfterViewInit() {
-    const menuBtn = document.querySelector('.menu-btn');
-    const sidebar = document.querySelector('.sidebar');
-    const overlay = document.querySelector('.sidebar-overlay');
-
-    menuBtn?.addEventListener('click', () => {
-      sidebar?.classList.toggle('open');
-      overlay?.classList.toggle('show');
-    });
-
-    overlay?.addEventListener('click', () => {
-      sidebar?.classList.remove('open');
-      overlay?.classList.remove('show');
-    });
-  }
-
   buscarViajes() {
     this.viajesFiltrados = this.todosViajes.filter(v => {
       if (this.filtroOrigen && !v.origen.toLowerCase().includes(this.filtroOrigen.toLowerCase())) return false;
@@ -84,14 +59,15 @@ export class Inicio implements OnInit, AfterViewInit {
     this.cdr.detectChanges();
   }
 
-  async logout() {
-    await this.supabaseService.signOut();
-    this.router.navigate(['/']);
-  }
-
   formatHora(fecha: string): string {
     return new Date(fecha).toLocaleTimeString('es-AR', {
       hour: '2-digit', minute: '2-digit', hour12: false,
+    });
+  }
+
+  formatFechaCorta(fecha: string): string {
+    return new Date(fecha).toLocaleDateString('es-AR', {
+      day: 'numeric', month: 'short',
     });
   }
 

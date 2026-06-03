@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
-import type { Viaje, MapaAsientoViaje, Perfil, Reserva, Unidad } from '../models/database.types';
+import type { Viaje, MapaAsientoViaje, Perfil, Reserva, Unidad, UserRole } from '../models/database.types';
 
 @Injectable({
   providedIn: 'root'
@@ -9,8 +9,13 @@ import type { Viaje, MapaAsientoViaje, Perfil, Reserva, Unidad } from '../models
 export class SupabaseService {
 
   supabase: SupabaseClient;
+  isPasswordRecovery = false;
 
   constructor() {
+    this.isPasswordRecovery = localStorage.getItem('meurzet_recovery') === 'true';
+    if (this.isPasswordRecovery) {
+      localStorage.removeItem('meurzet_recovery');
+    }
 
     this.supabase = createClient(
       environment.supabaseUrl,
@@ -32,9 +37,15 @@ export class SupabaseService {
   }
 
   async resetPassword(email: string) {
-    return await this.supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/login`,
-    });
+    const res = await Promise.race([
+      this.supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/?recovery=true`,
+      }),
+      new Promise<any>((_, reject) =>
+        setTimeout(() => reject(new Error('timeout')), 15000)
+      ),
+    ]);
+    return res;
   }
 
   // ===========================================================================
@@ -47,6 +58,123 @@ export class SupabaseService {
       .select('*')
       .eq('id', userId)
       .single<Perfil>();
+  }
+
+  async getCurrentProfile(): Promise<{ data: Perfil | null }> {
+    const session = await this.supabase.auth.getSession();
+    const userId = session.data.session?.user?.id;
+    if (!userId) return { data: null };
+    return this.getPerfil(userId);
+  }
+
+  async getVendedoresMinoristas() {
+    return await this.supabase
+      .from('perfiles')
+      .select('*')
+      .in('rol', ['vendedor_minorista', 'operador_admin'])
+      .order('created_at', { ascending: false });
+  }
+
+  async togglePerfilActivo(id: string, activo: boolean) {
+    return await this.supabase
+      .from('perfiles')
+      .update({ activo })
+      .eq('id', id)
+      .select()
+      .single<Perfil>();
+  }
+
+  async crearVendedorMinorista(email: string, password: string, nombre: string, agenciaNombre: string, rol: UserRole = 'vendedor_minorista', createdBy?: string) {
+    const adminHeaders = {
+      'apikey': environment.serviceRoleKey,
+      'Authorization': `Bearer ${environment.serviceRoleKey}`,
+      'Content-Type': 'application/json',
+    };
+
+    const fetchWithTimeout = (url: string, opts: RequestInit, ms = 15000) => {
+      const ctrl = new AbortController();
+      const id = setTimeout(() => ctrl.abort(), ms);
+      return fetch(url, { ...opts, signal: ctrl.signal }).finally(() => clearTimeout(id));
+    };
+
+    try {
+      // 1. Crear usuario via Auth Admin API
+      const authRes = await fetchWithTimeout(`${environment.supabaseUrl}/auth/v1/admin/users`, {
+        method: 'POST',
+        headers: adminHeaders,
+        body: JSON.stringify({
+          email, password, email_confirm: true,
+          user_metadata: { nombre, agencia_nombre: agenciaNombre, rol },
+        }),
+      });
+      const authData = await authRes.json();
+      if (!authRes.ok) return { data: null, error: new Error(authData.msg || authData.error || 'Error al crear usuario') };
+
+      const userId = authData.id;
+
+      // 2. Insertar perfil (POST directo con service_role, que bypass RLS)
+      const perfilRes = await fetchWithTimeout(`${environment.supabaseUrl}/rest/v1/perfiles?on_conflict=id`, {
+        method: 'POST',
+        headers: { ...adminHeaders, 'Prefer': 'resolution=merge-duplicates' },
+        body: JSON.stringify({
+          id: userId, nombre, agencia_nombre: agenciaNombre,
+          rol, activo: true,
+          ...(createdBy ? { created_by: createdBy } : {}),
+        }),
+      });
+      if (!perfilRes.ok) {
+        const errBody = await perfilRes.json();
+        return { data: null, error: new Error(errBody.message || errBody.error || 'Error al insertar perfil') };
+      }
+
+      return { data: { id: userId, email, nombre, agencia_nombre: agenciaNombre }, error: null };
+    } catch (err: any) {
+      if (err.name === 'AbortError') return { data: null, error: new Error('La operación tardó demasiado. Probablemente el usuario se creó igual, recargá la página.') };
+      return { data: null, error: new Error(err.message || 'Error de conexión') };
+    }
+  }
+
+  async actualizarPerfil(id: string, datos: Partial<Pick<Perfil, 'nombre' | 'agencia_nombre' | 'rol'>>) {
+    return await this.supabase
+      .from('perfiles')
+      .update(datos)
+      .eq('id', id)
+      .select()
+      .single<Perfil>();
+  }
+
+  async actualizarAuthUser(userId: string, data: { email?: string; password?: string }) {
+    const adminHeaders = {
+      'apikey': environment.serviceRoleKey,
+      'Authorization': `Bearer ${environment.serviceRoleKey}`,
+      'Content-Type': 'application/json',
+    };
+
+    const fetchWithTimeout = (url: string, opts: RequestInit, ms = 15000) => {
+      const ctrl = new AbortController();
+      const id = setTimeout(() => ctrl.abort(), ms);
+      return fetch(url, { ...opts, signal: ctrl.signal }).finally(() => clearTimeout(id));
+    };
+
+    try {
+      const body: any = {};
+      if (data.email) body.email = data.email;
+      if (data.password) body.password = data.password;
+
+      if (Object.keys(body).length === 0) return { error: null };
+
+      const res = await fetchWithTimeout(`${environment.supabaseUrl}/auth/v1/admin/users/${userId}`, {
+        method: 'PUT',
+        headers: adminHeaders,
+        body: JSON.stringify(body),
+      });
+      const resData = await res.json();
+      if (!res.ok) return { error: new Error(resData.msg || resData.error || 'Error al actualizar usuario') };
+      return { error: null };
+    } catch (err: any) {
+      if (err.name === 'AbortError') return { error: new Error('La operación tardó demasiado') };
+      return { error: new Error(err.message || 'Error de conexión') };
+    }
   }
 
   // ===========================================================================
@@ -133,29 +261,18 @@ export class SupabaseService {
   }
 
   async aprobarReserva(reservaId: number, asientoViajeId: number) {
-    const { error: e1 } = await this.supabase
-      .from('reservas')
-      .update({ estado: 'aprobado', motivo_rechazo: null })
-      .eq('id', reservaId);
-    if (e1) return { error: e1 };
-    const { error: e2 } = await this.supabase
-      .from('mapa_asientos_viaje')
-      .update({ estado: 'confirmado', vendedor_bloqueo_id: null, bloqueado_hasta: null })
-      .eq('id', asientoViajeId);
-    return { error: e2 };
+    return await this.supabase.rpc('aprobar_reserva', {
+      p_reserva_id: reservaId,
+      p_asiento_viaje_id: asientoViajeId,
+    });
   }
 
   async rechazarReserva(reservaId: number, asientoViajeId: number, motivo: string) {
-    const { error: e1 } = await this.supabase
-      .from('reservas')
-      .update({ estado: 'rechazado', motivo_rechazo: motivo })
-      .eq('id', reservaId);
-    if (e1) return { error: e1 };
-    const { error: e2 } = await this.supabase
-      .from('mapa_asientos_viaje')
-      .update({ estado: 'libre', vendedor_bloqueo_id: null, bloqueado_hasta: null })
-      .eq('id', asientoViajeId);
-    return { error: e2 };
+    return await this.supabase.rpc('rechazar_reserva', {
+      p_reserva_id: reservaId,
+      p_asiento_viaje_id: asientoViajeId,
+      p_motivo: motivo,
+    });
   }
 
   // ===========================================================================

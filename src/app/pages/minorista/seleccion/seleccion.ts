@@ -1,10 +1,10 @@
-import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { SupabaseService } from '../../../services/supabase.service';
 import { ReservaStateService } from '../../../services/reserva-state.service';
-import type { Viaje, MapaAsientoViaje, Perfil } from '../../../models/database.types';
+import type { Viaje, MapaAsientoViaje } from '../../../models/database.types';
 
 interface SeatView extends MapaAsientoViaje {
   selected: boolean;
@@ -17,14 +17,15 @@ interface SeatView extends MapaAsientoViaje {
   templateUrl: './seleccion.html',
   styleUrl: './seleccion.css',
 })
-export class Seleccion implements OnInit, AfterViewInit {
+export class Seleccion implements OnInit, OnDestroy {
   viaje: Viaje | null = null;
   asientos: SeatView[] = [];
   loading = true;
   bloqueando = false;
-  mensajeError = '';
-  perfil: Perfil | null = null;
   private userId: string | null = null;
+  private viajeId: number = 0;
+  private realtimeChannel: ReturnType<SupabaseService['supabase']['channel']> | null = null;
+  private pollingInterval: ReturnType<typeof setInterval> | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -38,48 +39,55 @@ export class Seleccion implements OnInit, AfterViewInit {
     try {
       const session = await this.supabaseService.supabase.auth.getSession();
       this.userId = session.data.session?.user?.id ?? null;
-      if (this.userId) {
-        const { data } = await this.supabaseService.getPerfil(this.userId);
-        this.perfil = data;
-      }
 
-      const viajeId = Number(this.route.snapshot.paramMap.get('viajeId'));
-      if (!viajeId) return;
+      this.viajeId = Number(this.route.snapshot.paramMap.get('viajeId'));
+      if (!this.viajeId) return;
 
       const [viajeRes, asientosRes] = await Promise.all([
-        this.supabaseService.getViajePorId(viajeId),
-        this.supabaseService.getAsientosPorViaje(viajeId),
+        this.supabaseService.getViajePorId(this.viajeId),
+        this.supabaseService.getAsientosPorViaje(this.viajeId),
       ]);
 
       if (viajeRes.data) this.viaje = viajeRes.data;
       if (asientosRes.data) {
         this.asientos = asientosRes.data.map(a => ({ ...a, selected: false }));
       }
-    } catch {
+    } catch (e: any) {
+      console.error('Error al cargar selección:', e?.message);
     }
     this.loading = false;
     this.cdr.detectChanges();
+
+    this.initRealtime();
+    this.pollingInterval = setInterval(() => this.cargarAsientos(), 5000);
   }
 
-  ngAfterViewInit() {
-    const menuBtn = document.querySelector('.menu-btn');
-    const sidebar = document.querySelector('.sidebar');
-    const overlay = document.querySelector('.sidebar-overlay');
-
-    menuBtn?.addEventListener('click', () => {
-      sidebar?.classList.toggle('open');
-      overlay?.classList.toggle('show');
-    });
-
-    overlay?.addEventListener('click', () => {
-      sidebar?.classList.remove('open');
-      overlay?.classList.remove('show');
-    });
+  private initRealtime() {
+    this.realtimeChannel = this.supabaseService.supabase
+      .channel(`seats-viaje-${this.viajeId}`)
+      .on('postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'mapa_asientos_viaje',
+          filter: `viaje_id=eq.${this.viajeId}`,
+        },
+        () => { this.cargarAsientos(); }
+      )
+      .subscribe((status) => {
+        if (status === 'CHANNEL_ERROR') {
+          console.warn('Realtime error, usando polling como fallback');
+        }
+      });
   }
 
-  async logout() {
-    await this.supabaseService.signOut();
-    this.router.navigate(['/']);
+  ngOnDestroy() {
+    if (this.realtimeChannel) {
+      this.supabaseService.supabase.removeChannel(this.realtimeChannel);
+    }
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+    }
   }
 
   asientosPorPiso(piso: number): SeatView[] {
@@ -105,7 +113,7 @@ export class Seleccion implements OnInit, AfterViewInit {
   }
 
   get asientosLibres(): number {
-    return this.asientos.filter(a => a.estado === 'libre' && !a.selected).length;
+    return this.asientos.filter(a => a.estado === 'libre').length;
   }
 
   formatHora(fecha: string): string {
@@ -126,57 +134,70 @@ export class Seleccion implements OnInit, AfterViewInit {
     this.asientos = this.asientos.map(a => a.id === id ? { ...a, ...patch } : a);
   }
 
+  canToggle(asiento: SeatView | undefined): boolean {
+    if (!asiento) return false;
+    if (asiento.estado === 'libre') return true;
+    return asiento.estado === 'bloqueado' && asiento.vendedor_bloqueo_id === this.userId;
+  }
+
   async toggleSeat(seatId: number) {
-    if (!this.userId || this.bloqueando) return;
+    console.log('toggleSeat llamado con id:', seatId);
+    if (this.bloqueando) { console.log('bloqueando, return'); return; }
 
     const asiento = this.getSeat(seatId);
-    if (!asiento) return;
-
-    if (asiento.selected) {
-      this.bloqueando = true;
-      await this.supabaseService.liberarAsiento(asiento.viaje_id!, asiento.nro_asiento);
-      this.patchSeat(seatId, { estado: 'libre', vendedor_bloqueo_id: null, bloqueado_hasta: null, selected: false });
-      this.bloqueando = false;
-      this.cdr.detectChanges();
-      return;
-    }
-
-    if (asiento.estado !== 'libre') return;
+    console.log('asiento:', asiento);
+    if (!asiento || !this.canToggle(asiento)) { console.log('no puede togglear, return'); return; }
 
     this.bloqueando = true;
-    this.mensajeError = '';
 
-    const { error } = await this.supabaseService.bloquearAsiento(
-      asiento.viaje_id!,
-      asiento.nro_asiento,
-      this.userId,
-    );
-
-    if (error) {
-      this.mensajeError = 'Este asiento ya no está disponible. Otro usuario lo reservó.';
+    try {
+      if (asiento.estado === 'bloqueado' && asiento.vendedor_bloqueo_id === this.userId) {
+        console.log('liberando asiento');
+        await this.supabaseService.liberarAsiento(asiento.viaje_id!, asiento.nro_asiento);
+        this.patchSeat(seatId, { estado: 'libre', vendedor_bloqueo_id: null, bloqueado_hasta: null, selected: false });
+      } else if (asiento.estado === 'libre') {
+        console.log('bloqueando asiento, userId:', this.userId);
+        if (!this.userId) { console.log('sin userId, return'); return; }
+        await this.supabaseService.bloquearAsiento(asiento.viaje_id!, asiento.nro_asiento, this.userId);
+        console.log('bloqueo exitoso, patchSeat antes');
+        this.patchSeat(seatId, { estado: 'bloqueado', vendedor_bloqueo_id: this.userId, selected: true });
+        console.log('patchSeat despues, estado ahora:', this.getSeat(seatId)?.estado);
+        this.cdr.detectChanges();
+        console.log('detectChanges ok');
+      }
+    } catch (e) {
+      console.error('toggleSeat error:', e);
       await this.cargarAsientos();
+    } finally {
       this.bloqueando = false;
-      return;
+      this.cdr.detectChanges();
     }
-
-    this.patchSeat(seatId, {
-      estado: 'bloqueado',
-      vendedor_bloqueo_id: this.userId,
-      bloqueado_hasta: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-      selected: true,
-    });
-    this.bloqueando = false;
-    this.cdr.detectChanges();
   }
 
   private async cargarAsientos() {
     if (!this.viaje) return;
-    const { data } = await this.supabaseService.getAsientosPorViaje(this.viaje.id);
-    if (data) this.asientos = data.map(a => ({ ...a, selected: false }));
+    try {
+      const { data } = await this.supabaseService.getAsientosPorViaje(this.viaje.id);
+      if (!data) return;
+
+      const prevSelected = new Map(this.selectedList.map(a => [a.id, a]));
+
+      this.asientos = data.map(a => {
+        const wasSelected = prevSelected.has(a.id);
+        return {
+          ...a,
+          selected: !!wasSelected && a.estado === 'bloqueado',
+        };
+      });
+
+    } catch (e) {
+      console.error('Error al refrescar asientos:', e);
+    } finally {
+      this.cdr.detectChanges();
+    }
   }
 
   seatClasses(asiento: SeatView): string {
-    if (asiento.selected) return 'seat-selected';
     if (asiento.estado === 'bloqueado') return 'seat-blocked';
     if (asiento.estado === 'confirmado') return 'seat-occupied';
     return 'seat-free';
@@ -198,5 +219,13 @@ export class Seleccion implements OnInit, AfterViewInit {
     if (sel.length === 0 || !this.viaje) return;
     this.reservaState.iniciar(this.viaje, sel);
     this.router.navigate(['/minorista/reserva']);
+  }
+
+  async volver() {
+    const misBloqueados = this.asientos.filter(a => a.estado === 'bloqueado' && a.vendedor_bloqueo_id === this.userId);
+    await Promise.allSettled(
+      misBloqueados.map(a => this.supabaseService.liberarAsiento(a.viaje_id!, a.nro_asiento))
+    );
+    this.router.navigate(['/minorista/vender']);
   }
 }

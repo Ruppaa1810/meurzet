@@ -1,0 +1,53 @@
+<div class="p-8 flex flex-col gap-8">
+
+  <div>
+    <h2 class="text-lg font-bold text-meurzet-primary m-0">
+      Auditoría de Operadores
+    </h2>
+    <p class="text-xs text-slate-500 mt-1 mb-0">
+      Control de actividad de operadores
+    </p>
+  </div>
+
+  <div class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-6">
+    <div class="bg-white rounded-2xl p-5 border border-meurzet-light border-l-4 border-l-meurzet-accent">
+      <div class="flex justify-between items-center">
+        <span class="text-[#475569] text-xs font-bold uppercase tracking-wider">Operadores activos</span>
+        <span class="text-xs font-bold text-meurzet-accent bg-orange-100 px-2 py-0.5 rounded">Total</span>
+      </div>
+      <div class="text-2xl font-bold mt-2 text-meurzet-accent">{{ operadoresActivos }}</div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 border border-meurzet-light border-l-4 border-l-meurzet-accent">
+      <div class="flex justify-between items-center">
+        <span class="text-[#475569] text-xs font-bold uppercase tracking-wider">Ediciones a vendedores</span>
+        <span class="text-xs font-bold text-meurzet-accent bg-orange-100 px-2 py-0.5 rounded">Total</span>
+      </div>
+      <div class="text-2xl font-bold mt-2 text-meurzet-accent">{{ totalEdiciones }}</div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+    <table class="w-full border-collapse text-sm">
+      <thead>
+        <tr class="bg-slate-50 border-b-2 border-slate-200">
+          <th class="p-4 text-left text-slate-500 font-semibold">Operador</th>
+          <th class="p-4 text-left text-slate-500 font-semibold">Ediciones a vendedores</th>
+          <th class="p-4 text-left text-slate-500 font-semibold">Última acción</th>
+          <th class="p-4 text-left text-slate-500 font-semibold">Auditoría</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (o of operadores; track o.nombre) {
+          <tr class="border-b border-slate-100">
+            <td class="p-4 font-semibold">{{ o.nombre }}</td>
+            <td class="p-4">{{ o.edicionesAVendedores }}</td>
+            <td class="p-4 text-slate-500 text-xs">{{ o.ultimaAccion }}</td>
+            <td class="p-4 text-sm">{{ getAuditoria(o) }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+</div>

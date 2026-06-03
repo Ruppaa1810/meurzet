@@ -1,112 +1,208 @@
-<div style="padding: 2rem;">
+<div class="p-8">
 
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-    <h2 style="font-size: 1.5rem; font-weight: 700; color: #384752; margin: 0;">Gestión de Viajes</h2>
+  <div class="flex justify-end items-center mb-6">
     @if (esAdmin) {
       <button (click)="abrirModal()"
-        style="padding: 0.7rem 1.5rem; border-radius: 0.75rem; font-weight: 700; font-size: 0.9rem; color: white; background: linear-gradient(135deg, #af4f35, #e4912e); border: none; cursor: pointer;">
+        class="px-6 py-3 rounded-xl font-bold text-sm text-white border-none cursor-pointer bg-gradient-to-br from-meurzet-accent to-meurzet-secondary hover:bg-[#1aa7c4] hover:from-[#1aa7c4] hover:to-[#1aa7c4] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
         + Nuevo Viaje
       </button>
     }
   </div>
 
-  <div style="background: white; border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); overflow: hidden;">
-    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+  <div class="bg-white rounded-2xl shadow-sm border-2 border-[#af4f35]/30 overflow-hidden">
+    <table class="w-full border-collapse text-sm">
       <thead>
-        <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
-          <th style="padding: 1rem; text-align: left; color: #64748b; font-weight: 600;">Origen</th>
-          <th style="padding: 1rem; text-align: left; color: #64748b; font-weight: 600;">Destino</th>
-          <th style="padding: 1rem; text-align: left; color: #64748b; font-weight: 600;">Salida</th>
-          <th style="padding: 1rem; text-align: left; color: #64748b; font-weight: 600;">Llegada</th>
-          <th style="padding: 1rem; text-align: left; color: #64748b; font-weight: 600;">Precio</th>
-          <th style="padding: 1rem; text-align: left; color: #64748b; font-weight: 600;">Activo</th>
-          <th style="padding: 1rem; text-align: right; color: #64748b; font-weight: 600;">Acciones</th>
+        <tr class="bg-slate-50 border-b-2 border-[#af4f35]/20">
+          <th class="p-4 text-left text-slate-500 font-semibold">Origen</th>
+          <th class="p-4 text-left text-slate-500 font-semibold">Destino</th>
+          <th class="p-4 text-left text-slate-500 font-semibold">Salida</th>
+          <th class="p-4 text-left text-slate-500 font-semibold">Llegada</th>
+          <th class="p-4 text-left text-slate-500 font-semibold">Precio</th>
+          <th class="p-4 text-left text-slate-500 font-semibold">Activo</th>
+          <th class="p-4 text-right text-slate-500 font-semibold">Acciones</th>
         </tr>
       </thead>
       <tbody>
-        @for (v of viajes; track v.id) {
-          <tr style="border-bottom: 1px solid #f1f5f9;">
-            <td style="padding: 1rem; font-weight: 600;">{{ v.origen }}</td>
-            <td style="padding: 1rem;">{{ v.destino }}</td>
-            <td style="padding: 1rem;">{{ v.fecha_salida | date:'dd/MM/yy HH:mm' }}</td>
-            <td style="padding: 1rem;">{{ v.fecha_llegada | date:'dd/MM/yy HH:mm' }}</td>
-            <td style="padding: 1rem;">${{ v.precio_base | number }}</td>
-            <td style="padding: 1rem;">
-              <span [style.color]="v.activo ? '#16a34a' : '#dc2626'" style="font-weight: 600;">
-                {{ v.activo ? 'Sí' : 'No' }}
-              </span>
+        @for (v of paginatedViajes; track v.id) {
+          <tr class="relative hover:bg-[#1aa7c4]/10 hover:scale-[1.01] hover:z-10 hover:shadow-lg hover:shadow-[#1aa7c4]/20 transition-all duration-200">
+            <td class="p-4 font-semibold">{{ v.origen }}</td>
+            <td class="p-4">{{ v.destino }}</td>
+            <td class="p-4">
+              <div class="flex flex-col gap-0.5">
+                <span class="font-bold text-blue-700 leading-tight">{{ v.fecha_salida | date:'dd/MM/yy' }}</span>
+                <span class="text-xs text-slate-400 leading-tight">{{ v.fecha_salida | date:'HH:mm' }} hs</span>
+              </div>
             </td>
-            <td style="padding: 1rem; text-align: right;">
+            <td class="p-4">
+              <div class="flex flex-col gap-0.5">
+                <span class="font-bold text-amber-700 leading-tight">{{ v.fecha_llegada | date:'dd/MM/yy' }}</span>
+                <span class="text-xs text-slate-400 leading-tight">{{ v.fecha_llegada | date:'HH:mm' }} hs</span>
+              </div>
+            </td>
+            <td class="p-4 font-semibold">${{ v.precio_base | number }}</td>
+            <td class="p-4">
+              @if (v.activo) {
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  Activo
+                </span>
+              }
+              @if (!v.activo) {
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  Inactivo
+                </span>
+              }
+            </td>
+            <td class="p-4 text-right">
               @if (esAdmin) {
                 <button (click)="abrirModal(v)"
-                  style="padding: 0.4rem 0.8rem; border-radius: 0.5rem; font-size: 0.8rem; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; cursor: pointer; margin-right: 0.5rem;">
+                  class="px-3 py-1.5 rounded-lg text-xs bg-blue-50 text-blue-600 border border-blue-200 cursor-pointer mr-2 hover:bg-[#1aa7c4] hover:text-white hover:border-[#1aa7c4] transition-all duration-200">
                   Editar
                 </button>
-                <button (click)="eliminar(v.id)"
-                  style="padding: 0.4rem 0.8rem; border-radius: 0.5rem; font-size: 0.8rem; background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; cursor: pointer;">
+                <button (click)="confirmarEliminar(v.id)"
+                  class="px-3 py-1.5 rounded-lg text-xs bg-red-50 text-red-600 border border-red-200 cursor-pointer hover:bg-red-600 hover:text-white hover:border-red-600 transition-all duration-200">
                   Eliminar
                 </button>
-              } @else {
-                <span style="font-size: 0.8rem; color: #94a3b8;">Solo lectura</span>
+              }
+              @if (!esAdmin) {
+                <span class="text-xs text-slate-400">Solo lectura</span>
               }
             </td>
           </tr>
         } @empty {
           <tr>
-            <td colspan="7" style="padding: 2rem; text-align: center; color: #94a3b8;">No hay viajes registrados</td>
+            <td colspan="7" class="p-8 text-center text-slate-400">No hay viajes registrados</td>
           </tr>
         }
       </tbody>
     </table>
   </div>
 
+  <div class="flex items-center justify-between mt-3">
+    <p class="text-xs text-slate-400">{{ viajes.length }} viaje{{ viajes.length !== 1 ? 's' : '' }} registrado{{ viajes.length !== 1 ? 's' : '' }}</p>
+    @if (viajes.length > 10) {
+      <div class="flex items-center gap-2">
+        <button (click)="irAPagina(currentPage - 1)" [disabled]="currentPage === 1"
+          class="px-2.5 py-1 rounded-lg text-xs font-semibold border border-[#af4f35]/30 text-slate-500 bg-white hover:bg-[#1aa7c4] hover:text-white hover:border-[#1aa7c4] transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-500 disabled:hover:border-[#af4f35]/30">
+          Anterior
+        </button>
+        @for (page of pages; track page) {
+          <button (click)="irAPagina(page)"
+            [class]="'px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all duration-200 ' + (currentPage === page ? 'bg-[#1aa7c4] text-white border-[#1aa7c4]' : 'border-[#af4f35]/30 text-slate-500 bg-white hover:bg-[#1aa7c4] hover:text-white hover:border-[#1aa7c4]')">
+            {{ page }}
+          </button>
+        }
+        <button (click)="irAPagina(currentPage + 1)" [disabled]="currentPage === totalPages"
+          class="px-2.5 py-1 rounded-lg text-xs font-semibold border border-[#af4f35]/30 text-slate-500 bg-white hover:bg-[#1aa7c4] hover:text-white hover:border-[#1aa7c4] transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-500 disabled:hover:border-[#af4f35]/30">
+          Siguiente
+        </button>
+      </div>
+    }
+  </div>
+
+  @if (successMensaje) {
+    <div class="mt-4 p-3 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm flex justify-between items-center">
+      <span>✓ {{ successMensaje }}</span>
+      <button (click)="successMensaje = ''" class="bg-transparent border-none text-green-500 cursor-pointer text-base leading-none">&times;</button>
+    </div>
+  }
+
   @if (loading) {
-    <p style="text-align: center; color: #64748b; margin-top: 1rem;">Cargando...</p>
+    <div class="mt-6 grid grid-cols-1 gap-4">
+      @for (_ of [1,2,3]; track _) {
+        <div class="bg-white rounded-2xl p-5 border-2 border-[#eec997] animate-pulse">
+          <div class="h-4 w-32 bg-slate-200 rounded mb-3"></div>
+          <div class="h-3 w-48 bg-slate-200 rounded"></div>
+        </div>
+      }
+    </div>
   }
   @if (mensaje) {
-    <p style="text-align: center; color: #dc2626; margin-top: 1rem;">{{ mensaje }}</p>
+    <div class="mt-4 p-4 rounded-xl bg-red-50 text-red-700 text-sm border border-red-200 flex items-center gap-2">
+      <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      {{ mensaje }}
+    </div>
   }
 </div>
 
-@if (modalAbierto) {
-  <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 1000;"
-    (click)="cerrarModal()">
-    <div style="background: white; border-radius: 1.5rem; padding: 2rem; width: 90%; max-width: 450px; box-shadow: 0 20px 60px rgba(0,0,0,0.15);"
+<!-- Overlay + Modal Eliminar -->
+<div class="fixed inset-0 z-50 transition-all duration-300"
+  [class.opacity-0]="!mostrarModalEliminar" [class.pointer-events-none]="!mostrarModalEliminar"
+  [class.opacity-100]="mostrarModalEliminar" [class.pointer-events-auto]="mostrarModalEliminar">
+  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" (click)="cerrarModalEliminar()"></div>
+  <div class="relative h-full flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl p-8 w-full max-w-[400px] shadow-2xl shadow-[#af4f35]/30 transition-all duration-300"
+      [class.scale-95]="!mostrarModalEliminar" [class.scale-100]="mostrarModalEliminar"
       (click)="$event.stopPropagation()">
-      <h3 style="font-size: 1.2rem; font-weight: 700; color: #384752; margin: 0 0 1.5rem 0;">
+      <h3 class="text-xl font-bold text-meurzet-primary m-0 mb-2">¿Eliminar viaje?</h3>
+      <p class="text-sm text-slate-500 mb-4">Se eliminará el viaje <span class="font-semibold text-[#384752]">{{ viajes.find(v => v.id === eliminarId)?.origen || '' }} → {{ viajes.find(v => v.id === eliminarId)?.destino || '' }}</span></p>
+      <p class="text-sm text-red-500 mb-6">Esta acción no se puede deshacer.</p>
+
+      <div class="flex gap-3">
+        <button (click)="cerrarModalEliminar()" [disabled]="eliminando"
+          class="flex-1 py-3 rounded-xl font-semibold bg-slate-100 text-slate-500 border-none cursor-pointer hover:bg-slate-200 hover:-translate-y-0.5 transition-all duration-200">
+          Cancelar
+        </button>
+        <button (click)="ejecutarEliminar()" [disabled]="eliminando"
+          class="flex-1 py-3 rounded-xl font-bold text-white border-none cursor-pointer bg-red-600 hover:bg-red-700 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+          [class.opacity-60]="eliminando">
+          {{ eliminando ? 'Eliminando...' : 'Eliminar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Overlay + Modal Nuevo/Editar -->
+<div class="fixed inset-0 z-50 transition-all duration-300"
+  [class.opacity-0]="!modalAbierto" [class.pointer-events-none]="!modalAbierto"
+  [class.opacity-100]="modalAbierto" [class.pointer-events-auto]="modalAbierto">
+  <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" (click)="cerrarModal()"></div>
+  <div class="relative h-full flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl p-8 w-full max-w-[450px] border-2 border-[#af4f35]/30 shadow-2xl shadow-[#af4f35]/30 transition-all duration-300"
+      [class.scale-95]="!modalAbierto" [class.scale-100]="modalAbierto"
+      (click)="$event.stopPropagation()">
+      <h3 class="text-xl font-bold text-meurzet-primary m-0 mb-6">
         {{ editando ? 'Editar' : 'Nuevo' }} Viaje
       </h3>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+      <div class="grid grid-cols-2 gap-4">
         <div>
-          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #384752; margin-bottom: 0.3rem;">Origen</label>
+          <label class="block text-sm font-semibold text-meurzet-primary mb-1">Origen</label>
           <input [(ngModel)]="form.origen"
-            style="width: 100%; padding: 0.7rem; border: 1.5px solid #d1d5db; border-radius: 0.75rem; font-size: 0.9rem; box-sizing: border-box;">
+            class="w-full p-3 border-2 border-slate-200 rounded-xl text-sm box-border outline-none bg-[#1aa7c4]/5 focus:border-[#1aa7c4] focus:ring-2 focus:ring-[#1aa7c4]/20 transition-all">
         </div>
         <div>
-          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #384752; margin-bottom: 0.3rem;">Destino</label>
+          <label class="block text-sm font-semibold text-meurzet-primary mb-1">Destino</label>
           <input [(ngModel)]="form.destino"
-            style="width: 100%; padding: 0.7rem; border: 1.5px solid #d1d5db; border-radius: 0.75rem; font-size: 0.9rem; box-sizing: border-box;">
+            class="w-full p-3 border-2 border-slate-200 rounded-xl text-sm box-border outline-none bg-[#1aa7c4]/5 focus:border-[#1aa7c4] focus:ring-2 focus:ring-[#1aa7c4]/20 transition-all">
         </div>
       </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+      <div class="grid grid-cols-2 gap-4 mt-4">
         <div>
-          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #384752; margin-bottom: 0.3rem;">Salida</label>
+          <label class="block text-sm font-semibold text-meurzet-primary mb-1">Salida</label>
           <input [(ngModel)]="form.fecha_salida" type="datetime-local"
-            style="width: 100%; padding: 0.7rem; border: 1.5px solid #d1d5db; border-radius: 0.75rem; font-size: 0.9rem; box-sizing: border-box;">
+            class="w-full p-3 border-2 border-slate-200 rounded-xl text-sm box-border outline-none bg-[#1aa7c4]/5 focus:border-[#1aa7c4] focus:ring-2 focus:ring-[#1aa7c4]/20 transition-all">
         </div>
         <div>
-          <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #384752; margin-bottom: 0.3rem;">Llegada</label>
+          <label class="block text-sm font-semibold text-meurzet-primary mb-1">Llegada</label>
           <input [(ngModel)]="form.fecha_llegada" type="datetime-local"
-            style="width: 100%; padding: 0.7rem; border: 1.5px solid #d1d5db; border-radius: 0.75rem; font-size: 0.9rem; box-sizing: border-box;">
+            class="w-full p-3 border-2 border-slate-200 rounded-xl text-sm box-border outline-none bg-[#1aa7c4]/5 focus:border-[#1aa7c4] focus:ring-2 focus:ring-[#1aa7c4]/20 transition-all">
         </div>
       </div>
 
-      <div style="margin-top: 1rem;">
-        <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #384752; margin-bottom: 0.3rem;">Unidad</label>
+      <div class="mt-4">
+        <label class="block text-sm font-semibold text-meurzet-primary mb-1">Unidad</label>
         <select [(ngModel)]="form.unidad_id"
-          style="width: 100%; padding: 0.7rem; border: 1.5px solid #d1d5db; border-radius: 0.75rem; font-size: 0.9rem; background: white; box-sizing: border-box;">
+          class="w-full p-3 border-2 border-slate-200 rounded-xl text-sm box-border outline-none bg-[#1aa7c4]/5 focus:border-[#1aa7c4] focus:ring-2 focus:ring-[#1aa7c4]/20 transition-all">
           <option [ngValue]="null">Sin asignar</option>
           @for (u of unidades; track u.id) {
             <option [ngValue]="u.id">{{ u.patente }} ({{ u.asientos_totales }} as.)</option>
@@ -114,27 +210,29 @@
         </select>
       </div>
 
-      <div style="margin-top: 1rem;">
-        <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #384752; margin-bottom: 0.3rem;">Precio base ($)</label>
+      <div class="mt-4">
+        <label class="block text-sm font-semibold text-meurzet-primary mb-1">Precio base ($)</label>
         <input [(ngModel)]="form.precio_base" type="number"
-          style="width: 100%; padding: 0.7rem; border: 1.5px solid #d1d5db; border-radius: 0.75rem; font-size: 0.9rem; box-sizing: border-box;">
+          class="w-full p-3 border-2 border-slate-200 rounded-xl text-sm box-border outline-none bg-[#1aa7c4]/5 focus:border-[#1aa7c4] focus:ring-2 focus:ring-[#1aa7c4]/20 transition-all">
       </div>
 
-      <div style="margin-top: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-        <input [(ngModel)]="form.activo" type="checkbox" id="activo-check">
-        <label for="activo-check" style="font-size: 0.85rem; font-weight: 600; color: #384752;">Viaje activo</label>
+      <div class="mt-4 flex items-center gap-2">
+        <input [(ngModel)]="form.activo" type="checkbox" id="activo-check"
+          class="accent-[#1aa7c4]">
+        <label for="activo-check" class="text-sm font-semibold text-meurzet-primary">Viaje activo</label>
       </div>
 
-      <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+      <div class="flex gap-3 mt-6">
         <button (click)="cerrarModal()"
-          style="flex: 1; padding: 0.8rem; border-radius: 0.75rem; font-weight: 600; background: #f1f5f9; color: #64748b; border: none; cursor: pointer;">
+          class="flex-1 py-3 rounded-xl font-semibold bg-slate-100 text-slate-500 border-none cursor-pointer hover:bg-slate-200 hover:-translate-y-0.5 transition-all duration-200">
           Cancelar
         </button>
-        <button (click)="guardar()"
-          style="flex: 1; padding: 0.8rem; border-radius: 0.75rem; font-weight: 700; color: white; background: linear-gradient(135deg, #af4f35, #e4912e); border: none; cursor: pointer;">
-          {{ editando ? 'Guardar' : 'Crear' }}
+        <button (click)="guardar()" [disabled]="guardando"
+          class="flex-1 py-3 rounded-xl font-bold text-white border-none cursor-pointer bg-gradient-to-br from-meurzet-accent to-meurzet-secondary hover:from-[#1aa7c4] hover:to-[#1aa7c4] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+          [class.opacity-60]="guardando">
+          {{ guardando ? 'Guardando...' : (editando ? 'Guardar' : 'Crear') }}
         </button>
       </div>
     </div>
   </div>
-}
+</div>

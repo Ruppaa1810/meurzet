@@ -1,0 +1,190 @@
+<div class="min-h-screen bg-[#f4f4f3]">
+  
+  <!-- CONTENIDO PRINCIPAL -->
+  <div class="max-w-[1600px] mx-auto px-3 md:px-8 py-4 md:py-10">
+    
+    @if (loading) {
+      <div class="flex items-center justify-center h-[60vh]">
+        <div class="text-center">
+          <svg class="animate-spin w-10 h-10 text-[#af4f35] mx-auto mb-4" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <p class="text-slate-500 font-medium text-sm">Cargando reservas...</p>
+        </div>
+      </div>
+    } @else if (reservas.length === 0) {
+      <div class="flex flex-col items-center justify-center h-[60vh] text-center">
+        <div class="w-16 h-16 md:w-20 md:h-20 mx-auto mb-4 rounded-full bg-[#f4f4f3] border-2 border-[#eec997] flex items-center justify-center">
+          <svg class="w-8 h-8 md:w-10 md:h-10 text-[#969fa3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+        </div>
+        <p class="text-slate-500 text-sm md:text-base font-semibold mb-2">Aún no tenés reservas</p>
+        <p class="text-slate-400 text-xs mb-6">No se encontraron reservas registradas</p>
+        <a routerLink="/minorista/inicio" 
+          class="inline-flex items-center gap-2 px-4 md:px-6 py-2 md:py-2.5 rounded-xl text-white font-bold text-xs md:text-sm bg-gradient-to-r from-[#af4f35] to-[#e4912e] hover:from-[#1aa7c4] hover:to-[#384752] transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          Buscar Viajes
+        </a>
+      </div>
+    } @else {
+      
+      <!-- TARJETAS EN CELULAR / TABLA EN DESKTOP -->
+      <div class="bg-white rounded-2xl shadow-xl border-2 border-[#eec997] overflow-hidden transition-all duration-300 hover:shadow-2xl">
+        <div class="px-4 md:px-8 py-3 md:py-4 border-b border-[#eec997] bg-[#f4f4f3]">
+          <h3 class="font-bold text-[#384752] text-base md:text-xl">Listado de Reservas</h3>
+          <p class="text-[10px] md:text-xs text-slate-400 mt-0.5">Todas las reservas realizadas</p>
+        </div>
+
+        <!-- VISTA TARJETAS (MÓVIL) -->
+        <div class="block md:hidden">
+          @for (r of reservas; track r.id) {
+            <div class="p-4 border-b border-[#eec997] hover:bg-[#f4f4f3] transition-all duration-200">
+              <!-- ID destacado -->
+              <div class="flex justify-between items-start mb-3">
+                <span class="inline-flex items-center justify-center font-bold text-xs text-[#af4f35] bg-[#af4f35]/10 px-2 py-1 rounded-lg font-mono">
+                  #{{ r.id }}
+                </span>
+                <span class="px-2 py-1 rounded-full text-[10px] font-semibold inline-flex items-center gap-1"
+                  [class]="r.estado === 'aprobado' ? 'bg-green-50 text-green-700 border border-green-200' :
+                           r.estado === 'rechazado' ? 'bg-red-50 text-red-700 border border-red-200' :
+                           'bg-amber-50 text-amber-700 border border-amber-200'">
+                  <span class="w-1.5 h-1.5 rounded-full"
+                    [class]="r.estado === 'aprobado' ? 'bg-green-500' :
+                             r.estado === 'rechazado' ? 'bg-red-500' :
+                             'bg-amber-500'"></span>
+                  {{ estadoLabel(r.estado) }}
+                </span>
+              </div>
+              <!-- Viaje -->
+              <div class="flex justify-between py-1.5 border-b border-[#eec997]/50">
+                <span class="text-[10px] text-slate-400">Viaje</span>
+                <span class="text-xs text-slate-600 font-medium">{{ r.viajeLabel }}</span>
+              </div>
+              <!-- Asiento -->
+              <div class="flex justify-between py-1.5 border-b border-[#eec997]/50">
+                <span class="text-[10px] text-slate-400">Asiento</span>
+                <span class="text-xs text-slate-600 font-mono">{{ r.asiento_viaje_id }}</span>
+              </div>
+              <!-- Pasajero -->
+              <div class="flex justify-between py-1.5 border-b border-[#eec997]/50">
+                <span class="text-[10px] text-slate-400">Pasajero</span>
+                <span class="text-xs text-slate-600">{{ r.pasajeroNombre }}</span>
+              </div>
+              <!-- Monto -->
+              <div class="flex justify-between py-1.5 border-b border-[#eec997]/50">
+                <span class="text-[10px] text-slate-400">Monto</span>
+                <span class="text-xs font-bold text-[#384752]">{{ formatPrecio(r.monto) }}</span>
+              </div>
+              <!-- Fecha -->
+              <div class="flex justify-between py-1.5">
+                <span class="text-[10px] text-slate-400">Fecha</span>
+                <span class="text-[10px] text-slate-400">{{ formatFecha(r.created_at) }}</span>
+              </div>
+              @if (r.estado === 'pendiente_comprobante' && !r.uploadOk) {
+              <div class="mt-3 pt-3 border-t border-[#eec997]/50">
+                <input type="file" accept=".pdf,image/*" (change)="subirComprobante(r, $event, uploadInput); $event.target.value = ''"
+                  #uploadInput
+                  class="w-full text-[10px] file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-[#af4f35] file:text-white file:cursor-pointer hover:file:bg-[#1aa7c4] transition-all cursor-pointer">
+                @if (r.uploading) {
+                  <p class="text-[10px] text-[#e4912e] mt-1 animate-pulse">Subiendo...</p>
+                }
+                @if (r.uploadMsg) {
+                  <p class="text-[10px] text-red-500 mt-1">{{ r.uploadMsg }}</p>
+                }
+              </div>
+              }
+              @if (r.uploadOk) {
+              <div class="mt-3 pt-3 border-t border-[#eec997]/50">
+                <p class="text-[10px] text-green-600 font-semibold flex items-center gap-1">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                  Comprobante subido — pendiente validación
+                </p>
+              </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- VISTA TABLA (DESKTOP) -->
+        <div class="hidden md:block overflow-x-auto">
+          <table class="w-full text-xs md:text-sm">
+            <thead>
+              <tr class="text-left text-slate-400 text-[10px] md:text-xs uppercase tracking-wide border-b border-[#eec997] bg-white">
+                <th class="px-4 md:px-6 py-3">#</th>
+                <th class="px-4 md:px-6 py-3">Viaje</th>
+                <th class="px-4 md:px-6 py-3">Asiento</th>
+                <th class="px-4 md:px-6 py-3">Pasajero</th>
+                <th class="px-4 md:px-6 py-3">Monto</th>
+                <th class="px-4 md:px-6 py-3">Estado</th>
+                <th class="px-4 md:px-6 py-3">Fecha</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of reservas; track r.id) {
+                <tr class="transition-all duration-200 hover:bg-[#f4f4f3] hover:scale-[1.01] hover:shadow-md">
+                  <td class="px-4 md:px-6 py-3">
+                    <span class="inline-flex items-center justify-center font-bold text-xs md:text-sm text-[#af4f35] bg-[#af4f35]/10 px-2 py-1 rounded-lg font-mono">
+                      {{ r.id }}
+                    </span>
+                  </td>
+                  <td class="px-4 md:px-6 py-3 text-slate-500">{{ r.viajeLabel }}</td>
+                  <td class="px-4 md:px-6 py-3 text-slate-500 font-mono">{{ r.asiento_viaje_id }}</td>
+                  <td class="px-4 md:px-6 py-3 text-slate-500">{{ r.pasajeroNombre }}</td>
+                  <td class="px-4 md:px-6 py-3 font-semibold text-[#384752]">{{ formatPrecio(r.monto) }}</td>
+                  <td class="px-4 md:px-6 py-3">
+                    <span class="px-2 py-1 rounded-full text-[10px] md:text-xs font-semibold inline-flex items-center gap-1"
+                      [class]="r.estado === 'aprobado' ? 'bg-green-50 text-green-700 border border-green-200' :
+                               r.estado === 'rechazado' ? 'bg-red-50 text-red-700 border border-red-200' :
+                               'bg-amber-50 text-amber-700 border border-amber-200'">
+                      <span class="w-1.5 h-1.5 rounded-full"
+                        [class]="r.estado === 'aprobado' ? 'bg-green-500' :
+                                 r.estado === 'rechazado' ? 'bg-red-500' :
+                                 'bg-amber-500'"></span>
+                      {{ estadoLabel(r.estado) }}
+                    </span>
+                  </td>
+                  <td class="px-4 md:px-6 py-3 text-slate-400 text-[10px] md:text-xs whitespace-nowrap">{{ formatFecha(r.created_at) }}</td>
+                </tr>
+                @if (r.estado === 'pendiente_comprobante' || r.uploadOk) {
+                <tr class="border-b border-[#eec997]">
+                  <td [attr.colspan]="7" class="px-4 md:px-6 py-2 bg-amber-50/50">
+                    @if (r.estado === 'pendiente_comprobante' && !r.uploadOk) {
+                    <div class="flex items-center gap-3">
+                      <span class="text-[10px] md:text-xs text-slate-500 whitespace-nowrap">Subí el comprobante:</span>
+                      <input type="file" accept=".pdf,image/*" (change)="subirComprobante(r, $event, uploadInputD); $event.target.value = ''"
+                        #uploadInputD
+                        class="flex-1 text-[10px] md:text-xs file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] md:file:text-xs file:font-semibold file:bg-[#af4f35] file:text-white file:cursor-pointer hover:file:bg-[#1aa7c4] transition-all cursor-pointer">
+                      @if (r.uploading) {
+                        <span class="text-[10px] md:text-xs text-[#e4912e] animate-pulse">Subiendo...</span>
+                      }
+                      @if (r.uploadMsg) {
+                        <span class="text-[10px] md:text-xs text-red-500">{{ r.uploadMsg }}</span>
+                      }
+                    </div>
+                    }
+                    @if (r.uploadOk) {
+                    <div class="flex items-center gap-1 text-green-600 text-[10px] md:text-xs font-semibold">
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      Comprobante subido — pendiente validación
+                    </div>
+                    }
+                  </td>
+                </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    }
+  </div>
+</div>

@@ -1,69 +1,166 @@
-<div style="max-width: 500px; margin: 0 auto; padding: 2rem; font-family: 'Inter', sans-serif; text-align: center;">
-
-  <div style="font-size: 4rem; margin-bottom: 1rem;">&#10004;</div>
-
-  <h2 style="font-size: 1.5rem; font-weight: 700; color: #16a34a; margin-bottom: 0.5rem;">
-    Reserva{{ reservaState.asientos.length > 1 ? 's' : '' }} Registrada{{ reservaState.asientos.length > 1 ? 's' : '' }}
-  </h2>
-
-  <p style="color: #64748b; margin-bottom: 2rem;">
-    {{ reservaState.asientos.length }} asiento{{ reservaState.asientos.length > 1 ? 's' : '' }} registrado{{ reservaState.asientos.length > 1 ? 's' : '' }} correctamente.
-  </p>
-
-  @for (asiento of reservaState.asientos; track asiento.asientoId; let i = $index) {
-    <div style="background: white; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1rem; text-align: left;">
-      <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #f1f5f9;">
-        <span style="color: #64748b; font-size: 0.85rem;">Viaje</span>
-        <span style="font-weight: 600; font-size: 0.85rem;">{{ reservaState.viaje?.origen }} → {{ reservaState.viaje?.destino }}</span>
+<div class="min-h-screen flex flex-col bg-[#f4f4f3]">
+  
+  <!-- HEADER GRIS OSCURO CON LOGO -->
+  <div class="bg-meurzet-primary w-full shrink-0">
+    <div class="max-w-4xl mx-auto px-4 md:px-8 py-4 md:py-5">
+      <div class="flex flex-col items-center text-center">
+        <img src="/logo.jpeg" class="w-12 h-12 md:w-[60px] md:h-[60px] rounded-full object-cover bg-white mb-2 md:mb-3 shadow-md" />
+        <h2 class="text-lg md:text-xl font-bold text-white mb-1">
+          Reserva{{ reservaState.asientos.length > 1 ? 's' : '' }} Registrada{{ reservaState.asientos.length > 1 ? 's' : '' }}
+        </h2>
+        <p class="text-meurzet-light text-[10px] md:text-xs">
+          {{ reservaState.asientos.length }} asiento{{ reservaState.asientos.length > 1 ? 's' : '' }} registrado{{ reservaState.asientos.length > 1 ? 's' : '' }} correctamente
+        </p>
       </div>
-      <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #f1f5f9;">
-        <span style="color: #64748b; font-size: 0.85rem;">Asiento</span>
-        <span style="font-weight: 600; font-size: 0.85rem;">N° {{ asiento.nroAsiento }} · Planta {{ pisoLabel(asiento.piso) }}</span>
-      </div>
-      <div style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
-        <span style="color: #64748b; font-size: 0.85rem;">Pasajero {{ i + 1 }}</span>
-        <span style="font-weight: 600; font-size: 0.85rem;">{{ reservaState.pasajeros[i]?.nombre || '' }} {{ reservaState.pasajeros[i]?.apellido || '' }}</span>
-      </div>
-    </div>
-  }
-
-  <div style="background: white; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1.5rem; text-align: left;">
-    <div style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
-      <span style="color: #64748b; font-size: 0.85rem;">Total</span>
-      <span style="font-weight: 700; font-size: 1rem; color: #384752;">{{ formatPrecio(total) }}</span>
-    </div>
-    <div style="display: flex; justify-content: space-between; padding: 0.5rem 0;">
-      <span style="color: #64748b; font-size: 0.85rem;">Pago</span>
-      <span style="font-weight: 600; font-size: 0.85rem;">{{ pagoLabel }}</span>
-    </div>
-    <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-top: 1px solid #f1f5f9;">
-      <span style="color: #64748b; font-size: 0.85rem;">A pagar ahora</span>
-      <span style="font-weight: 700; font-size: 1rem; color: #af4f35;">{{ formatPrecio(montoAPagar) }}</span>
     </div>
   </div>
 
-  @if (!comprobanteSubido) {
-    <div style="background: white; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1.5rem; text-align: left;">
-      <h3 style="font-size: 1rem; font-weight: 700; color: #384752; margin: 0 0 0.5rem 0;">Subir Comprobante de Pago</h3>
-      <p style="font-size: 0.8rem; color: #64748b; margin-bottom: 1rem;">
-        Adjuntá el comprobante (PDF o imagen) para que podamos validar tu reserva.
-      </p>
-      <input type="file" accept=".pdf,image/*" (change)="subirComprobante($event)" style="display: block; width: 100%; padding: 0.5rem; border: 1.5px dashed #c9a08f; border-radius: 0.75rem; font-size: 0.85rem; background: #fafafa;">
-      @if (subiendo) {
-        <p style="font-size: 0.85rem; color: #e4912e; margin-top: 0.5rem;">Subiendo comprobante...</p>
-      }
-      @if (mensaje) {
-        <p style="font-size: 0.85rem; color: #dc2626; margin-top: 0.5rem;">{{ mensaje }}</p>
-      }
-    </div>
-  } @else {
-    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 1rem; padding: 1rem; margin-bottom: 1.5rem;">
-      <p style="color: #16a34a; font-weight: 600; font-size: 0.9rem;">&#10004; Comprobante subido correctamente — pendiente de validación</p>
-    </div>
-  }
+  <!-- CONTENIDO PRINCIPAL -->
+  <div class="flex-1 flex flex-col">
+    <div class="max-w-4xl mx-auto px-4 md:px-8 py-4 md:py-6 w-full space-y-4 md:space-y-5">
 
-  <button routerLink="/minorista/inicio"
-    style="width: 100%; padding: 1rem; border-radius: 1rem; font-weight: 700; font-size: 1rem; color: white; background: linear-gradient(135deg, #af4f35, #e4912e); border: none; cursor: pointer; transition: all 0.2s;">
-    Volver al Inicio
-  </button>
+      <!-- CÓDIGO DE RESERVA -->
+      <div class="bg-white rounded-xl shadow-lg border-2 border-meurzet-accent/30 hover:border-meurzet-info hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 p-4 md:p-5">
+        <div class="flex flex-col gap-2 md:flex-row md:justify-between md:items-center">
+          <div>
+            <span class="text-[10px] md:text-xs text-slate-400 uppercase tracking-wide">Código de reserva</span>
+            <p class="font-mono font-bold text-xl md:text-2xl text-meurzet-primary">MEU-000001</p>
+          </div>
+          <div class="bg-[#fff5f2] rounded-lg px-3 py-1 border border-meurzet-light text-[10px] md:text-xs font-bold text-meurzet-accent inline-flex items-center justify-center">
+            Pendiente de pago
+          </div>
+        </div>
+      </div>
+
+      <!-- DETALLE DE RESERVA -->
+      <div class="bg-white rounded-xl md:rounded-2xl shadow-lg border-2 border-meurzet-accent/20 hover:border-meurzet-info hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 overflow-hidden">
+        <div class="bg-meurzet-primary/5 px-4 md:px-6 py-2 md:py-3 border-b border-meurzet-light">
+          <div class="flex flex-col gap-1 md:flex-row md:justify-between md:items-center">
+            <h2 class="font-bold text-sm md:text-base text-meurzet-primary">Detalle de tu reserva</h2>
+            <p class="text-[10px] md:text-xs text-slate-500">{{ reservaState.viaje?.origen }} → {{ reservaState.viaje?.destino }} · {{ reservaState.viaje?.fecha_salida | date:'HH:mm' }} hs</p>
+          </div>
+        </div>
+
+        <div class="p-4 md:p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+            @for (asiento of reservaState.asientos; track asiento.asientoId; let i = $index) {
+              <div class="bg-[#f4f4f3] rounded-xl p-3 md:p-4 border-2 border-meurzet-accent/15 hover:border-meurzet-info hover:shadow-md transition-all duration-200">
+                <div class="flex justify-between items-center gap-2 mb-2">
+                  <span class="text-[10px] md:text-xs text-slate-400">Asiento</span>
+                  <span class="text-sm md:text-base font-bold text-meurzet-accent bg-white px-2 py-0.5 rounded-full">{{ asiento.nroAsiento }}</span>
+                </div>
+                <div class="space-y-1">
+                  <p class="font-bold text-xs md:text-sm text-meurzet-primary">{{ reservaState.pasajeros[i]?.nombre }} {{ reservaState.pasajeros[i]?.apellido }}</p>
+                  <p class="text-[9px] md:text-[10px] text-slate-400">DNI: {{ reservaState.pasajeros[i]?.documento }}</p>
+                  <p class="text-[9px] md:text-[10px] text-slate-400">Email: {{ reservaState.pasajeros[i]?.email }}</p>
+                  <p class="text-[9px] md:text-[10px] text-slate-400">Tel: {{ reservaState.pasajeros[i]?.telefono }}</p>
+                  <p class="text-[9px] md:text-[10px] text-slate-400">Planta {{ asiento.piso === 1 ? 'Baja' : 'Alta' }}</p>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="bg-[#f4f4f3] px-4 md:px-6 py-3 md:py-4 border-t border-meurzet-light">
+          <div class="grid grid-cols-3 gap-2 md:gap-4 text-center">
+            <div>
+              <span class="text-slate-500 text-[10px] md:text-xs">Total</span>
+              <p class="font-bold text-base md:text-xl text-meurzet-primary">{{ formatPrecio(total) }}</p>
+            </div>
+            <div class="border-l border-r border-meurzet-light">
+              <span class="text-slate-500 text-[10px] md:text-xs">Tipo de pago</span>
+              <p class="font-semibold text-xs md:text-sm text-meurzet-primary">{{ pagoLabel }}</p>
+            </div>
+            <div>
+              <span class="text-slate-500 text-[10px] md:text-xs">A pagar ahora</span>
+              <p class="font-bold text-base md:text-xl text-meurzet-accent">{{ formatPrecio(montoAPagar) }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DATOS TRANSFERENCIA + SUBIR COMPROBANTE -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+        
+        <div class="bg-[#fff5f2] rounded-xl p-4 md:p-5 border-2 border-meurzet-accent/20 hover:border-meurzet-info hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+          <div class="flex items-center gap-2 mb-3">
+            <svg class="w-5 h-5 text-meurzet-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <h3 class="text-sm md:text-base font-bold text-meurzet-primary">Datos para transferencia</h3>
+          </div>
+          <div class="space-y-2 text-xs md:text-sm">
+            <div class="flex justify-between">
+              <span class="text-slate-500">Banco:</span>
+              <span class="font-medium text-meurzet-primary">Meurzet S.A.</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">Alias:</span>
+              <span class="font-medium text-meurzet-primary font-mono">MEURZET.PAGOS</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">CBU:</span>
+              <span class="font-medium text-meurzet-primary font-mono text-[10px] md:text-xs">1234567890123456789012</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">Titular:</span>
+              <span class="font-medium text-meurzet-primary">Meurzet Viajes</span>
+            </div>
+          </div>
+          <div class="mt-3 pt-2 border-t border-meurzet-light">
+            <p class="text-[9px] md:text-[10px] text-slate-500">📌 Subí el comprobante para validar tu reserva</p>
+          </div>
+        </div>
+
+        <!-- SUBIR COMPROBANTE -->
+        @if (!comprobanteSubido) {
+          <div class="bg-white rounded-xl p-4 md:p-5 border-2 border-meurzet-accent/30 hover:border-meurzet-info hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+            <h3 class="text-sm md:text-base font-bold text-meurzet-primary mb-2">Subir Comprobante de Pago</h3>
+            <p class="text-[11px] md:text-sm text-slate-500 mb-3">
+              Adjuntá el comprobante (PDF o imagen)
+            </p>
+            <input type="file" accept=".pdf,image/*" (change)="subirComprobante($event)" 
+              class="w-full p-2 md:p-2.5 border-2 border-dashed border-[#c9a08f] rounded-lg text-xs md:text-sm bg-slate-50 
+                     file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] md:file:text-[11px] file:font-semibold 
+                     file:bg-meurzet-accent file:text-white file:cursor-pointer
+                     hover:file:bg-meurzet-info
+                     hover:border-meurzet-info focus:outline-none focus:border-meurzet-info focus:ring-1 focus:ring-meurzet-info 
+                     transition-all duration-200 cursor-pointer">
+            @if (subiendo) {
+              <p class="text-[11px] md:text-sm text-meurzet-secondary mt-2 animate-pulse">Subiendo comprobante...</p>
+            }
+            @if (mensaje) {
+              <p class="text-[11px] md:text-sm text-red-500 mt-2">{{ mensaje }}</p>
+            }
+          </div>
+        } @else {
+          <div class="bg-green-50 rounded-xl p-4 md:p-5 border border-green-300 text-center hover:border-meurzet-info transition-all">
+            <p class="text-green-600 font-semibold text-[11px] md:text-sm flex items-center justify-center gap-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              Comprobante subido — pendiente validación
+            </p>
+          </div>
+        }
+
+      </div>
+
+      <!-- BOTÓN VOLVER -->
+      <button routerLink="/minorista/vender" 
+        class="w-full py-3 md:py-4 rounded-xl font-bold text-sm md:text-base text-white 
+               bg-gradient-to-r from-meurzet-accent to-meurzet-secondary
+               hover:from-meurzet-info hover:to-meurzet-primary
+               hover:shadow-xl transform hover:-translate-y-0.5 
+               transition-all duration-300 cursor-pointer">
+        Volver al Inicio
+      </button>
+
+      <!-- ADVERTENCIA -->
+      <p class="text-[9px] md:text-[10px] text-slate-400 text-center pb-2">
+        La reserva se mantiene por 24 horas. Pasado ese tiempo, los asientos quedarán libres nuevamente.
+      </p>
+      
+    </div>
+  </div>
 </div>

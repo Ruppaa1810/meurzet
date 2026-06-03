@@ -1,119 +1,208 @@
-<header class="topbar">
-  <div class="topbar-left">
-    <button class="menu-btn">
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
-    <img src="/logo.jpeg" class="logo-img" />
-    <div>
-      <h1 class="brand-title">Meurzet</h1>
-      <p class="brand-subtitle">Portal Minorista</p>
-    </div>
-  </div>
-  <div class="topbar-right">
-    <div class="agency-badge">{{ perfil?.agencia_nombre || perfil?.nombre || 'Minorista' }}</div>
-  </div>
-</header>
-
-<div class="sidebar-overlay"></div>
-
-<aside class="sidebar">
-  <div class="sidebar-item active">Inicio</div>
-  <div class="sidebar-item">Reservas de Hoy</div>
-  <div class="sidebar-item">Próximas Reservas</div>
-  <div class="sidebar-item">Historial</div>
-  <div class="sidebar-item">Pagos Pendientes</div>
-  <div class="sidebar-divider"></div>
-  <button class="sidebar-logout" (click)="logout()">Cerrar Sesión</button>
-</aside>
-
+<!-- CONTENIDO PRINCIPAL - RESPONSIVE -->
 @if (loading) {
-  <div style="display: flex; align-items: center; justify-content: center; height: 60vh; font-family: 'Inter', sans-serif;">
-    <p style="font-size: 1.125rem; font-weight: 600; color: #64748b;">Cargando viajes...</p>
+  <div class="flex items-center justify-center h-[60vh]">
+    <p class="text-base md:text-lg font-semibold text-slate-500">Cargando viajes...</p>
   </div>
 } @else if (todosViajes.length === 0) {
-  <div style="display: flex; align-items: center; justify-content: center; height: 60vh; font-family: 'Inter', sans-serif; flex-direction: column; gap: 1rem;">
-    <p style="font-size: 1.125rem; font-weight: 600; color: #64748b;">No hay viajes disponibles</p>
-    <p style="font-size: 0.875rem; color: #94a3b8;">Ejecutá el script seed.sql en Supabase</p>
+  <div class="flex items-center justify-center h-[60vh] flex-col gap-4">
+    <p class="text-base md:text-lg font-semibold text-slate-500">No hay viajes disponibles</p>
+    <p class="text-xs md:text-sm text-slate-400">Ejecutá el script seed.sql en Supabase</p>
   </div>
 } @else {
-  <div class="inicio-layout">
-    <aside class="search-panel">
-      <div class="search-header">
-        <h2>Buscar Pasajes</h2>
-        <p>Consultá servicios disponibles y seleccioná asientos.</p>
+  <div class="inicio-layout w-full max-w-[1400px] mx-auto px-4 md:px-6 py-6 md:py-10 flex flex-col items-center gap-6 md:gap-8 transition-all duration-350">
+    
+    <!-- PANEL DE BÚSQUEDA - RESPONSIVE -->
+    <aside class="search-panel w-full max-w-[1050px] bg-white/70 backdrop-blur-md border border-[#af4f35]/20 rounded-2xl md:rounded-[30px] p-4 md:p-8 transition-all duration-300 hover:scale-[1.01] hover:border-[#1aa7c4]/30 hover:shadow-[0_22px_48px_rgba(26,167,196,0.10)]">
+      
+      <div class="search-header text-center mb-4 md:mb-8 transition-all">
+        <h2 class="text-2xl md:text-[38px] font-black text-[#384752] tracking-tighter m-0">Buscar Pasajes</h2>
+        <p class="text-slate-500 text-xs md:text-sm mt-2 leading-relaxed">Consultá servicios disponibles y seleccioná asientos.</p>
       </div>
-      <div class="search-grid">
-        <div class="field-group">
-          <label>Origen</label>
-          <input type="text" [(ngModel)]="filtroOrigen" name="origen" placeholder="Mendoza" />
+
+      <div class="search-grid grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5 transition-all">
+        
+        <div class="field-group flex flex-col">
+          <label class="text-[10px] md:text-[11px] font-extrabold tracking-wide uppercase text-slate-500 mb-1 md:mb-2">Origen</label>
+          <input type="text" [(ngModel)]="filtroOrigen" placeholder="Mendoza"
+            class="w-full h-[48px] md:h-[58px] rounded-xl md:rounded-2xl border-2 border-[#af4f35]/15 bg-white px-4 md:px-5 text-sm text-[#384752] outline-none transition-all hover:border-[#1aa7c4] hover:-translate-y-px hover:shadow-[0_0_0_4px_rgba(26,167,196,0.08)] focus:border-[#1aa7c4] focus:shadow-[0_0_0_5px_rgba(26,167,196,0.12)] focus:bg-white">
         </div>
-        <div class="field-group">
-          <label>Destino</label>
-          <input type="text" [(ngModel)]="filtroDestino" name="destino" placeholder="Buenos Aires" />
+
+        <div class="field-group flex flex-col">
+          <label class="text-[10px] md:text-[11px] font-extrabold tracking-wide uppercase text-slate-500 mb-1 md:mb-2">Destino</label>
+          <input type="text" [(ngModel)]="filtroDestino" placeholder="Buenos Aires"
+            class="w-full h-[48px] md:h-[58px] rounded-xl md:rounded-2xl border-2 border-[#af4f35]/15 bg-white px-4 md:px-5 text-sm text-[#384752] outline-none transition-all hover:border-[#1aa7c4] hover:-translate-y-px hover:shadow-[0_0_0_4px_rgba(26,167,196,0.08)] focus:border-[#1aa7c4] focus:shadow-[0_0_0_5px_rgba(26,167,196,0.12)] focus:bg-white">
         </div>
-        <div class="field-group">
-          <label>Fecha</label>
-          <input type="date" [(ngModel)]="filtroFecha" name="fecha" />
+
+        <div class="field-group flex flex-col">
+          <label class="text-[10px] md:text-[11px] font-extrabold tracking-wide uppercase text-slate-500 mb-1 md:mb-2">Fecha</label>
+          <input type="date" [(ngModel)]="filtroFecha"
+            class="w-full h-[48px] md:h-[58px] rounded-xl md:rounded-2xl border-2 border-[#af4f35]/15 bg-white px-4 md:px-5 text-sm text-[#384752] outline-none transition-all hover:border-[#1aa7c4] hover:-translate-y-px hover:shadow-[0_0_0_4px_rgba(26,167,196,0.08)] focus:border-[#1aa7c4] focus:shadow-[0_0_0_5px_rgba(26,167,196,0.12)] focus:bg-white">
         </div>
-        <div class="field-group">
-          <label>Horario</label>
-          <select [(ngModel)]="filtroHorario" name="horario">
+
+        <div class="field-group flex flex-col">
+          <label class="text-[10px] md:text-[11px] font-extrabold tracking-wide uppercase text-slate-500 mb-1 md:mb-2">Horario</label>
+          <select [(ngModel)]="filtroHorario"
+            class="w-full h-[48px] md:h-[58px] rounded-xl md:rounded-2xl border-2 border-[#af4f35]/15 bg-white px-4 md:px-5 text-sm text-[#384752] outline-none transition-all hover:border-[#1aa7c4] hover:-translate-y-px hover:shadow-[0_0_0_4px_rgba(26,167,196,0.08)] focus:border-[#1aa7c4] focus:shadow-[0_0_0_5px_rgba(26,167,196,0.12)] focus:bg-white">
             <option value="todos">Todos los horarios</option>
             <option value="manana">Mañana</option>
             <option value="tarde">Tarde</option>
             <option value="noche">Noche</option>
           </select>
         </div>
-        <button class="search-btn" (click)="buscarViajes()">Buscar Viajes</button>
+
+        <!-- BOTÓN BUSCAR VIAJES - HOVER CELESTE -->
+        <button (click)="buscarViajes()"
+          class="search-btn h-[48px] md:h-[58px] rounded-xl md:rounded-2xl border-none text-white text-sm font-extrabold tracking-wide cursor-pointer transition-all hover:-translate-y-1 hover:shadow-[0_14px_26px_rgba(26,167,196,0.25)] hover:opacity-95 active:scale-[0.98] bg-gradient-to-r from-[#af4f35] to-[#e4912e] hover:from-[#1aa7c4] hover:to-[#384752]">
+          Buscar Viajes
+        </button>
+
       </div>
     </aside>
 
-    <main class="results-panel">
-      <div class="results-header">
+    <!-- RESULTADOS - RESPONSIVE -->
+    <main class="results-panel w-full max-w-[1200px] animate-[fadeUp_0.45s_ease]">
+      
+      <div class="results-header flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5 md:mb-7">
         <div>
-          <h2>Viajes Disponibles</h2>
-          <p>Seleccioná un servicio para continuar con la reserva.</p>
+          <h2 class="text-xl md:text-[32px] font-black text-[#384752] m-0">Viajes Disponibles</h2>
+          <p class="text-slate-500 text-xs md:text-sm mt-1">Seleccioná un servicio para continuar con la reserva.</p>
         </div>
-        <div class="results-count">{{ viajesFiltrados.length }} servicio{{ viajesFiltrados.length !== 1 ? 's' : '' }}</div>
+        <div class="results-count bg-[#eec997] text-[#af4f35] px-3 py-1.5 md:px-4 md:py-3 rounded-xl text-xs md:text-[13px] font-extrabold">
+          {{ viajesFiltrados.length }} servicio{{ viajesFiltrados.length !== 1 ? 's' : '' }}
+        </div>
       </div>
 
-      <div class="results-list">
+      <div class="results-list grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         @for (viaje of viajesFiltrados; track viaje.id) {
-          <div class="trip-card">
-            <div class="trip-main">
-              <div class="trip-route">
-                <div class="city">{{ viaje.origen }}</div>
-                <div class="trip-line"></div>
-                <div class="city">{{ viaje.destino }}</div>
+          <div class="trip-card bg-white/80 backdrop-blur-sm border border-white/60 rounded-2xl md:rounded-3xl p-4 md:p-6 flex flex-col gap-4 md:gap-6 transition-all hover:-translate-y-1 hover:border-[#1aa7c4]/20 hover:shadow-[0_24px_52px_rgba(15,23,42,0.10)]">
+            
+            <div class="trip-route flex items-center gap-2 md:gap-4 mb-2">
+              <div class="city text-lg md:text-[24px] font-black text-[#384752] whitespace-nowrap">{{ viaje.origen }}</div>
+              <div class="trip-line flex-1 h-0.5 rounded-full bg-gradient-to-r from-[#af4f35] to-[#e4912e]"></div>
+              <div class="city text-lg md:text-[24px] font-black text-[#384752] whitespace-nowrap">{{ viaje.destino }}</div>
+            </div>
+
+            <div class="trip-info grid grid-cols-2 gap-3 md:gap-5">
+              <div class="trip-block bg-[#f4f4f3]/70 border border-[#af4f35]/10 rounded-xl p-2 md:p-3.5">
+                <span class="block text-[9px] md:text-[11px] font-extrabold text-slate-400 uppercase mb-1">Salida</span>
+                <strong class="text-xs md:text-base text-[#384752]">{{ formatFechaCorta(viaje.fecha_salida) }} · {{ formatHora(viaje.fecha_salida) }} hs</strong>
               </div>
-              <div class="trip-info">
-                <div class="trip-block">
-                  <span>Salida</span>
-                  <strong>{{ formatHora(viaje.fecha_salida) }} hs</strong>
-                </div>
-                <div class="trip-block">
-                  <span>Llegada</span>
-                  <strong>{{ formatHora(viaje.fecha_llegada) }} hs</strong>
-                </div>
-                <div class="trip-block">
-                  <span>Servicio</span>
-                  <strong>Cama Ejecutivo</strong>
-                </div>
-                <div class="trip-block">
-                  <span>Disponibles</span>
-                  <strong class="free-seats">Consultar</strong>
-                </div>
+              <div class="trip-block bg-[#f4f4f3]/70 border border-[#af4f35]/10 rounded-xl p-2 md:p-3.5">
+                <span class="block text-[9px] md:text-[11px] font-extrabold text-slate-400 uppercase mb-1">Llegada</span>
+                <strong class="text-xs md:text-base text-[#384752]">{{ formatHora(viaje.fecha_llegada) }} hs</strong>
+              </div>
+              <div class="trip-block bg-[#f4f4f3]/70 border border-[#af4f35]/10 rounded-xl p-2 md:p-3.5">
+                <span class="block text-[9px] md:text-[11px] font-extrabold text-slate-400 uppercase mb-1">Servicio</span>
+                <strong class="text-xs md:text-base text-[#384752]">Cama Ejecutivo</strong>
+              </div>
+              <div class="trip-block bg-[#f4f4f3]/70 border border-[#af4f35]/10 rounded-xl p-2 md:p-3.5">
+                <span class="block text-[9px] md:text-[11px] font-extrabold text-slate-400 uppercase mb-1">Disponibles</span>
+                <strong class="text-xs md:text-base text-green-600">Consultar</strong>
               </div>
             </div>
-            <div class="trip-actions">
-              <div class="trip-price">{{ formatPrecio(viaje.precio_base) }}</div>
-              <button class="select-btn" [routerLink]="['/minorista/seleccion', viaje.id]">Seleccionar Asientos</button>
+
+            <div class="trip-actions flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+              <div class="trip-price text-2xl md:text-[32px] font-black text-[#af4f35]">{{ formatPrecio(viaje.precio_base) }}</div>
+              <button [routerLink]="['/minorista/seleccion', viaje.id]"
+                class="select-btn h-[44px] md:h-[52px] px-6 md:px-8 rounded-xl md:rounded-2xl border-none text-white text-xs md:text-[13px] font-extrabold whitespace-nowrap cursor-pointer transition-all hover:-translate-y-0.5 w-full sm:w-auto bg-gradient-to-r from-[#af4f35] to-[#e4912e] hover:from-[#1aa7c4] hover:to-[#384752]">
+                Seleccionar Asientos
+              </button>
             </div>
+
           </div>
         }
       </div>
+
     </main>
   </div>
 }
+
+<style>
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* =========================================================
+     SIDEBAR - HOVER CELESTE
+  ========================================================= */
+  .sidebar-item {
+    height: 54px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    color: rgba(255,255,255,0.82);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    background: transparent;
+    transition: all 0.22s ease;
+  }
+
+  .sidebar-item:hover {
+    background: linear-gradient(135deg, #1aa7c4, #384752);
+    transform: translateX(4px);
+    color: white;
+  }
+
+  .sidebar-item.active {
+    background: linear-gradient(135deg, #af4f35, #e4912e);
+    color: white;
+    box-shadow: 0 12px 24px rgba(175,79,53,0.22);
+  }
+
+  .sidebar-logout {
+    height: 54px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    color: rgba(255,255,255,0.82);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    width: 100%;
+    text-align: left;
+    transition: all 0.22s ease;
+  }
+
+  .sidebar-logout:hover {
+    background: linear-gradient(135deg, #1aa7c4, #384752);
+    transform: translateX(4px);
+    color: white;
+  }
+
+  /* =========================================================
+     BOTÓN SELECCIONAR ASIENTOS - HOVER CELESTE
+  ========================================================= */
+  .select-btn {
+    background: linear-gradient(135deg, #af4f35, #e4912e);
+    transition: all 0.3s ease;
+  }
+
+  .select-btn:hover {
+    background: linear-gradient(135deg, #1aa7c4, #384752) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(26, 167, 196, 0.3);
+  }
+
+  /* Responsive adicional */
+  @media (max-width: 640px) {
+    .inicio-layout {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+    
+    .trip-route {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    
+    .city {
+      font-size: 1rem !important;
+    }
+  }
+</style>

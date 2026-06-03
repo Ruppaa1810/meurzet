@@ -9,7 +9,6 @@ import { SupabaseService } from '../../../services/supabase.service';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './dashboard.html',
-  styleUrl: './dashboard.css',
 })
 export class AdminDashboard implements OnInit {
   viajesActivos = 0;
@@ -17,6 +16,7 @@ export class AdminDashboard implements OnInit {
   reservasHoy = 0;
   bloqueadosPorVendedor = 0;
   actividadReciente: any[] = [];
+  loading = true;
 
   constructor(
     private supabaseService: SupabaseService,
@@ -25,19 +25,23 @@ export class AdminDashboard implements OnInit {
   ) {}
 
   async ngOnInit() {
-    const [viajesRes, unidadesRes, confirmadasRes, bloqueadosRes, actividadRes] = await Promise.all([
-      this.supabaseService.getViajes(),
-      this.supabaseService.getUnidadesCount(),
-      this.supabaseService.getReservasConfirmadasHoy(),
-      this.supabaseService.getBloqueadosPorVendedor(),
-      this.supabaseService.getActividadReciente(),
-    ]);
+    try {
+      const [viajesRes, unidadesRes, confirmadasRes, bloqueadosRes, actividadRes] = await Promise.all([
+        this.supabaseService.getViajes(),
+        this.supabaseService.getUnidadesCount(),
+        this.supabaseService.getReservasConfirmadasHoy(),
+        this.supabaseService.getBloqueadosPorVendedor(),
+        this.supabaseService.getActividadReciente(),
+      ]);
 
-    if (viajesRes.data) this.viajesActivos = viajesRes.data.length;
-    this.totalUnidades = unidadesRes.count ?? 0;
-    this.reservasHoy = confirmadasRes.count ?? 0;
-    this.bloqueadosPorVendedor = bloqueadosRes.count ?? 0;
-    if (actividadRes.data) this.actividadReciente = actividadRes.data;
+      if (viajesRes.data) this.viajesActivos = viajesRes.data.length;
+      this.totalUnidades = unidadesRes.count ?? 0;
+      this.reservasHoy = confirmadasRes.count ?? 0;
+      this.bloqueadosPorVendedor = bloqueadosRes.count ?? 0;
+      if (actividadRes.data) this.actividadReciente = actividadRes.data;
+    } catch {
+    }
+    this.loading = false;
     this.cdr.detectChanges();
   }
 

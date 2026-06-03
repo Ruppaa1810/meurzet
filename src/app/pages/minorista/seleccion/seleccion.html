@@ -1,33 +1,25 @@
-<header class="topbar">
-  <div class="topbar-left">
-    <button class="menu-btn" aria-label="Menú"><span></span><span></span><span></span></button>
-    <img src="/logo.jpeg" class="logo-img" alt="Meurzet" />
-    <div>
-      <h1 class="brand-title">Meurzet</h1>
-      <p class="brand-subtitle">Selecci&oacute;n de Asientos</p>
-    </div>
-  </div>
-  <div class="topbar-right">
-    <div class="agency-badge">{{ perfil?.agencia_nombre || perfil?.nombre || 'Minorista' }}</div>
-  </div>
-</header>
-
-<div class="sidebar-overlay"></div>
-
-<aside class="sidebar">
-  <div class="sidebar-item active">Reservar Pasajes</div>
-  <div class="sidebar-item">Mis Reservas</div>
-  <div class="sidebar-item">Pagos Pendientes</div>
-  <div class="sidebar-item">Historial</div>
-  <div class="sidebar-divider"></div>
-  <button class="sidebar-logout" (click)="logout()">Cerrar Sesi&oacute;n</button>
-</aside>
 
 @if (loading) {
   <div class="content-wrapper" style="display: flex; align-items: center; justify-content: center; height: 60vh;">
     <p style="font-size: 1.125rem; font-weight: 600; color: #64748b;">Cargando asientos...</p>
   </div>
 } @else {
+
+<!-- Mobile trip bar -->
+<div class="max-[900px]:flex hidden w-full bg-white border-b border-[#eec997] px-4 py-3 items-center gap-3">
+  <div class="flex items-center gap-1.5 min-w-0">
+    <span class="text-sm font-bold text-[#384752] truncate">{{ viaje?.origen }}</span>
+    <svg class="w-4 h-4 text-meurzet-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+    <span class="text-sm font-bold text-[#af4f35] truncate">{{ viaje?.destino }}</span>
+  </div>
+  <div class="flex items-center gap-3 ml-auto shrink-0">
+    <span class="text-[11px] font-semibold text-[#384752] whitespace-nowrap">{{ viaje ? formatHora(viaje.fecha_salida) : '' }}</span>
+    <span class="text-[11px] text-[#969fa3]">·</span>
+    <span class="text-[11px] font-semibold text-[#384752] whitespace-nowrap">{{ asientosLibres }} asientos</span>
+    <span class="text-[11px] text-[#969fa3]">·</span>
+    <span class="text-[11px] font-bold text-[#af4f35] whitespace-nowrap">{{ viaje ? formatPrecio(viaje.precio_base) : '' }}</span>
+  </div>
+</div>
 
 <div class="content-wrapper">
 
@@ -79,9 +71,8 @@
       </div>
       <div class="legend">
         <div class="legend-item"><div class="legend-dot free"></div><span>Libre</span></div>
+        <div class="legend-item"><div class="legend-dot blocked"></div><span>Seleccionado</span></div>
         <div class="legend-item"><div class="legend-dot occupied"></div><span>Ocupado</span></div>
-        <div class="legend-item"><div class="legend-dot blocked"></div><span>Bloqueado</span></div>
-        <div class="legend-item"><div class="legend-dot selected"></div><span>Seleccionado</span></div>
       </div>
     </div>
 
@@ -119,8 +110,8 @@
               <div class="seats-col">
                 @for (pair of seatRowsIzq(1); track pair[0].id) {
                   <div class="seat-pair">
-                    <button class="seat {{ seatClasses(pair[0]) }}" (click)="toggleSeat(pair[0].id)" [disabled]="pair[0].estado === 'confirmado'">{{ pair[0].nro_asiento }}</button>
-                    <button class="seat {{ seatClasses(pair[1]) }}" (click)="toggleSeat(pair[1].id)" [disabled]="pair[1].estado === 'confirmado'">{{ pair[1].nro_asiento }}</button>
+                    <button class="seat {{ seatClasses(pair[0]) }}" (click)="toggleSeat(pair[0].id)" [disabled]="!canToggle(pair[0])">{{ pair[0].nro_asiento }}</button>
+                    <button class="seat {{ seatClasses(pair[1]) }}" (click)="toggleSeat(pair[1].id)" [disabled]="!canToggle(pair[1])">{{ pair[1].nro_asiento }}</button>
                   </div>
                 }
               </div>
@@ -144,8 +135,8 @@
               <div class="seats-col single">
                 @for (pair of seatRowsDer(1); track pair[0].id) {
                   <div class="seat-pair">
-                    <button class="seat {{ seatClasses(pair[0]) }}" (click)="toggleSeat(pair[0].id)" [disabled]="pair[0].estado === 'confirmado'">{{ pair[0].nro_asiento }}</button>
-                    <button class="seat {{ seatClasses(pair[1]) }}" (click)="toggleSeat(pair[1].id)" [disabled]="pair[1].estado === 'confirmado'">{{ pair[1].nro_asiento }}</button>
+                    <button class="seat {{ seatClasses(pair[0]) }}" (click)="toggleSeat(pair[0].id)" [disabled]="!canToggle(pair[0])">{{ pair[0].nro_asiento }}</button>
+                    <button class="seat {{ seatClasses(pair[1]) }}" (click)="toggleSeat(pair[1].id)" [disabled]="!canToggle(pair[1])">{{ pair[1].nro_asiento }}</button>
                   </div>
                 }
               </div>
@@ -183,8 +174,8 @@
               <div class="seats-col">
                 @for (pair of seatRowsIzq(2); track pair[0].id) {
                   <div class="seat-pair">
-                    <button class="seat {{ seatClasses(pair[0]) }}" (click)="toggleSeat(pair[0].id)" [disabled]="pair[0].estado === 'confirmado'">{{ pair[0].nro_asiento }}</button>
-                    <button class="seat {{ seatClasses(pair[1]) }}" (click)="toggleSeat(pair[1].id)" [disabled]="pair[1].estado === 'confirmado'">{{ pair[1].nro_asiento }}</button>
+                    <button class="seat {{ seatClasses(pair[0]) }}" (click)="toggleSeat(pair[0].id)" [disabled]="!canToggle(pair[0])">{{ pair[0].nro_asiento }}</button>
+                    <button class="seat {{ seatClasses(pair[1]) }}" (click)="toggleSeat(pair[1].id)" [disabled]="!canToggle(pair[1])">{{ pair[1].nro_asiento }}</button>
                   </div>
                 }
               </div>
@@ -202,8 +193,8 @@
                 </div>
                 @for (pair of seatRowsDer(2); track pair[0].id) {
                   <div class="seat-pair">
-                    <button class="seat {{ seatClasses(pair[0]) }}" (click)="toggleSeat(pair[0].id)" [disabled]="pair[0].estado === 'confirmado'">{{ pair[0].nro_asiento }}</button>
-                    <button class="seat {{ seatClasses(pair[1]) }}" (click)="toggleSeat(pair[1].id)" [disabled]="pair[1].estado === 'confirmado'">{{ pair[1].nro_asiento }}</button>
+                    <button class="seat {{ seatClasses(pair[0]) }}" (click)="toggleSeat(pair[0].id)" [disabled]="!canToggle(pair[0])">{{ pair[0].nro_asiento }}</button>
+                    <button class="seat {{ seatClasses(pair[1]) }}" (click)="toggleSeat(pair[1].id)" [disabled]="!canToggle(pair[1])">{{ pair[1].nro_asiento }}</button>
                   </div>
                 }
               </div>
@@ -219,12 +210,6 @@
 
     </div>
 
-    @if (mensajeError) {
-      <div style="padding: 0.75rem 1rem; margin: 0 2.5rem; background: #fef2f2; color: #991b1b; border-radius: 0.75rem; font-size: 0.875rem; text-align: center; border: 1px solid #fecaca;">
-        {{ mensajeError }}
-      </div>
-    }
-
     <div class="continue-bar">
       <div class="continue-info">
         <span class="continue-label">Asientos seleccionados</span>
@@ -232,6 +217,11 @@
       </div>
       <button class="continue-btn" [class.disabled]="selectedList.length === 0 || bloqueando" (click)="continuarReserva()">{{ bloqueando ? 'Reservando...' : 'Continuar con la reserva &rarr;' }}</button>
     </div>
+
+    <button class="back-btn" (click)="volver()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      Volver
+    </button>
 
   </main>
 </div>

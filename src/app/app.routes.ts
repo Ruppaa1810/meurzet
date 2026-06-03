@@ -19,8 +19,8 @@ export const routes: Routes = [
       { path: 'validaciones', component: Validaciones },
       { path: 'flota', loadComponent: () => import('./pages/admin/flota/flota').then(m => m.Flota) },
       { path: 'viajes', loadComponent: () => import('./pages/admin/viajes/viajes').then(m => m.Viajes) },
-      { path: 'minoristas', loadComponent: () => import('./pages/admin/gestion-minoristas/gestion-minoristas').then(m => m.GestionMinoristas), canActivate: [AuthGuard], data: { roles: ['admin_mayorista'] } },
-      { path: 'mayoristas', loadComponent: () => import('./pages/admin/gestion-mayoristas/gestion-mayoristas').then(m => m.GestionMayoristas), canActivate: [AuthGuard], data: { roles: ['admin_mayorista'] } },
+      { path: 'auditoria', loadComponent: () => import('./pages/admin/auditoria/auditoria').then(m => m.Auditoria) },
+      { path: 'minoristas', loadComponent: () => import('./pages/admin/gestion-minoristas/gestion-minoristas').then(m => m.GestionMinoristas), canActivate: [AuthGuard], data: { roles: ['admin_mayorista', 'operador_admin'] } },
     ]
   },
   {
@@ -29,11 +29,14 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     data: { roles: ['vendedor_minorista'] },
     children: [
-      { path: 'inicio', loadComponent: () => import('./pages/minorista/inicio/inicio').then(m => m.Inicio) },
+      { path: 'vender', loadComponent: () => import('./pages/minorista/inicio/inicio').then(m => m.Inicio) },
+      { path: 'inicio', redirectTo: 'vender' },
       { path: 'seleccion/:viajeId', loadComponent: () => import('./pages/minorista/seleccion/seleccion').then(m => m.Seleccion) },
       { path: 'reserva', loadComponent: () => import('./pages/minorista/reserva/reserva').then(m => m.Reserva) },
       { path: 'confirmacion', loadComponent: () => import('./pages/minorista/confirmacion/confirmacion').then(m => m.Confirmacion) },
-      { path: '', redirectTo: 'inicio', pathMatch: 'full' }
+      { path: 'mis-reservas', loadComponent: () => import('./pages/minorista/mis-reservas/mis-reservas').then(m => m.MisReservas) },
+      { path: 'perfil', loadComponent: () => import('./pages/minorista/perfil/perfil').then(m => m.Perfil) },
+      { path: '', redirectTo: 'vender', pathMatch: 'full' }
     ]
   }
 ];

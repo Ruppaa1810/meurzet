@@ -1,100 +1,140 @@
-<div style="max-width: 700px; margin: 0 auto; padding: 2rem; font-family: 'Inter', sans-serif;">
-  <h2 style="font-size: 1.5rem; font-weight: 700; color: #384752; margin-bottom: 0.5rem;">
-    Confirmar Reserva
-  </h2>
-  <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 2rem;">
-    {{ reservaState.viaje?.origen }} → {{ reservaState.viaje?.destino }} · {{ reservaState.asientos.length }} asiento{{ reservaState.asientos.length > 1 ? 's' : '' }}
-  </p>
-
-  @for (asiento of reservaState.asientos; track asiento.asientoId; let i = $index) {
-    <div style="background: white; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1.5rem;">
-      <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem; color: #384752;">
-        Pasajero {{ i + 1 }} — Asiento N° {{ asiento.nroAsiento }} · Planta {{ asiento.piso === 1 ? 'Baja' : 'Alta' }}
-      </h3>
-
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
-        <div>
-          <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.25rem;">Nombre</label>
-          <input type="text" [(ngModel)]="reservaState.pasajeros[i].nombre" style="width: 100%; padding: 0.6rem 0.75rem; border: 1.5px solid #e2e8f0; border-radius: 0.5rem; font-size: 0.9rem; box-sizing: border-box;">
-        </div>
-        <div>
-          <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.25rem;">Apellido</label>
-          <input type="text" [(ngModel)]="reservaState.pasajeros[i].apellido" style="width: 100%; padding: 0.6rem 0.75rem; border: 1.5px solid #e2e8f0; border-radius: 0.5rem; font-size: 0.9rem; box-sizing: border-box;">
-        </div>
-        <div>
-          <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.25rem;">Documento</label>
-          <input type="text" [(ngModel)]="reservaState.pasajeros[i].documento" style="width: 100%; padding: 0.6rem 0.75rem; border: 1.5px solid #e2e8f0; border-radius: 0.5rem; font-size: 0.9rem; box-sizing: border-box;">
-        </div>
-        <div>
-          <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.25rem;">Email</label>
-          <input type="email" [(ngModel)]="reservaState.pasajeros[i].email" style="width: 100%; padding: 0.6rem 0.75rem; border: 1.5px solid #e2e8f0; border-radius: 0.5rem; font-size: 0.9rem; box-sizing: border-box;">
-        </div>
-        <div style="grid-column: 1 / -1;">
-          <label style="display: block; font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.25rem;">Teléfono</label>
-          <input type="text" [(ngModel)]="reservaState.pasajeros[i].telefono" style="width: 100%; padding: 0.6rem 0.75rem; border: 1.5px solid #e2e8f0; border-radius: 0.5rem; font-size: 0.9rem; box-sizing: border-box;">
-        </div>
+<div class="min-h-screen flex flex-col bg-[#f4f4f3]">
+  
+  <!-- HEADER GRIS OSCURO CON LOGO -->
+  <div class="bg-meurzet-primary w-full shrink-0">
+    <div class="max-w-4xl mx-auto px-4 md:px-8 py-4 md:py-5">
+      <div class="flex flex-col items-center text-center">
+        <img src="/logo.jpeg" class="w-12 h-12 md:w-[60px] md:h-[60px] rounded-full object-cover bg-white mb-2 md:mb-3 shadow-md" />
+        <h2 class="text-lg md:text-xl font-bold text-white mb-1">
+          Confirmar Reserva
+        </h2>
+        <p class="text-meurzet-light text-[10px] md:text-xs">
+          {{ reservaState.viaje?.origen }} → {{ reservaState.viaje?.destino }} · {{ reservaState.asientos.length }} asiento{{ reservaState.asientos.length > 1 ? 's' : '' }}
+        </p>
       </div>
-    </div>
-  }
-
-  <div style="background: white; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1.5rem;">
-    <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: #384752;">
-      Seleccioná el monto a pagar
-    </h3>
-
-    <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem;">
-      <button (click)="reservaState.tipoPagoMode = 'total'"
-        style="flex: 1; padding: 0.6rem; border-radius: 0.75rem; font-size: 0.85rem; font-weight: 700; cursor: pointer; border: 2px solid; transition: all 0.2s;"
-        [style.border-color]="reservaState.tipoPagoMode === 'total' ? '#af4f35' : '#e2e8f0'"
-        [style.background]="reservaState.tipoPagoMode === 'total' ? '#fff5f2' : 'white'">
-        Total
-      </button>
-      <button (click)="reservaState.tipoPagoMode = 'parcial'"
-        style="flex: 1; padding: 0.6rem; border-radius: 0.75rem; font-size: 0.85rem; font-weight: 700; cursor: pointer; border: 2px solid; transition: all 0.2s;"
-        [style.border-color]="reservaState.tipoPagoMode === 'parcial' ? '#af4f35' : '#e2e8f0'"
-        [style.background]="reservaState.tipoPagoMode === 'parcial' ? '#fff5f2' : 'white'">
-        Parcial (30%)
-      </button>
-      <button (click)="reservaState.tipoPagoMode = 'personalizado'"
-        style="flex: 1; padding: 0.6rem; border-radius: 0.75rem; font-size: 0.85rem; font-weight: 700; cursor: pointer; border: 2px solid; transition: all 0.2s;"
-        [style.border-color]="reservaState.tipoPagoMode === 'personalizado' ? '#af4f35' : '#e2e8f0'"
-        [style.background]="reservaState.tipoPagoMode === 'personalizado' ? '#fff5f2' : 'white'">
-        Personalizado
-      </button>
-    </div>
-
-    @if (reservaState.tipoPagoMode === 'personalizado') {
-      <div style="margin-bottom: 1rem;">
-        <label style="font-size: 0.8rem; font-weight: 600; color: #475569; margin-bottom: 0.25rem; display: block;">
-          Ingresá el monto a pagar (mínimo ${{ formatPrecio(montoMinimo) }})
-        </label>
-        <div style="position: relative;">
-          <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); font-weight: 700; color: #64748b;">$</span>
-          <input type="number" [min]="montoMinimo" [max]="total" [(ngModel)]="reservaState.montoPersonalizado"
-            style="width: 100%; padding: 0.8rem 1rem 0.8rem 2rem; border: 1.5px solid #e2e8f0; border-radius: 0.75rem; font-size: 1.1rem; font-weight: 700; box-sizing: border-box;">
-        </div>
-        @if (reservaState.montoPersonalizado > 0 && reservaState.montoPersonalizado < montoMinimo) {
-          <p style="color: #dc2626; font-size: 0.8rem; margin-top: 0.25rem;">El monto mínimo es ${{ formatPrecio(montoMinimo) }}</p>
-        }
-      </div>
-    }
-
-    <div style="margin-top: 1rem; padding: 1rem; background: #fff5f2; border-radius: 0.75rem; text-align: center;">
-      <div style="font-size: 0.8rem; color: #64748b;">Monto a pagar ahora</div>
-      <div style="font-size: 1.5rem; font-weight: 800; color: #af4f35;">{{ formatPrecio(montoAPagar) }}</div>
-      <div style="font-size: 0.75rem; color: #94a3b8;">{{ reservaState.porcentajePago }}% del total ({{ formatPrecio(total) }})</div>
     </div>
   </div>
 
-  @if (message) {
-    <div style="margin-bottom: 1rem; padding: 0.75rem 1rem; border-radius: 0.75rem; background: #fef2f2; color: #991b1b; font-size: 0.875rem; text-align: center; border: 1px solid #fecaca;">
-      {{ message }}
-    </div>
-  }
+  <!-- CONTENIDO PRINCIPAL -->
+  <div class="flex-1 flex flex-col">
+    <div class="max-w-4xl mx-auto px-4 md:px-8 py-4 md:py-6 w-full space-y-4 md:space-y-5">
 
-  <button (click)="confirmarReserva()" [disabled]="loading"
-    style="width: 100%; padding: 1rem; border-radius: 1rem; font-weight: 700; font-size: 1.1rem; color: white; background: linear-gradient(135deg, #af4f35, #e4912e); border: none; cursor: pointer; transition: all 0.2s;"
-    [style.opacity]="loading ? '0.6' : '1'">
-    {{ loading ? 'Confirmando...' : 'Confirmar Reserva' }}
-  </button>
+      <!-- Tarjetas de pasajeros -->
+      @for (asiento of reservaState.asientos; track asiento.asientoId; let i = $index) {
+        <div class="bg-white rounded-xl md:rounded-2xl p-5 md:p-6 shadow-lg border-2 border-meurzet-accent/20 hover:border-meurzet-info hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
+          <h3 class="text-sm md:text-base font-bold text-meurzet-primary mb-3 md:mb-4">
+            Pasajero {{ i + 1 }} — Asiento N° {{ asiento.nroAsiento }} · Planta {{ asiento.piso === 1 ? 'Baja' : 'Alta' }}
+          </h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+            <div>
+              <label class="block text-[10px] md:text-xs font-semibold text-slate-600 mb-1 md:mb-1.5">Nombre</label>
+              <input type="text" [(ngModel)]="reservaState.pasajeros[i].nombre" 
+                class="w-full px-3 md:px-4 py-2 md:py-3 border-2 border-meurzet-accent/30 rounded-lg md:rounded-xl text-sm focus:outline-none focus:border-meurzet-info focus:ring-2 focus:ring-meurzet-info/20 hover:border-meurzet-info transition-all duration-200">
+            </div>
+            <div>
+              <label class="block text-[10px] md:text-xs font-semibold text-slate-600 mb-1 md:mb-1.5">Apellido</label>
+              <input type="text" [(ngModel)]="reservaState.pasajeros[i].apellido" 
+                class="w-full px-3 md:px-4 py-2 md:py-3 border-2 border-meurzet-accent/30 rounded-lg md:rounded-xl text-sm focus:outline-none focus:border-meurzet-info focus:ring-2 focus:ring-meurzet-info/20 hover:border-meurzet-info transition-all duration-200">
+            </div>
+            <div>
+              <label class="block text-[10px] md:text-xs font-semibold text-slate-600 mb-1 md:mb-1.5">Documento</label>
+              <input type="text" [(ngModel)]="reservaState.pasajeros[i].documento" 
+                class="w-full px-3 md:px-4 py-2 md:py-3 border-2 border-meurzet-accent/30 rounded-lg md:rounded-xl text-sm focus:outline-none focus:border-meurzet-info focus:ring-2 focus:ring-meurzet-info/20 hover:border-meurzet-info transition-all duration-200">
+            </div>
+            <div>
+              <label class="block text-[10px] md:text-xs font-semibold text-slate-600 mb-1 md:mb-1.5">Email</label>
+              <input type="email" [(ngModel)]="reservaState.pasajeros[i].email" 
+                class="w-full px-3 md:px-4 py-2 md:py-3 border-2 border-meurzet-accent/30 rounded-lg md:rounded-xl text-sm focus:outline-none focus:border-meurzet-info focus:ring-2 focus:ring-meurzet-info/20 hover:border-meurzet-info transition-all duration-200">
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-[10px] md:text-xs font-semibold text-slate-600 mb-1 md:mb-1.5">Teléfono</label>
+              <input type="text" [(ngModel)]="reservaState.pasajeros[i].telefono" 
+                class="w-full px-3 md:px-4 py-2 md:py-3 border-2 border-meurzet-accent/30 rounded-lg md:rounded-xl text-sm focus:outline-none focus:border-meurzet-info focus:ring-2 focus:ring-meurzet-info/20 hover:border-meurzet-info transition-all duration-200">
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Selección de monto -->
+      <div class="bg-white rounded-xl md:rounded-2xl p-5 md:p-6 shadow-lg border-2 border-meurzet-accent/20 hover:border-meurzet-info hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
+        <h3 class="text-sm md:text-base font-bold text-meurzet-primary mb-3 md:mb-4">
+          Seleccioná el monto a pagar
+        </h3>
+
+        <div class="flex flex-col sm:flex-row gap-2 md:gap-3 mb-4 md:mb-5">
+          <button (click)="reservaState.tipoPagoMode = 'total'"
+            class="flex-1 py-2 md:py-3 rounded-xl text-xs md:text-sm font-bold border-2 transition-all duration-200 cursor-pointer"
+            [class]="reservaState.tipoPagoMode === 'total' ? 'border-meurzet-accent bg-[#fff5f2] text-meurzet-accent shadow-md' : 'border-slate-200 bg-white text-slate-600 hover:border-meurzet-accent'">
+            Total
+          </button>
+          <button (click)="reservaState.tipoPagoMode = 'parcial'"
+            class="flex-1 py-2 md:py-3 rounded-xl text-xs md:text-sm font-bold border-2 transition-all duration-200 cursor-pointer"
+            [class]="reservaState.tipoPagoMode === 'parcial' ? 'border-meurzet-accent bg-[#fff5f2] text-meurzet-accent shadow-md' : 'border-slate-200 bg-white text-slate-600 hover:border-meurzet-accent'">
+            Parcial (30%)
+          </button>
+          <button (click)="reservaState.tipoPagoMode = 'personalizado'"
+            class="flex-1 py-2 md:py-3 rounded-xl text-xs md:text-sm font-bold border-2 transition-all duration-200 cursor-pointer"
+            [class]="reservaState.tipoPagoMode === 'personalizado' ? 'border-meurzet-accent bg-[#fff5f2] text-meurzet-accent shadow-md' : 'border-slate-200 bg-white text-slate-600 hover:border-meurzet-accent'">
+            Personalizado
+          </button>
+        </div>
+
+        @if (reservaState.tipoPagoMode === 'personalizado') {
+          <div class="mb-4 md:mb-5">
+            <label class="text-[10px] md:text-xs font-semibold text-slate-600 mb-1 block">
+              Ingresá el monto a pagar (mínimo {{ formatPrecio(montoMinimo) }})
+            </label>
+            <div class="relative">
+              <span class="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 font-bold text-slate-500 text-sm md:text-base">$</span>
+              <input type="number" [min]="montoMinimo" [max]="total" [(ngModel)]="reservaState.montoPersonalizado"
+                class="w-full pl-8 md:pl-10 pr-3 md:pr-4 py-2 md:py-3 border-2 border-meurzet-accent/30 rounded-lg md:rounded-xl text-sm md:text-base font-bold focus:outline-none focus:border-meurzet-info focus:ring-2 focus:ring-meurzet-info/20 hover:border-meurzet-info transition-all duration-200">
+            </div>
+            @if (reservaState.montoPersonalizado > 0 && reservaState.montoPersonalizado < montoMinimo) {
+              <p class="text-red-500 text-[10px] md:text-xs mt-1">El monto mínimo es {{ formatPrecio(montoMinimo) }}</p>
+            }
+          </div>
+        }
+
+        <!-- Resumen pago -->
+        <div class="mt-4 md:mt-5 p-4 md:p-5 bg-[#fff5f2] rounded-xl text-center border-2 border-meurzet-light">
+          <div class="text-[10px] md:text-xs text-slate-500">Monto a pagar ahora</div>
+          <div class="text-xl md:text-2xl font-extrabold text-meurzet-accent my-1">{{ formatPrecio(montoAPagar) }}</div>
+          <div class="text-[10px] md:text-xs text-slate-400">{{ reservaState.porcentajePago }}% del total ({{ formatPrecio(total) }})</div>
+        </div>
+      </div>
+
+      <!-- Mensaje de error -->
+      @if (message) {
+        <div class="px-4 md:px-5 py-2 md:py-3 rounded-xl bg-red-50 text-red-600 text-[10px] md:text-xs text-center border border-red-200">
+          {{ message }}
+        </div>
+      }
+
+    </div>
+  </div>
+
+  <!-- BOTÓN CONFIRMAR -->
+  <div class="w-full bg-transparent">
+    <div class="max-w-4xl mx-auto px-4 md:px-8 pb-6 md:pb-8">
+      <button (click)="confirmarReserva()" [disabled]="loading"
+        class="w-full py-3 md:py-4 rounded-xl font-bold text-sm md:text-base text-white 
+               bg-gradient-to-r from-meurzet-accent to-meurzet-secondary 
+               hover:from-meurzet-info hover:to-meurzet-primary
+               hover:shadow-xl transform hover:-translate-y-0.5 
+               transition-all duration-300 cursor-pointer disabled:opacity-60">
+        {{ loading ? 'Confirmando...' : 'Confirmar Reserva' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="pb-6 md:pb-8 px-4 md:px-8 max-w-4xl mx-auto w-full">
+    <button (click)="volver()" class="w-full py-2.5 rounded-xl text-sm font-semibold text-[#384752] bg-white border border-[#eec997] hover:border-[#af4f35] hover:text-[#af4f35] transition-all cursor-pointer">
+      <span class="flex items-center justify-center gap-1.5">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        Volver a selecci&oacute;n de asientos
+      </span>
+    </button>
+  </div>
+
 </div>
