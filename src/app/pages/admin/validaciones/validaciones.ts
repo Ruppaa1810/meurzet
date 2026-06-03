@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../../../services/supabase.service';
@@ -11,13 +11,35 @@ type ReservaConViaje = Reserva & { viaje?: Viaje };
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './validaciones.html',
-
 })
-export class Validaciones implements OnInit {
+export class Validaciones implements OnInit, OnDestroy {
   reservas: ReservaConViaje[] = [];
   loading = true;
   error = '';
   rol: UserRole | null = null;
+
+  // Paginación
+  currentPage = 1;
+  readonly itemsPerPage = 3;
+
+  get paginatedReservas(): ReservaConViaje[] {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    return this.reservas.slice(start, start + this.itemsPerPage);
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.reservas.length / this.itemsPerPage));
+  }
+
+  get pages(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
+  irAPagina(page: number) {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+    }
+  }
 
   // Modal de confirmación
   mostrarModal = false;
@@ -28,6 +50,10 @@ export class Validaciones implements OnInit {
 
   // Modal de comprobante
   comprobanteUrl: string | null = null;
+  comprobanteCargando = false;
+  comprobanteError = false;
+
+  private timeoutId: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
     private supabaseService: SupabaseService,
@@ -44,12 +70,20 @@ export class Validaciones implements OnInit {
     this.cargar();
   }
 
+  ngOnDestroy() {
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+      this.timeoutId = null;
+    }
+  }
+
   async cargar() {
     this.loading = true;
     this.error = '';
+    this.currentPage = 1;
     const { data, error } = await this.supabaseService.getReservasPendientes();
     if (error) {
-      this.error = 'Error al cargar reservas';
+      this.error = `Error al cargar reservas: ${error.message}`;
     } else if (data) {
       this.reservas = data;
     }
@@ -83,7 +117,12 @@ export class Validaciones implements OnInit {
 
   async ejecutarAccion() {
     const reserva = this.reservaAccion;
-    if (!this.puedeGestionar || !reserva?.asiento_viaje_id) return;
+    if (!this.puedeGestionar) return;
+    if (!reserva?.asiento_viaje_id) {
+      this.error = `La reserva #${reserva?.id} no tiene un asiento asignado`;
+      this.cerrarModal();
+      return;
+    }
 
     if (this.accion === 'rechazar' && !this.motivoRechazo.trim()) return;
 
@@ -94,17 +133,24 @@ export class Validaciones implements OnInit {
         const { error } = await this.supabaseService.aprobarReserva(reserva.id, reserva.asiento_viaje_id);
         if (error) { this.error = error.message; return; }
         this.reservas = this.reservas.filter(r => r.id !== reserva.id);
+        if (this.paginatedReservas.length === 0 && this.currentPage > 1) {
+          this.currentPage--;
+        }
       } else {
         const { error } = await this.supabaseService.rechazarReserva(reserva.id, reserva.asiento_viaje_id, this.motivoRechazo.trim());
         if (error) { this.error = error.message; return; }
         this.reservas = this.reservas.filter(r => r.id !== reserva.id);
+        if (this.paginatedReservas.length === 0 && this.currentPage > 1) {
+          this.currentPage--;
+        }
       }
 
+      const accionActual = this.accion;
       this.cerrarModal();
-      this.mostrarSuccessMensaje = this.accion === 'aprobar'
+      this.mostrarSuccessMensaje = accionActual === 'aprobar'
         ? `Reserva #${reserva.id} aprobada correctamente`
         : `Reserva #${reserva.id} rechazada`;
-      setTimeout(() => this.mostrarSuccessMensaje = '', 5000);
+      this.timeoutId = setTimeout(() => this.mostrarSuccessMensaje = '', 5000);
     } catch (e: any) {
       this.error = e?.message || 'Error inesperado';
     } finally {
@@ -115,9 +161,14 @@ export class Validaciones implements OnInit {
 
   verComprobante(url: string) {
     this.comprobanteUrl = url;
+    this.comprobanteCargando = true;
+    this.comprobanteError = false;
   }
 
   cerrarComprobante() {
     this.comprobanteUrl = null;
+    this.comprobanteCargando = false;
+    this.comprobanteError = false;
   }
+  
 }
