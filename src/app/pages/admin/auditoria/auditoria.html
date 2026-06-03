@@ -2,52 +2,73 @@
 
   <div>
     <h2 class="text-lg font-bold text-meurzet-primary m-0">
-      Auditoría de Operadores
+      Auditoría de acciones
     </h2>
     <p class="text-xs text-slate-500 mt-1 mb-0">
-      Control de actividad de operadores
+      Registro automático de bloqueos, liberaciones, aprobaciones y rechazos
     </p>
   </div>
 
   <div class="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-6">
     <div class="bg-white rounded-2xl p-5 border border-meurzet-light border-l-4 border-l-meurzet-accent">
       <div class="flex justify-between items-center">
-        <span class="text-[#475569] text-xs font-bold uppercase tracking-wider">Operadores activos</span>
+        <span class="text-[#475569] text-xs font-bold uppercase tracking-wider">Acciones totales</span>
         <span class="text-xs font-bold text-meurzet-accent bg-orange-100 px-2 py-0.5 rounded">Total</span>
       </div>
-      <div class="text-2xl font-bold mt-2 text-meurzet-accent">{{ operadoresActivos }}</div>
+      <div class="text-2xl font-bold mt-2 text-meurzet-accent">{{ totalAcciones }}</div>
     </div>
 
     <div class="bg-white rounded-2xl p-5 border border-meurzet-light border-l-4 border-l-meurzet-accent">
       <div class="flex justify-between items-center">
-        <span class="text-[#475569] text-xs font-bold uppercase tracking-wider">Ediciones a vendedores</span>
-        <span class="text-xs font-bold text-meurzet-accent bg-orange-100 px-2 py-0.5 rounded">Total</span>
+        <span class="text-[#475569] text-xs font-bold uppercase tracking-wider">Operadores activos</span>
+        <span class="text-xs font-bold text-meurzet-accent bg-orange-100 px-2 py-0.5 rounded">Únicos</span>
       </div>
-      <div class="text-2xl font-bold mt-2 text-meurzet-accent">{{ totalEdiciones }}</div>
+      <div class="text-2xl font-bold mt-2 text-meurzet-accent">{{ operadoresUnicos }}</div>
     </div>
   </div>
 
-  <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
-    <table class="w-full border-collapse text-sm">
-      <thead>
-        <tr class="bg-slate-50 border-b-2 border-slate-200">
-          <th class="p-4 text-left text-slate-500 font-semibold">Operador</th>
-          <th class="p-4 text-left text-slate-500 font-semibold">Ediciones a vendedores</th>
-          <th class="p-4 text-left text-slate-500 font-semibold">Última acción</th>
-          <th class="p-4 text-left text-slate-500 font-semibold">Auditoría</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (o of operadores; track o.nombre) {
-          <tr class="border-b border-slate-100">
-            <td class="p-4 font-semibold">{{ o.nombre }}</td>
-            <td class="p-4">{{ o.edicionesAVendedores }}</td>
-            <td class="p-4 text-slate-500 text-xs">{{ o.ultimaAccion }}</td>
-            <td class="p-4 text-sm">{{ getAuditoria(o) }}</td>
-          </tr>
-        }
-      </tbody>
-    </table>
+  <!-- Filtros -->
+  <div class="flex flex-wrap gap-2">
+    @for (f of [{ key: 'todas', label: 'Todas' }, { key: 'bloqueo', label: 'Bloqueos' }, { key: 'liberacion', label: 'Liberaciones' }, { key: 'aprobacion', label: 'Aprobaciones' }, { key: 'rechazo', label: 'Rechazos' }]; track f.key) {
+      <button (click)="aplicarFiltro(f.key)"
+        class="px-4 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer"
+        [class]="filtroAccion === f.key ? 'bg-meurzet-primary text-white border-meurzet-primary' : 'bg-white text-slate-600 border-slate-200 hover:border-meurzet-accent'">
+        {{ f.label }}
+      </button>
+    }
   </div>
+
+  @if (loading) {
+    <div class="text-center py-8 text-slate-400 text-sm">Cargando auditoría...</div>
+  } @else if (registros.length === 0) {
+    <div class="text-center py-8 text-slate-400 text-sm">Sin registros de auditoría todavía</div>
+  } @else {
+    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+      <table class="w-full border-collapse text-sm">
+        <thead>
+          <tr class="bg-slate-50 border-b-2 border-slate-200">
+            <th class="p-4 text-left text-slate-500 font-semibold">Fecha</th>
+            <th class="p-4 text-left text-slate-500 font-semibold">Operador</th>
+            <th class="p-4 text-left text-slate-500 font-semibold">Acción</th>
+            <th class="p-4 text-left text-slate-500 font-semibold">Asiento</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (r of registrosFiltrados; track r.id) {
+            <tr class="border-b border-slate-100">
+              <td class="p-4 text-slate-500 text-xs">{{ formatFecha(r.fecha) }}</td>
+              <td class="p-4 font-semibold">{{ r.perfil?.nombre || r.vendedor_id?.slice(0, 8) || '-' }}</td>
+              <td class="p-4">
+                <span class="inline-block px-2 py-0.5 rounded text-xs font-bold {{ accionClass(r.accion) }}">
+                  {{ accionLabel(r.accion) }}
+                </span>
+              </td>
+              <td class="p-4 text-slate-500 text-xs font-mono">#{{ r.asiento_viaje_id }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
 
 </div>

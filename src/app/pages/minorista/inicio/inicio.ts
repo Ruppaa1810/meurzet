@@ -1,9 +1,9 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 
-import { SupabaseService } from '../../../services/supabase.service';
+import { ViajeService } from '../../../services/viaje.service';
 import type { Viaje } from '../../../models/database.types';
 
 @Component({
@@ -11,6 +11,7 @@ import type { Viaje } from '../../../models/database.types';
   standalone: true,
   imports: [FormsModule, RouterLink],
   templateUrl: './inicio.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Inicio implements OnInit {
   todosViajes: Viaje[] = [];
@@ -23,19 +24,18 @@ export class Inicio implements OnInit {
   filtroHorario = 'todos';
 
   constructor(
-    private supabaseService: SupabaseService,
+    private viajeService: ViajeService,
     private cdr: ChangeDetectorRef,
   ) {}
 
   async ngOnInit() {
     try {
-      const { data, error } = await this.supabaseService.getViajes();
+      const { data, error } = await this.viajeService.getViajes();
       if (!error && data) {
         this.todosViajes = data;
         this.viajesFiltrados = data;
       }
-    } catch (e: any) {
-      console.error('Error al cargar inicio:', e?.message);
+    } catch {
     }
     this.loading = false;
     this.cdr.detectChanges();
@@ -73,5 +73,13 @@ export class Inicio implements OnInit {
 
   formatPrecio(precio: number): string {
     return `$ ${precio.toLocaleString('es-AR')}`;
+  }
+
+  servicioLabel(viaje: Viaje): string {
+    return 'Cama Ejecutivo';
+  }
+
+  asientosLabel(viaje: Viaje): string {
+    return 'Consultar';
   }
 }

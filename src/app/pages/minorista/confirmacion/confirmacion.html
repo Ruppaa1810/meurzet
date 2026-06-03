@@ -24,11 +24,12 @@
         <div class="flex flex-col gap-2 md:flex-row md:justify-between md:items-center">
           <div>
             <span class="text-[10px] md:text-xs text-slate-400 uppercase tracking-wide">Código de reserva</span>
-            <p class="font-mono font-bold text-xl md:text-2xl text-meurzet-primary">MEU-000001</p>
+            <p class="font-mono font-bold text-xl md:text-2xl text-meurzet-primary">{{ codigoReserva }}</p>
           </div>
-          <div class="bg-[#fff5f2] rounded-lg px-3 py-1 border border-meurzet-light text-[10px] md:text-xs font-bold text-meurzet-accent inline-flex items-center justify-center">
-            Pendiente de pago
-          </div>
+          <span class="px-2 py-1 rounded-full text-[10px] md:text-xs font-semibold inline-flex items-center gap-1 border {{ estadoFinancieroClass }}">
+            <span class="w-1.5 h-1.5 rounded-full {{ estadoFinancieroDot }}"></span>
+            {{ estadoFinancieroLabel }}
+          </span>
         </div>
       </div>
 
@@ -134,17 +135,57 @@
             }
           </div>
         } @else {
-          <div class="bg-green-50 rounded-xl p-4 md:p-5 border border-green-300 text-center hover:border-meurzet-info transition-all">
+          <div class="bg-green-50 rounded-xl p-4 md:p-5 border-2 border-green-300 text-center hover:border-meurzet-info transition-all animate-pulse">
             <p class="text-green-600 font-semibold text-[11px] md:text-sm flex items-center justify-center gap-1">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
               </svg>
-              Comprobante subido — pendiente validación
+              ¡Comprobante subido correctamente!
             </p>
+            <p class="text-green-500 text-[10px] mt-1">Pendiente de validación por el administrador</p>
           </div>
         }
 
       </div>
+
+      @if (comprobanteSubido) {
+      <div class="bg-white rounded-xl p-4 md:p-5 border-2 border-meurzet-accent/30 hover:border-meurzet-info transition-all">
+        <h3 class="text-sm md:text-base font-bold text-meurzet-primary mb-2">Comprobante digital</h3>
+        <p class="text-[10px] md:text-xs text-slate-500 mb-3">Descargá o imprimí el comprobante de tu reserva</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <button (click)="descargarComprobante()"
+            class="py-2.5 rounded-xl font-bold text-xs border-2 border-meurzet-accent text-meurzet-accent
+                   hover:bg-meurzet-accent hover:text-white
+                   transition-all duration-300 cursor-pointer">
+            📄 Descargar comprobante
+          </button>
+          <button (click)="imprimirComprobante()"
+            class="py-2.5 rounded-xl font-bold text-xs border-2 border-meurzet-info text-meurzet-info
+                   hover:bg-meurzet-info hover:text-white
+                   transition-all duration-300 cursor-pointer">
+            🖨️ Imprimir / PDF
+          </button>
+        </div>
+      </div>
+      }
+
+      <!-- COMPROBANTE DIGITAL (antes de subir) -->
+      @if (!comprobanteSubido) {
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <button (click)="descargarComprobante()"
+          class="py-2.5 rounded-xl font-bold text-xs border-2 border-meurzet-accent/50 text-meurzet-accent
+                 hover:bg-meurzet-accent hover:text-white
+                 transition-all duration-300 cursor-pointer">
+          📄 Descargar comprobante
+        </button>
+        <button (click)="imprimirComprobante()"
+          class="py-2.5 rounded-xl font-bold text-xs border-2 border-meurzet-info/50 text-meurzet-info
+                 hover:bg-meurzet-info hover:text-white
+                 transition-all duration-300 cursor-pointer">
+          🖨️ Imprimir / PDF
+        </button>
+      </div>
+      }
 
       <!-- BOTÓN VOLVER -->
       <button routerLink="/minorista/vender" 
@@ -164,3 +205,55 @@
     </div>
   </div>
 </div>
+
+<!-- MODAL PREVIEW COMPROBANTE -->
+@if (mostrarPreview) {
+<div class="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000] p-4" (click)="cerrarPreview()">
+  <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-auto shadow-2xl border-2 border-meurzet-light" (click)="$event.stopPropagation()">
+    <div class="sticky top-0 bg-white flex justify-between items-center p-4 border-b border-meurzet-light">
+      <h3 class="font-bold text-sm text-meurzet-primary">Comprobante {{ codigoReserva }}</h3>
+      <button (click)="cerrarPreview()" class="text-slate-400 hover:text-slate-600 text-xl leading-none cursor-pointer">&times;</button>
+    </div>
+    <div class="p-6 text-xs space-y-4">
+      <div class="text-center border-b border-meurzet-light pb-4">
+        <h2 class="text-lg font-bold text-meurzet-accent">Meurzet Viajes</h2>
+        <p class="text-slate-400 text-[10px]">Comprobante de reserva</p>
+        <p class="text-2xl font-bold text-meurzet-primary font-mono mt-2">{{ codigoReserva }}</p>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><span class="text-slate-400">Origen:</span> <span class="font-medium">{{ reservaState.viaje?.origen }}</span></div>
+        <div><span class="text-slate-400">Destino:</span> <span class="font-medium">{{ reservaState.viaje?.destino }}</span></div>
+        <div><span class="text-slate-400">Salida:</span> <span class="font-medium">{{ reservaState.viaje?.fecha_salida | date:'dd/MM/yyyy HH:mm' }} hs</span></div>
+        <div><span class="text-slate-400">Llegada:</span> <span class="font-medium">{{ reservaState.viaje?.fecha_llegada | date:'HH:mm' }} hs</span></div>
+        <div><span class="text-slate-400">Tipo de pago:</span> <span class="font-medium">{{ pagoLabel }}</span></div>
+        <div><span class="text-slate-400">Total:</span> <span class="font-bold text-meurzet-accent">{{ formatPrecio(total) }}</span></div>
+      </div>
+      <table class="w-full border-collapse">
+        <thead><tr class="bg-slate-50 border-b border-meurzet-light">
+          <th class="p-2 text-left text-slate-400 font-semibold text-[10px]">Asiento</th>
+          <th class="p-2 text-left text-slate-400 font-semibold text-[10px]">Pasajero</th>
+          <th class="p-2 text-left text-slate-400 font-semibold text-[10px]">Documento</th>
+          <th class="p-2 text-left text-slate-400 font-semibold text-[10px]">Piso</th>
+        </tr></thead>
+        <tbody>
+          @for (a of reservaState.asientos; track a.asientoId; let i = $index) {
+          <tr class="border-b border-meurzet-light/50">
+            <td class="p-2 font-mono font-bold">#{{ a.nroAsiento }}</td>
+            <td class="p-2">{{ reservaState.pasajeros[i]?.nombre }} {{ reservaState.pasajeros[i]?.apellido }}</td>
+            <td class="p-2 text-slate-500">{{ reservaState.pasajeros[i]?.documento }}</td>
+            <td class="p-2 text-slate-500">{{ a.piso === 1 ? 'Baja' : 'Alta' }}</td>
+          </tr>
+          }
+        </tbody>
+      </table>
+      <div class="text-right pt-2 border-t border-meurzet-light">
+        <span class="text-slate-400 text-[10px]">Emitido: {{ fechaActual }}</span>
+      </div>
+    </div>
+    <div class="sticky bottom-0 bg-white p-4 border-t border-meurzet-light flex gap-3 justify-end">
+      <button (click)="imprimirComprobante()" class="px-4 py-2 rounded-xl text-xs font-bold bg-meurzet-info text-white hover:bg-meurzet-primary transition-all cursor-pointer">Imprimir</button>
+      <button (click)="descargarComprobante()" class="px-4 py-2 rounded-xl text-xs font-bold bg-meurzet-accent text-white hover:bg-meurzet-secondary transition-all cursor-pointer">Descargar</button>
+    </div>
+  </div>
+</div>
+}

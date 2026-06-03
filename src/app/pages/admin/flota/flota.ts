@@ -1,13 +1,15 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { SupabaseService } from '../../../services/supabase.service';
+import { PerfilService } from '../../../services/perfil.service';
+import { UnidadService } from '../../../services/unidad.service';
 import type { Unidad, UserRole } from '../../../models/database.types';
 
 @Component({
-  selector: 'app-flota',
+  selector: 'app-admin-flota',
   standalone: true,
   imports: [FormsModule],
   templateUrl: './flota.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Flota implements OnInit {
   unidades: Unidad[] = [];
@@ -69,7 +71,8 @@ export class Flota implements OnInit {
   form = { patente: '', empresa: '', pisos: 1 as 1 | 2, asientos_totales: 0 };
 
   constructor(
-    private supabaseService: SupabaseService,
+    private perfilService: PerfilService,
+    private unidadService: UnidadService,
     private cdr: ChangeDetectorRef,
   ) { }
 
@@ -79,7 +82,7 @@ export class Flota implements OnInit {
 
   async ngOnInit() {
     try {
-      const { data } = await this.supabaseService.getCurrentProfile();
+      const { data } = await this.perfilService.getCurrentProfile();
       if (data) this.rol = data.rol;
     } catch {
     }
@@ -90,7 +93,7 @@ export class Flota implements OnInit {
     this.loading = true;
     this.mensaje = '';
     try {
-      const { data, error } = await this.supabaseService.getUnidades();
+      const { data, error } = await this.unidadService.getUnidades();
       if (error) { this.mensaje = error.message; } else { this.unidades = data ?? []; }
     } catch (e: any) {
       this.mensaje = e?.message || 'Error al cargar unidades';
@@ -137,10 +140,10 @@ export class Flota implements OnInit {
       };
 
       if (this.editando && this.editandoId != null) {
-        const { error } = await this.supabaseService.updateUnidad(this.editandoId, payload);
+        const { error } = await this.unidadService.updateUnidad(this.editandoId, payload);
         if (error) { this.mensaje = error.message; return; }
       } else {
-        const { error } = await this.supabaseService.createUnidad(payload);
+        const { error } = await this.unidadService.createUnidad(payload);
         if (error) { this.mensaje = error.message; return; }
       }
 
@@ -174,7 +177,7 @@ export class Flota implements OnInit {
     this.mensaje = '';
 
     try {
-      const { error } = await this.supabaseService.deleteUnidad(this.eliminarId);
+      const { error } = await this.unidadService.deleteUnidad(this.eliminarId);
       if (error) { this.mensaje = error.message; this.cerrarModalEliminar(); return; }
       this.cerrarModalEliminar();
       await this.cargar();

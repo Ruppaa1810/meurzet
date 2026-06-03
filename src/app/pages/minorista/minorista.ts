@@ -1,7 +1,8 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
-import { SupabaseService } from '../../services/supabase.service';
+import { PerfilService } from '../../services/perfil.service';
+import { AuthService } from '../../services/auth.service';
 import type { Perfil } from '../../models/database.types';
 
 @Component({
@@ -9,6 +10,7 @@ import type { Perfil } from '../../models/database.types';
   standalone: true,
   imports: [RouterOutlet, RouterLink, RouterLinkActive],
   templateUrl: './minorista.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Minorista implements OnInit, OnDestroy {
   perfil: Perfil | null = null;
@@ -18,7 +20,8 @@ export class Minorista implements OnInit, OnDestroy {
   private resizeListener!: () => void;
 
   constructor(
-    private supabaseService: SupabaseService,
+    private perfilService: PerfilService,
+    private authService: AuthService,
     private router: Router,
     private cdr: ChangeDetectorRef,
   ) {}
@@ -27,7 +30,7 @@ export class Minorista implements OnInit, OnDestroy {
     this.resizeListener = this.onResize.bind(this);
     window.addEventListener('resize', this.resizeListener);
 
-    const { data } = await this.supabaseService.getCurrentProfile();
+    const { data } = await this.perfilService.getCurrentProfile();
     this.perfil = data;
     this.cdr.detectChanges();
   }
@@ -80,7 +83,7 @@ export class Minorista implements OnInit, OnDestroy {
   }
 
   async logout() {
-    await this.supabaseService.signOut();
+    await this.authService.signOut();
     this.router.navigate(['/'], { replaceUrl: true });
   }
 }

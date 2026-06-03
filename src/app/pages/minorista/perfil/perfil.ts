@@ -1,7 +1,8 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { SupabaseService } from '../../../services/supabase.service';
+import { PerfilService } from '../../../services/perfil.service';
+import { AuthService } from '../../../services/auth.service';
 import type { Perfil as PerfilType } from '../../../models/database.types';
 
 @Component({
@@ -9,6 +10,7 @@ import type { Perfil as PerfilType } from '../../../models/database.types';
   standalone: true,
   imports: [FormsModule],
   templateUrl: './perfil.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Perfil implements OnInit {
   perfil: PerfilType | null = null;
@@ -24,20 +26,20 @@ export class Perfil implements OnInit {
   newPasswordConfirm = '';
 
   constructor(
-    private supabaseService: SupabaseService,
+    private perfilService: PerfilService,
+    private authService: AuthService,
     private cdr: ChangeDetectorRef,
   ) {}
 
   async ngOnInit() {
     try {
-      const { data } = await this.supabaseService.getCurrentProfile();
+      const { data } = await this.perfilService.getCurrentProfile();
       this.perfil = data;
       if (data) {
         this.editNombre = data.nombre;
         this.editAgencia = data.agencia_nombre || '';
       }
-    } catch (e: any) {
-      console.error('Error al cargar perfil:', e?.message);
+    } catch {
     }
     this.loading = false;
     this.cdr.detectChanges();
@@ -48,7 +50,7 @@ export class Perfil implements OnInit {
     this.savingProfile = true;
     this.profileMessage = '';
     try {
-      const { error } = await this.supabaseService.actualizarPerfil(this.perfil.id, {
+      const { error } = await this.perfilService.actualizarPerfil(this.perfil.id, {
         nombre: this.editNombre.trim(),
         agencia_nombre: this.editAgencia.trim() || null,
       });
@@ -81,7 +83,7 @@ export class Perfil implements OnInit {
     this.savingPassword = true;
     this.passwordMessage = '';
     try {
-      const { error } = await this.supabaseService.supabase.auth.updateUser({ password: this.newPassword });
+      const { error } = await this.authService.updatePassword(this.newPassword);
       if (error) {
         this.passwordMessage = error.message.includes('different')
           ? 'La contraseña debe ser distinta a la anterior'

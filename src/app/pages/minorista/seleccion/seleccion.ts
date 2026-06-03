@@ -1,8 +1,11 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { SupabaseService } from '../../../services/supabase.service';
+import { supabase } from '../../../services/supabase-client';
+import { AuthService } from '../../../services/auth.service';
+import { ViajeService } from '../../../services/viaje.service';
+import { AsientoService } from '../../../services/asiento.service';
 import { ReservaStateService } from '../../../services/reserva-state.service';
 import type { Viaje, MapaAsientoViaje } from '../../../models/database.types';
 
@@ -16,6 +19,7 @@ interface SeatView extends MapaAsientoViaje {
   imports: [DatePipe],
   templateUrl: './seleccion.html',
   styleUrl: './seleccion.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Seleccion implements OnInit, OnDestroy {
   viaje: Viaje | null = null;
@@ -24,36 +28,37 @@ export class Seleccion implements OnInit, OnDestroy {
   bloqueando = false;
   private userId: string | null = null;
   private viajeId: number = 0;
-  private realtimeChannel: ReturnType<SupabaseService['supabase']['channel']> | null = null;
+  private realtimeChannel: ReturnType<typeof supabase.channel> | null = null;
   private pollingInterval: ReturnType<typeof setInterval> | null = null;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private supabaseService: SupabaseService,
+    private authService: AuthService,
+    private viajeService: ViajeService,
+    private asientoService: AsientoService,
     private reservaState: ReservaStateService,
     private cdr: ChangeDetectorRef,
   ) {}
 
   async ngOnInit() {
     try {
-      const session = await this.supabaseService.supabase.auth.getSession();
+      const session = await this.authService.getSession();
       this.userId = session.data.session?.user?.id ?? null;
 
       this.viajeId = Number(this.route.snapshot.paramMap.get('viajeId'));
       if (!this.viajeId) return;
 
       const [viajeRes, asientosRes] = await Promise.all([
-        this.supabaseService.getViajePorId(this.viajeId),
-        this.supabaseService.getAsientosPorViaje(this.viajeId),
+        this.viajeService.getViajePorId(this.viajeId),
+        this.asientoService.getAsientosPorViaje(this.viajeId),
       ]);
 
       if (viajeRes.data) this.viaje = viajeRes.data;
       if (asientosRes.data) {
         this.asientos = asientosRes.data.map(a => ({ ...a, selected: false }));
       }
-    } catch (e: any) {
-      console.error('Error al cargar selección:', e?.message);
+    } catch {
     }
     this.loading = false;
     this.cdr.detectChanges();
@@ -63,7 +68,7 @@ export class Seleccion implements OnInit, OnDestroy {
   }
 
   private initRealtime() {
-    this.realtimeChannel = this.supabaseService.supabase
+    this.realtimeChannel = supabase
       .channel(`seats-viaje-${this.viajeId}`)
       .on('postgres_changes',
         {
@@ -74,16 +79,12 @@ export class Seleccion implements OnInit, OnDestroy {
         },
         () => { this.cargarAsientos(); }
       )
-      .subscribe((status) => {
-        if (status === 'CHANNEL_ERROR') {
-          console.warn('Realtime error, usando polling como fallback');
-        }
-      });
+      .subscribe();
   }
 
   ngOnDestroy() {
     if (this.realtimeChannel) {
-      this.supabaseService.supabase.removeChannel(this.realtimeChannel);
+      supabase.removeChannel(this.realtimeChannel);
     }
     if (this.pollingInterval) {
       clearInterval(this.pollingInterval);
@@ -141,32 +142,24 @@ export class Seleccion implements OnInit, OnDestroy {
   }
 
   async toggleSeat(seatId: number) {
-    console.log('toggleSeat llamado con id:', seatId);
-    if (this.bloqueando) { console.log('bloqueando, return'); return; }
+    if (this.bloqueando) return;
 
     const asiento = this.getSeat(seatId);
-    console.log('asiento:', asiento);
-    if (!asiento || !this.canToggle(asiento)) { console.log('no puede togglear, return'); return; }
+    if (!asiento || !this.canToggle(asiento)) return;
 
     this.bloqueando = true;
 
     try {
       if (asiento.estado === 'bloqueado' && asiento.vendedor_bloqueo_id === this.userId) {
-        console.log('liberando asiento');
-        await this.supabaseService.liberarAsiento(asiento.viaje_id!, asiento.nro_asiento);
+        await this.asientoService.liberarAsiento(asiento.viaje_id!, asiento.nro_asiento);
         this.patchSeat(seatId, { estado: 'libre', vendedor_bloqueo_id: null, bloqueado_hasta: null, selected: false });
       } else if (asiento.estado === 'libre') {
-        console.log('bloqueando asiento, userId:', this.userId);
-        if (!this.userId) { console.log('sin userId, return'); return; }
-        await this.supabaseService.bloquearAsiento(asiento.viaje_id!, asiento.nro_asiento, this.userId);
-        console.log('bloqueo exitoso, patchSeat antes');
+        if (!this.userId) return;
+        await this.asientoService.bloquearAsiento(asiento.viaje_id!, asiento.nro_asiento, this.userId);
         this.patchSeat(seatId, { estado: 'bloqueado', vendedor_bloqueo_id: this.userId, selected: true });
-        console.log('patchSeat despues, estado ahora:', this.getSeat(seatId)?.estado);
         this.cdr.detectChanges();
-        console.log('detectChanges ok');
       }
-    } catch (e) {
-      console.error('toggleSeat error:', e);
+    } catch {
       await this.cargarAsientos();
     } finally {
       this.bloqueando = false;
@@ -177,7 +170,7 @@ export class Seleccion implements OnInit, OnDestroy {
   private async cargarAsientos() {
     if (!this.viaje) return;
     try {
-      const { data } = await this.supabaseService.getAsientosPorViaje(this.viaje.id);
+      const { data } = await this.asientoService.getAsientosPorViaje(this.viaje.id);
       if (!data) return;
 
       const prevSelected = new Map(this.selectedList.map(a => [a.id, a]));
@@ -190,8 +183,7 @@ export class Seleccion implements OnInit, OnDestroy {
         };
       });
 
-    } catch (e) {
-      console.error('Error al refrescar asientos:', e);
+    } catch {
     } finally {
       this.cdr.detectChanges();
     }
@@ -224,7 +216,7 @@ export class Seleccion implements OnInit, OnDestroy {
   async volver() {
     const misBloqueados = this.asientos.filter(a => a.estado === 'bloqueado' && a.vendedor_bloqueo_id === this.userId);
     await Promise.allSettled(
-      misBloqueados.map(a => this.supabaseService.liberarAsiento(a.viaje_id!, a.nro_asiento))
+      misBloqueados.map(a => this.asientoService.liberarAsiento(a.viaje_id!, a.nro_asiento))
     );
     this.router.navigate(['/minorista/vender']);
   }

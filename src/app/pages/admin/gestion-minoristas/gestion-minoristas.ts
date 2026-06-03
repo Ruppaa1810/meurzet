@@ -1,7 +1,8 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SupabaseService } from '../../../services/supabase.service';
+import { PerfilService } from '../../../services/perfil.service';
+import { ReservaService } from '../../../services/reserva.service';
 import type { Perfil, UserRole } from '../../../models/database.types';
 
 interface VendedorConReservas extends Perfil {
@@ -16,6 +17,7 @@ interface VendedorConReservas extends Perfil {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './gestion-minoristas.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GestionMinoristas implements OnInit, OnDestroy {
   vendedores: VendedorConReservas[] = [];
@@ -39,7 +41,8 @@ export class GestionMinoristas implements OnInit, OnDestroy {
   expandedId: string | null = null;
 
   constructor(
-    private supabaseService: SupabaseService,
+    private perfilService: PerfilService,
+    private reservaService: ReservaService,
     private cdr: ChangeDetectorRef,
   ) {}
 
@@ -84,7 +87,7 @@ export class GestionMinoristas implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    const { data } = await this.supabaseService.getCurrentProfile();
+    const { data } = await this.perfilService.getCurrentProfile();
     if (data) {
       this.rol = data.rol;
       this.userId = data.id;
@@ -105,7 +108,7 @@ export class GestionMinoristas implements OnInit, OnDestroy {
     this.mensaje = '';
     this.successMensaje = '';
 
-    const { data: perfiles, error } = await this.supabaseService.getVendedoresMinoristas();
+    const { data: perfiles, error } = await this.perfilService.getVendedoresMinoristas();
     if (error) { this.mensaje = error.message; this.loading = false; return; }
 
     const vendedores: VendedorConReservas[] = (perfiles ?? []).map(p => ({
@@ -117,7 +120,7 @@ export class GestionMinoristas implements OnInit, OnDestroy {
     }));
 
     for (const v of vendedores) {
-      const { data: reservas } = await this.supabaseService.getReservasPorVendedor(v.id);
+      const { data: reservas } = await this.reservaService.getReservasPorVendedor(v.id);
       if (reservas) {
         v.totalReservas = reservas.length;
         v.pendientes = reservas.filter(r => r.estado === 'pendiente_comprobante' || r.estado === 'pendiente_validacion').length;
@@ -134,7 +137,7 @@ export class GestionMinoristas implements OnInit, OnDestroy {
   async toggleActivo(v: VendedorConReservas) {
     if (!this.puedeGestionar) return;
     const nuevoEstado = !v.activo;
-    const { error } = await this.supabaseService.togglePerfilActivo(v.id, nuevoEstado);
+    const { error } = await this.perfilService.togglePerfilActivo(v.id, nuevoEstado);
     if (error) { this.mensaje = error.message; return; }
     v.activo = nuevoEstado;
   }
@@ -191,7 +194,7 @@ export class GestionMinoristas implements OnInit, OnDestroy {
     try {
       if (esEdicion) {
         if (this.formEmail.trim() || this.formPassword.trim()) {
-          const { error: authErr } = await this.supabaseService.actualizarAuthUser(
+          const { error: authErr } = await this.perfilService.actualizarAuthUser(
             this.editando!.id,
             {
               email: this.formEmail.trim() || undefined,
@@ -206,14 +209,14 @@ export class GestionMinoristas implements OnInit, OnDestroy {
         if (this.formRol !== 'operador_admin') {
           updateData.agencia_nombre = this.formAgencia.trim() || null;
         }
-        const { error } = await this.supabaseService.actualizarPerfil(this.editando!.id, updateData);
+        const { error } = await this.perfilService.actualizarPerfil(this.editando!.id, updateData);
         if (error) { this.mensaje = error.message; return; }
       } else {
         if (!this.formEmail.trim() || !this.formPassword.trim()) {
           this.mensaje = 'Email y contraseña son obligatorios';
           return;
         }
-        const { error } = await this.supabaseService.crearVendedorMinorista(
+        const { error } = await this.perfilService.crearVendedorMinorista(
           this.formEmail.trim(),
           this.formPassword,
           this.formNombre.trim(),

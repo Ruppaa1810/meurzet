@@ -1,23 +1,33 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
-import { SupabaseService } from '../../../services/supabase.service';
+import { supabase } from '../../../services/supabase-client';
+import { AuthService } from '../../../services/auth.service';
+import { StorageService } from '../../../services/storage.service';
+import { ReservaService } from '../../../services/reserva.service';
 import { ReservaStateService } from '../../../services/reserva-state.service';
+import { ComprobanteService, DatosComprobante } from '../../../services/comprobante.service';
+import { estadoFinancieroLabel, estadoFinancieroClass, estadoFinancieroDot, derivarEstadoFinanciero } from '../../../utils/estado-financiero';
 
 @Component({
   selector: 'app-confirmacion',
   standalone: true,
   imports: [DatePipe, RouterLink],
   templateUrl: './confirmacion.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Confirmacion implements OnInit {
   subiendo = false;
   comprobanteSubido = false;
   mensaje = '';
+  mostrarPreview = false;
 
   constructor(
     public reservaState: ReservaStateService,
-    private supabaseService: SupabaseService,
+    private authService: AuthService,
+    private storageService: StorageService,
+    private reservaService: ReservaService,
+    private comprobanteService: ComprobanteService,
     private router: Router,
     private cdr: ChangeDetectorRef,
   ) {}
@@ -26,6 +36,31 @@ export class Confirmacion implements OnInit {
     if (!this.reservaState.viaje || this.reservaState.asientos.length === 0) {
       this.router.navigate(['/minorista/vender'], { replaceUrl: true });
     }
+  }
+
+  get fechaActual(): string {
+    return new Date().toLocaleString('es-AR');
+  }
+
+  get estadoFinanciero() {
+    return derivarEstadoFinanciero('pendiente_comprobante', this.reservaState.tipoPagoMode === 'total' ? 'total' : 'parcial');
+  }
+
+  get estadoFinancieroLabel() {
+    return estadoFinancieroLabel(this.estadoFinanciero);
+  }
+
+  get estadoFinancieroClass() {
+    return estadoFinancieroClass(this.estadoFinanciero);
+  }
+
+  get estadoFinancieroDot() {
+    return estadoFinancieroDot(this.estadoFinanciero);
+  }
+
+  get codigoReserva(): string {
+    const id = this.reservaState.reservaIds[0];
+    return id ? `MEU-${String(id).padStart(6, '0')}` : '---';
   }
 
   get total(): number {
@@ -51,6 +86,27 @@ export class Confirmacion implements OnInit {
     return piso === 1 ? 'Baja' : 'Alta';
   }
 
+  get datosComprobante(): DatosComprobante {
+    return {
+      codigo: this.codigoReserva,
+      viaje: this.reservaState.viaje!,
+      asientos: this.reservaState.asientos,
+      pasajeros: this.reservaState.pasajeros,
+      total: this.total,
+      montoPagado: this.reservaState.montoPagado,
+      pagoLabel: this.pagoLabel,
+      fecha: new Date().toLocaleString('es-AR'),
+    };
+  }
+
+  descargarComprobante() {
+    this.comprobanteService.descargar(this.datosComprobante);
+  }
+
+  imprimirComprobante() {
+    this.comprobanteService.abrirParaImprimir(this.datosComprobante);
+  }
+
   async subirComprobante(event: Event, fileInput?: HTMLInputElement) {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -62,7 +118,7 @@ export class Confirmacion implements OnInit {
     this.cdr.detectChanges();
 
     try {
-      const userId = (await this.supabaseService.supabase.auth.getSession()).data.session?.user?.id;
+      const userId = (await this.authService.getSession()).data.session?.user?.id;
       if (!userId) {
         this.mensaje = 'Sesión expirada';
         return;
@@ -70,24 +126,19 @@ export class Confirmacion implements OnInit {
 
       const basePath = `${userId}/${Date.now()}_${file.name}`;
 
-      const { error: uploadError } = await this.supabaseService.subirComprobante(basePath, file);
+      const { error: uploadError } = await this.storageService.subirComprobante(basePath, file);
       if (uploadError) {
         this.mensaje = 'Error al subir el comprobante: ' + uploadError.message;
         return;
       }
 
-      const { data: signedUrl, error: signedError } = await this.supabaseService.supabase.storage
-        .from('comprobantes')
-        .createSignedUrl(basePath, 60 * 60 * 24 * 365);
+      const { data: signedUrl, error: signedError } = await this.storageService.getComprobanteUrl(basePath);
       if (signedError || !signedUrl?.signedUrl) {
         this.mensaje = 'Error al generar enlace del comprobante';
         return;
       }
 
-      const { error: updateError } = await this.supabaseService.supabase
-        .from('reservas')
-        .update({ comprobante_url: signedUrl.signedUrl, estado: 'pendiente_validacion' })
-        .in('id', this.reservaState.reservaIds);
+      const { error: updateError } = await this.reservaService.actualizarComprobante(this.reservaState.reservaIds, signedUrl.signedUrl);
       if (updateError) {
         this.mensaje = 'Error al actualizar reserva: ' + updateError.message;
         return;
@@ -95,6 +146,8 @@ export class Confirmacion implements OnInit {
 
       this.comprobanteSubido = true;
       this.mensaje = '';
+      this.cdr.detectChanges();
+      setTimeout(() => { this.mostrarPreview = true; this.cdr.detectChanges(); }, 500);
     } catch (e: any) {
       this.mensaje = e?.message || 'Error inesperado al subir el comprobante';
     } finally {
@@ -102,5 +155,10 @@ export class Confirmacion implements OnInit {
       if (fileInput) fileInput.value = '';
       this.cdr.detectChanges();
     }
+  }
+
+  cerrarPreview() {
+    this.mostrarPreview = false;
+    this.cdr.detectChanges();
   }
 }

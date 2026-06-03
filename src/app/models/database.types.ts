@@ -6,6 +6,9 @@ export type EstadoAsiento = 'libre' | 'bloqueado' | 'confirmado';
 export type CategoriaAsiento = 'semicama' | 'cama_ejecutivo' | 'cama_suite';
 export type EstadoValidacion = 'pendiente_comprobante' | 'pendiente_validacion' | 'aprobado' | 'rechazado';
 export type TipoPago = 'parcial' | 'total';
+export type EstadoFinanciero = 'pendiente' | 'pagado_parcial' | 'pagado_total' | 'reembolso_pendiente' | 'reembolsado';
+export type MetodoPago = 'efectivo' | 'transferencia' | 'mercadopago' | 'otro';
+export type EstadoPagoMovimiento = 'pendiente' | 'confirmado' | 'rechazado' | 'reembolsado';
 
 // =============================================================================
 // INTERFACES DE TABLAS (Coinciden 1:1 con el esquema de Supabase)
@@ -62,7 +65,19 @@ export interface Reserva {
   comprobante_url: string | null;
   tipo_pago: TipoPago | null;
   estado: EstadoValidacion | null;
+  estado_financiero?: EstadoFinanciero | null;
+  monto_pagado?: number | null;
   motivo_rechazo: string | null;
+  created_at: string;
+}
+
+export interface PagoMovimiento {
+  id: number;
+  reserva_id: number;
+  monto: number;
+  metodo_pago: MetodoPago;
+  referencia: string | null;
+  estado_pago: EstadoPagoMovimiento;
   created_at: string;
 }
 

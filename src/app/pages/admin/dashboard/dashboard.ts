@@ -1,14 +1,17 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
-import { SupabaseService } from '../../../services/supabase.service';
+import { ViajeService } from '../../../services/viaje.service';
+import { ReservaService } from '../../../services/reserva.service';
+import { UnidadService } from '../../../services/unidad.service';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './dashboard.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminDashboard implements OnInit {
   viajesActivos = 0;
@@ -19,7 +22,9 @@ export class AdminDashboard implements OnInit {
   loading = true;
 
   constructor(
-    private supabaseService: SupabaseService,
+    private viajeService: ViajeService,
+    private reservaService: ReservaService,
+    private unidadService: UnidadService,
     private router: Router,
     private cdr: ChangeDetectorRef,
   ) {}
@@ -27,11 +32,11 @@ export class AdminDashboard implements OnInit {
   async ngOnInit() {
     try {
       const [viajesRes, unidadesRes, confirmadasRes, bloqueadosRes, actividadRes] = await Promise.all([
-        this.supabaseService.getViajes(),
-        this.supabaseService.getUnidadesCount(),
-        this.supabaseService.getReservasConfirmadasHoy(),
-        this.supabaseService.getBloqueadosPorVendedor(),
-        this.supabaseService.getActividadReciente(),
+        this.viajeService.getViajes(),
+        this.unidadService.getUnidadesCount(),
+        this.reservaService.getReservasConfirmadasHoy(),
+        this.unidadService.getBloqueadosPorVendedor(),
+        this.reservaService.getActividadReciente(),
       ]);
 
       if (viajesRes.data) this.viajesActivos = viajesRes.data.length;

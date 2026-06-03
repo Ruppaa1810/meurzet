@@ -1,7 +1,8 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SupabaseService } from '../../../services/supabase.service';
+import { PerfilService } from '../../../services/perfil.service';
+import { ReservaService } from '../../../services/reserva.service';
 import type { Reserva, Viaje, UserRole } from '../../../models/database.types';
 
 type ReservaConViaje = Reserva & { viaje?: Viaje };
@@ -11,6 +12,7 @@ type ReservaConViaje = Reserva & { viaje?: Viaje };
   standalone: true,
   imports: [DatePipe, FormsModule],
   templateUrl: './validaciones.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Validaciones implements OnInit, OnDestroy {
   reservas: ReservaConViaje[] = [];
@@ -56,7 +58,8 @@ export class Validaciones implements OnInit, OnDestroy {
   private timeoutId: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
-    private supabaseService: SupabaseService,
+    private perfilService: PerfilService,
+    private reservaService: ReservaService,
     private cdr: ChangeDetectorRef,
   ) {}
 
@@ -65,7 +68,7 @@ export class Validaciones implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    const { data } = await this.supabaseService.getCurrentProfile();
+    const { data } = await this.perfilService.getCurrentProfile();
     if (data) this.rol = data.rol;
     this.cargar();
   }
@@ -81,7 +84,7 @@ export class Validaciones implements OnInit, OnDestroy {
     this.loading = true;
     this.error = '';
     this.currentPage = 1;
-    const { data, error } = await this.supabaseService.getReservasPendientes();
+    const { data, error } = await this.reservaService.getReservasPendientes();
     if (error) {
       this.error = `Error al cargar reservas: ${error.message}`;
     } else if (data) {
@@ -130,14 +133,14 @@ export class Validaciones implements OnInit, OnDestroy {
 
     try {
       if (this.accion === 'aprobar') {
-        const { error } = await this.supabaseService.aprobarReserva(reserva.id, reserva.asiento_viaje_id);
+        const { error } = await this.reservaService.aprobarReserva(reserva.id, reserva.asiento_viaje_id);
         if (error) { this.error = error.message; return; }
         this.reservas = this.reservas.filter(r => r.id !== reserva.id);
         if (this.paginatedReservas.length === 0 && this.currentPage > 1) {
           this.currentPage--;
         }
       } else {
-        const { error } = await this.supabaseService.rechazarReserva(reserva.id, reserva.asiento_viaje_id, this.motivoRechazo.trim());
+        const { error } = await this.reservaService.rechazarReserva(reserva.id, reserva.asiento_viaje_id, this.motivoRechazo.trim());
         if (error) { this.error = error.message; return; }
         this.reservas = this.reservas.filter(r => r.id !== reserva.id);
         if (this.paginatedReservas.length === 0 && this.currentPage > 1) {

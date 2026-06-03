@@ -1,7 +1,8 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
-import { SupabaseService } from '../../services/supabase.service';
+import { AuthService } from '../../services/auth.service';
+import { PerfilService } from '../../services/perfil.service';
 import type { Perfil } from '../../models/database.types';
 
 @Component({
@@ -9,6 +10,7 @@ import type { Perfil } from '../../models/database.types';
   standalone: true,
   imports: [RouterOutlet, RouterLink, RouterLinkActive],
   templateUrl: './admin.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Admin implements OnInit {
   perfil: Perfil | null = null;
@@ -16,7 +18,8 @@ export class Admin implements OnInit {
   private touchStartX = 0;
 
   constructor(
-    private supabaseService: SupabaseService,
+    private authService: AuthService,
+    private perfilService: PerfilService,
     private router: Router,
     private cdr: ChangeDetectorRef,
   ) {}
@@ -33,7 +36,7 @@ export class Admin implements OnInit {
   }
 
   async ngOnInit() {
-    const { data } = await this.supabaseService.getCurrentProfile();
+    const { data } = await this.perfilService.getCurrentProfile();
     this.perfil = data;
     this.cdr.detectChanges();
   }
@@ -68,7 +71,7 @@ export class Admin implements OnInit {
   }
 
   async logout() {
-    await this.supabaseService.signOut();
+    await this.authService.signOut();
     this.router.navigate(['/'], { replaceUrl: true });
   }
 }

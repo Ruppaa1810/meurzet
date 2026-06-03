@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import type { Viaje, MapaAsientoViaje } from '../models/database.types';
+import type { Viaje, MapaAsientoViaje, EstadoFinanciero } from '../models/database.types';
 
 export interface AsientoReserva {
   asientoId: number;
@@ -28,6 +28,9 @@ export class ReservaStateService {
   precio: number = 0;
   reservaIds: number[] = [];
 
+  estadoFinanciero: EstadoFinanciero = 'pendiente';
+  montoPagado: number = 0;
+
   get total(): number {
     return this.precio * this.asientos.length;
   }
@@ -36,11 +39,26 @@ export class ReservaStateService {
     return Math.round(this.total * 0.3);
   }
 
+  get montoPendiente(): number {
+    return Math.max(0, this.total - this.montoPagado);
+  }
+
   get porcentajePago(): number {
     if (this.tipoPagoMode === 'total') return 100;
     if (this.tipoPagoMode === 'parcial') return 30;
     if (this.total === 0) return 0;
     return Math.min(100, Math.round(this.montoPersonalizado / this.total * 100));
+  }
+
+  setEstadoFinanciero(monto: number) {
+    this.montoPagado = monto;
+    if (monto <= 0) {
+      this.estadoFinanciero = 'pendiente';
+    } else if (monto >= this.total) {
+      this.estadoFinanciero = 'pagado_total';
+    } else {
+      this.estadoFinanciero = 'pagado_parcial';
+    }
   }
 
   iniciar(viaje: Viaje, asientos: MapaAsientoViaje[]) {
@@ -57,6 +75,8 @@ export class ReservaStateService {
     this.precio = viaje.precio_base;
     this.tipoPagoMode = 'parcial';
     this.montoPersonalizado = 0;
+    this.estadoFinanciero = 'pendiente';
+    this.montoPagado = 0;
   }
 
   limpiar() {
@@ -67,5 +87,7 @@ export class ReservaStateService {
     this.tipoPagoMode = 'parcial';
     this.montoPersonalizado = 0;
     this.reservaIds = [];
+    this.estadoFinanciero = 'pendiente';
+    this.montoPagado = 0;
   }
 }

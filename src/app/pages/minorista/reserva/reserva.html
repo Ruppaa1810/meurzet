@@ -104,6 +104,39 @@
         </div>
       </div>
 
+      <!-- Método de pago -->
+      <div class="bg-white rounded-xl md:rounded-2xl p-5 md:p-6 shadow-lg border-2 border-meurzet-accent/20 hover:border-meurzet-info hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
+        <h3 class="text-sm md:text-base font-bold text-meurzet-primary mb-3 md:mb-4">
+          Método de pago
+        </h3>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 md:gap-3">
+          <button (click)="metodoPago = 'efectivo'"
+            class="flex flex-col items-center gap-1 py-3 md:py-4 rounded-xl text-xs md:text-sm font-bold border-2 transition-all duration-200 cursor-pointer"
+            [class]="metodoPago === 'efectivo' ? 'border-meurzet-accent bg-[#fff5f2] text-meurzet-accent shadow-md' : 'border-slate-200 bg-white text-slate-600 hover:border-meurzet-accent'">
+            <span class="text-lg">💵</span>
+            <span>Efectivo</span>
+          </button>
+          <button (click)="metodoPago = 'transferencia'"
+            class="flex flex-col items-center gap-1 py-3 md:py-4 rounded-xl text-xs md:text-sm font-bold border-2 transition-all duration-200 cursor-pointer"
+            [class]="metodoPago === 'transferencia' ? 'border-meurzet-accent bg-[#fff5f2] text-meurzet-accent shadow-md' : 'border-slate-200 bg-white text-slate-600 hover:border-meurzet-accent'">
+            <span class="text-lg">🏦</span>
+            <span>Transferencia</span>
+          </button>
+          <button (click)="metodoPago = 'mercadopago'"
+            class="flex flex-col items-center gap-1 py-3 md:py-4 rounded-xl text-xs md:text-sm font-bold border-2 transition-all duration-200 cursor-pointer"
+            [class]="metodoPago === 'mercadopago' ? 'border-meurzet-accent bg-[#fff5f2] text-meurzet-accent shadow-md' : 'border-slate-200 bg-white text-slate-600 hover:border-meurzet-accent'">
+            <span class="text-lg">⚡</span>
+            <span>Mercado Pago</span>
+          </button>
+          <button (click)="metodoPago = 'otro'"
+            class="flex flex-col items-center gap-1 py-3 md:py-4 rounded-xl text-xs md:text-sm font-bold border-2 transition-all duration-200 cursor-pointer"
+            [class]="metodoPago === 'otro' ? 'border-meurzet-accent bg-[#fff5f2] text-meurzet-accent shadow-md' : 'border-slate-200 bg-white text-slate-600 hover:border-meurzet-accent'">
+            <span class="text-lg">📋</span>
+            <span>Otro</span>
+          </button>
+        </div>
+      </div>
+
       <!-- Mensaje de error -->
       @if (message) {
         <div class="px-4 md:px-5 py-2 md:py-3 rounded-xl bg-red-50 text-red-600 text-[10px] md:text-xs text-center border border-red-200">

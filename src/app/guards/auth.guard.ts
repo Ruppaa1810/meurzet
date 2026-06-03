@@ -1,23 +1,25 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, Router, ActivatedRouteSnapshot } from '@angular/router';
-import { SupabaseService } from '../services/supabase.service';
+import { AuthService } from '../services/auth.service';
+import { PerfilService } from '../services/perfil.service';
 import type { UserRole } from '../models/database.types';
 
 @Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
   constructor(
     private router: Router,
-    private supabaseService: SupabaseService,
+    private authService: AuthService,
+    private perfilService: PerfilService,
   ) {}
 
   async canActivate(route: ActivatedRouteSnapshot): Promise<boolean> {
-    const session = (await this.supabaseService.supabase.auth.getSession()).data.session;
+    const session = (await this.authService.getSession()).data.session;
     if (!session) {
       this.router.navigate(['/'], { replaceUrl: true });
       return false;
     }
 
-    const { data: perfil } = await this.supabaseService.getPerfil(session.user.id);
+    const { data: perfil } = await this.perfilService.getPerfil(session.user.id);
     if (!perfil) {
       this.router.navigate(['/'], { replaceUrl: true });
       return false;

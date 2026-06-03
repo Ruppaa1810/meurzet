@@ -1,14 +1,17 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SupabaseService } from '../../../services/supabase.service';
+import { PerfilService } from '../../../services/perfil.service';
+import { ViajeService } from '../../../services/viaje.service';
+import { UnidadService } from '../../../services/unidad.service';
 import type { Viaje, Unidad, UserRole } from '../../../models/database.types';
 
 @Component({
-  selector: 'app-viajes-admin',
+  selector: 'app-admin-viajes',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './viajes.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Viajes implements OnInit {
   viajes: Viaje[] = [];
@@ -62,7 +65,9 @@ export class Viajes implements OnInit {
   };
 
   constructor(
-    private supabaseService: SupabaseService,
+    private perfilService: PerfilService,
+    private viajeService: ViajeService,
+    private unidadService: UnidadService,
     private cdr: ChangeDetectorRef,
   ) { }
 
@@ -72,7 +77,7 @@ export class Viajes implements OnInit {
 
   async ngOnInit() {
     try {
-      const { data } = await this.supabaseService.getCurrentProfile();
+      const { data } = await this.perfilService.getCurrentProfile();
       if (data) this.rol = data.rol;
     } catch {
     }
@@ -85,8 +90,8 @@ export class Viajes implements OnInit {
     this.currentPage = 1;
     try {
       const [viajesRes, unidadesRes] = await Promise.all([
-        this.supabaseService.getViajesAdmin(),
-        this.supabaseService.getUnidades(),
+        this.viajeService.getViajesAdmin(),
+        this.unidadService.getUnidades(),
       ]);
       if (viajesRes.error) { this.mensaje = viajesRes.error.message; }
       else { this.viajes = viajesRes.data ?? []; }
@@ -147,10 +152,10 @@ export class Viajes implements OnInit {
       };
 
       if (this.editando && this.editandoId != null) {
-        const { error } = await this.supabaseService.updateViaje(this.editandoId, payload);
+        const { error } = await this.viajeService.updateViaje(this.editandoId, payload);
         if (error) { this.mensaje = error.message; return; }
       } else {
-        const { error } = await this.supabaseService.createViaje(payload);
+        const { error } = await this.viajeService.createViaje(payload);
         if (error) { this.mensaje = error.message; return; }
       }
 
@@ -184,7 +189,7 @@ export class Viajes implements OnInit {
     this.mensaje = '';
 
     try {
-      const { error } = await this.supabaseService.deleteViaje(this.eliminarId);
+      const { error } = await this.viajeService.deleteViaje(this.eliminarId);
       if (error) { this.mensaje = error.message; this.cerrarModalEliminar(); return; }
       this.cerrarModalEliminar();
       await this.cargar();

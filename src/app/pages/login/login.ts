@@ -1,14 +1,16 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { SupabaseService } from '../../services/supabase.service';
+import { AuthService } from '../../services/auth.service';
+import { PerfilService } from '../../services/perfil.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [FormsModule],
   templateUrl: './login.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Login {
   email = '';
@@ -32,7 +34,8 @@ export class Login {
   recoveryError = '';
 
   constructor(
-    private supabaseService: SupabaseService,
+    private authService: AuthService,
+    private perfilService: PerfilService,
     private router: Router,
     private cdr: ChangeDetectorRef,
   ) {
@@ -42,7 +45,7 @@ export class Login {
       this.remember = true;
     }
 
-    if (this.supabaseService.isPasswordRecovery) {
+    if (this.authService.isPasswordRecovery) {
       this.showRecoveryForm = true;
       this.showForgotPassword = false;
     }
@@ -68,7 +71,7 @@ export class Login {
     this.message = '';
 
     try {
-      const { data, error } = await this.supabaseService.login(this.email, this.password);
+      const { data, error } = await this.authService.login(this.email, this.password);
 
       if (error) {
         this.message = this.traducirError(error.message);
@@ -90,7 +93,7 @@ export class Login {
         localStorage.removeItem('meurzet_email');
       }
 
-      const { data: perfil, error: perfilError } = await this.supabaseService.getPerfil(userId);
+      const { data: perfil, error: perfilError } = await this.perfilService.getPerfil(userId);
       if (perfilError || !perfil) {
         this.message = 'Perfil no encontrado';
         this.loading = false;
@@ -114,7 +117,7 @@ export class Login {
     this.resetEnviado = false;
     localStorage.setItem('meurzet_recovery', 'true');
     try {
-      const { error } = await this.supabaseService.resetPassword(this.forgotEmail);
+      const { error } = await this.authService.resetPassword(this.forgotEmail);
       if (error) {
         this.resetMessage = this.traducirError(error.message);
       } else {
@@ -147,7 +150,7 @@ export class Login {
     this.recoveryError = '';
 
     try {
-      const { error } = await this.supabaseService.supabase.auth.updateUser({ password: this.newPassword });
+      const { error } = await this.authService.updatePassword(this.newPassword);
       if (error) {
         this.recoveryError = this.traducirError(error.message);
         return;
