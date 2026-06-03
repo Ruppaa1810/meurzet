@@ -100,8 +100,9 @@ export class Validaciones implements OnInit {
         this.reservas = this.reservas.filter(r => r.id !== reserva.id);
       }
 
+      const accionActual = this.accion;
       this.cerrarModal();
-      this.mostrarSuccessMensaje = this.accion === 'aprobar'
+      this.mostrarSuccessMensaje = accionActual === 'aprobar'
         ? `Reserva #${reserva.id} aprobada correctamente`
         : `Reserva #${reserva.id} rechazada`;
       setTimeout(() => this.mostrarSuccessMensaje = '', 5000);
