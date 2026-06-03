@@ -128,10 +128,6 @@ export class Reserva implements OnInit {
 
         if (data) {
           ids.push(data.id);
-          await this.supabaseService.supabase
-            .from('mapa_asientos_viaje')
-            .update({ estado: 'confirmado', vendedor_bloqueo_id: null, bloqueado_hasta: null })
-            .eq('id', asientos[i].asientoId);
         }
       }
 

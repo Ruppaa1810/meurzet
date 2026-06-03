@@ -784,6 +784,7 @@ SEATS
 
 .seat:disabled {
   cursor: not-allowed;
+  pointer-events: none;
 }
 
 .seat-free {
@@ -823,11 +824,17 @@ SEATS
       #fecaca
     );
 
-  border: 1px solid #fca5a5;
+  border: 1px solid #f87171;
 
   color: #dc2626;
 
   opacity: .8;
+}
+
+.seat-occupied:disabled {
+  opacity: .65;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .seat-blocked {

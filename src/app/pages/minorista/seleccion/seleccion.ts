@@ -59,7 +59,7 @@ export class Seleccion implements OnInit, OnDestroy {
     this.cdr.detectChanges();
 
     this.initRealtime();
-    this.pollingInterval = setInterval(() => this.cargarAsientos(), 15000);
+    this.pollingInterval = setInterval(() => this.cargarAsientos(), 5000);
   }
 
   private initRealtime() {
@@ -74,7 +74,11 @@ export class Seleccion implements OnInit, OnDestroy {
         },
         () => { this.cargarAsientos(); }
       )
-      .subscribe();
+      .subscribe((status) => {
+        if (status === 'CHANNEL_ERROR') {
+          console.warn('Realtime error, usando polling como fallback');
+        }
+      });
   }
 
   ngOnDestroy() {
@@ -186,7 +190,8 @@ export class Seleccion implements OnInit, OnDestroy {
         };
       });
 
-    } catch {
+    } catch (e) {
+      console.error('Error al refrescar asientos:', e);
     } finally {
       this.cdr.detectChanges();
     }
