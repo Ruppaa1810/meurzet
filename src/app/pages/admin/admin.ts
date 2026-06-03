@@ -21,6 +21,11 @@ export class Admin implements OnInit {
     private cdr: ChangeDetectorRef,
   ) {}
 
+  get tituloPagina(): string {
+    if (this.router.url.includes('validaciones')) return 'Validaciones';
+    return 'Administración';
+  }
+
   get esAdmin(): boolean {
     return this.perfil?.rol === 'admin_mayorista';
   }
