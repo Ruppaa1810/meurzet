@@ -20,6 +20,23 @@ export class Flota implements OnInit {
   editando = false;
   editandoId: number | null = null;
 
+  // Estadísticas
+  get totalUnidades(): number {
+    return this.unidades.length;
+  }
+
+  get totalAsientos(): number {
+    return this.unidades.reduce((sum, u) => sum + u.asientos_totales, 0);
+  }
+
+  get unidades1Piso(): number {
+    return this.unidades.filter(u => u.pisos === 1).length;
+  }
+
+  get unidades2Pisos(): number {
+    return this.unidades.filter(u => u.pisos === 2).length;
+  }
+
   // Paginación
   currentPage = 1;
   readonly itemsPerPage = 6;
