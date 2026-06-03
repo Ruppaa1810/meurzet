@@ -215,4 +215,12 @@ export class Seleccion implements OnInit, OnDestroy {
     this.reservaState.iniciar(this.viaje, sel);
     this.router.navigate(['/minorista/reserva']);
   }
+
+  async volver() {
+    const misBloqueados = this.asientos.filter(a => a.estado === 'bloqueado' && a.vendedor_bloqueo_id === this.userId);
+    await Promise.allSettled(
+      misBloqueados.map(a => this.supabaseService.liberarAsiento(a.viaje_id!, a.nro_asiento))
+    );
+    this.router.navigate(['/minorista/vender']);
+  }
 }

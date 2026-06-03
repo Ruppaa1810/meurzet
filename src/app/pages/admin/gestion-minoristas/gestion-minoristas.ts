@@ -32,8 +32,11 @@ export class GestionMinoristas implements OnInit, OnDestroy {
   formPassword = '';
   formNombre = '';
   formAgencia = '';
+  formRol: UserRole = 'vendedor_minorista';
 
   rol: UserRole | null = null;
+  userId: string | null = null;
+  expandedId: string | null = null;
 
   constructor(
     private supabaseService: SupabaseService,
@@ -44,9 +47,48 @@ export class GestionMinoristas implements OnInit, OnDestroy {
     return this.rol === 'admin_mayorista';
   }
 
+  get puedeGestionar(): boolean {
+    return this.rol === 'admin_mayorista' || this.rol === 'operador_admin';
+  }
+
+  get puedeCrear(): boolean {
+    return this.rol === 'admin_mayorista' || this.rol === 'operador_admin';
+  }
+
+  get vendedoresCreados(): VendedorConReservas[] {
+    if (!this.userId) return [];
+    return this.vendedores.filter(v => v.created_by === this.userId && v.rol === 'vendedor_minorista');
+  }
+
+  get totalCreados(): number { return this.vendedoresCreados.length; }
+  get totalReservasCreados(): number { return this.vendedoresCreados.reduce((t, v) => t + v.totalReservas, 0); }
+  get pendientesCreados(): number { return this.vendedoresCreados.reduce((t, v) => t + v.pendientes, 0); }
+  get aprobadasCreados(): number { return this.vendedoresCreados.reduce((t, v) => t + v.aprobadas, 0); }
+  get rechazadasCreados(): number { return this.vendedoresCreados.reduce((t, v) => t + v.rechazadas, 0); }
+
+  get vendedoresFiltrados(): VendedorConReservas[] {
+    let base = this.vendedores;
+    if (!this.esAdmin) {
+      base = base.filter(v => v.created_by === this.userId && v.rol === 'vendedor_minorista');
+    }
+    if (!this.buscando.trim()) return base;
+    const q = this.buscando.toLowerCase();
+    return base.filter(v =>
+      v.nombre.toLowerCase().includes(q) ||
+      (v.agencia_nombre || '').toLowerCase().includes(q)
+    );
+  }
+
+  vendedoresPorOperador(operadorId: string): VendedorConReservas[] {
+    return this.vendedores.filter(v => v.created_by === operadorId && v.rol === 'vendedor_minorista');
+  }
+
   async ngOnInit() {
     const { data } = await this.supabaseService.getCurrentProfile();
-    if (data) this.rol = data.rol;
+    if (data) {
+      this.rol = data.rol;
+      this.userId = data.id;
+    }
     await this.cargar();
   }
 
@@ -54,25 +96,8 @@ export class GestionMinoristas implements OnInit, OnDestroy {
     this.dismissSuccess();
   }
 
-  get totalReservasGlobal(): number {
-    return this.vendedores.reduce((t, v) => t + v.totalReservas, 0);
-  }
-
-  get totalPendientesGlobal(): number {
-    return this.vendedores.reduce((t, v) => t + v.pendientes, 0);
-  }
-
-  get totalAprobadasGlobal(): number {
-    return this.vendedores.reduce((t, v) => t + v.aprobadas, 0);
-  }
-
-  get vendedoresFiltrados(): VendedorConReservas[] {
-    if (!this.buscando.trim()) return this.vendedores;
-    const q = this.buscando.toLowerCase();
-    return this.vendedores.filter(v =>
-      v.nombre.toLowerCase().includes(q) ||
-      (v.agencia_nombre || '').toLowerCase().includes(q)
-    );
+  toggleExpand(v: VendedorConReservas) {
+    this.expandedId = this.expandedId === v.id ? null : v.id;
   }
 
   async cargar() {
@@ -107,7 +132,7 @@ export class GestionMinoristas implements OnInit, OnDestroy {
   }
 
   async toggleActivo(v: VendedorConReservas) {
-    if (!this.esAdmin) return;
+    if (!this.puedeGestionar) return;
     const nuevoEstado = !v.activo;
     const { error } = await this.supabaseService.togglePerfilActivo(v.id, nuevoEstado);
     if (error) { this.mensaje = error.message; return; }
@@ -115,24 +140,26 @@ export class GestionMinoristas implements OnInit, OnDestroy {
   }
 
   abrirNuevo() {
-    if (!this.esAdmin) return;
+    if (!this.puedeCrear) return;
     this.editando = null;
     this.formEmail = '';
     this.formPassword = '';
     this.formNombre = '';
     this.formAgencia = '';
+    this.formRol = 'vendedor_minorista';
     this.mensaje = '';
     this.mostrarModal = true;
     this.cdr.detectChanges();
   }
 
   abrirEditar(v: VendedorConReservas) {
-    if (!this.esAdmin) return;
+    if (!this.puedeGestionar) return;
     this.editando = v;
     this.formEmail = '';
     this.formPassword = '';
     this.formNombre = v.nombre;
     this.formAgencia = v.agencia_nombre ?? '';
+    this.formRol = v.rol;
     this.mensaje = '';
     this.mostrarModal = true;
   }
@@ -163,10 +190,23 @@ export class GestionMinoristas implements OnInit, OnDestroy {
     const esEdicion = !!this.editando;
     try {
       if (esEdicion) {
-        const { error } = await this.supabaseService.actualizarPerfil(this.editando!.id, {
-          nombre: this.formNombre.trim(),
-          agencia_nombre: this.formAgencia.trim() || null,
-        });
+        if (this.formEmail.trim() || this.formPassword.trim()) {
+          const { error: authErr } = await this.supabaseService.actualizarAuthUser(
+            this.editando!.id,
+            {
+              email: this.formEmail.trim() || undefined,
+              password: this.formPassword || undefined,
+            },
+          );
+          if (authErr) { this.mensaje = authErr.message; return; }
+        }
+
+        const updateData: any = { nombre: this.formNombre.trim() };
+        if (this.esAdmin) updateData.rol = this.formRol;
+        if (this.formRol !== 'operador_admin') {
+          updateData.agencia_nombre = this.formAgencia.trim() || null;
+        }
+        const { error } = await this.supabaseService.actualizarPerfil(this.editando!.id, updateData);
         if (error) { this.mensaje = error.message; return; }
       } else {
         if (!this.formEmail.trim() || !this.formPassword.trim()) {
@@ -178,6 +218,8 @@ export class GestionMinoristas implements OnInit, OnDestroy {
           this.formPassword,
           this.formNombre.trim(),
           this.formAgencia.trim(),
+          this.formRol,
+          this.userId ?? undefined,
         );
         if (error) { this.mensaje = error.message; return; }
       }
@@ -185,7 +227,7 @@ export class GestionMinoristas implements OnInit, OnDestroy {
       this.cerrarModal();
       await this.cargar();
       if (!this.mensaje) {
-        this.mostrarSuccess(esEdicion ? 'Vendedor actualizado correctamente' : 'Vendedor creado correctamente');
+        this.mostrarSuccess(esEdicion ? 'Usuario actualizado correctamente' : 'Usuario creado correctamente');
       }
     } catch (e: any) {
       this.mensaje = e?.message || 'Error inesperado';

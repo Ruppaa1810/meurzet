@@ -66,6 +66,12 @@ export class Inicio implements OnInit {
     });
   }
 
+  formatFechaCorta(fecha: string): string {
+    return new Date(fecha).toLocaleDateString('es-AR', {
+      day: 'numeric', month: 'short',
+    });
+  }
+
   formatPrecio(precio: number): string {
     return `$ ${precio.toLocaleString('es-AR')}`;
   }
