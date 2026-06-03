@@ -261,29 +261,18 @@ export class SupabaseService {
   }
 
   async aprobarReserva(reservaId: number, asientoViajeId: number) {
-    const { error: e1 } = await this.supabase
-      .from('reservas')
-      .update({ estado: 'aprobado', motivo_rechazo: null })
-      .eq('id', reservaId);
-    if (e1) return { error: e1 };
-    const { error: e2 } = await this.supabase
-      .from('mapa_asientos_viaje')
-      .update({ estado: 'confirmado', vendedor_bloqueo_id: null, bloqueado_hasta: null })
-      .eq('id', asientoViajeId);
-    return { error: e2 };
+    return await this.supabase.rpc('aprobar_reserva', {
+      p_reserva_id: reservaId,
+      p_asiento_viaje_id: asientoViajeId,
+    });
   }
 
   async rechazarReserva(reservaId: number, asientoViajeId: number, motivo: string) {
-    const { error: e1 } = await this.supabase
-      .from('reservas')
-      .update({ estado: 'rechazado', motivo_rechazo: motivo })
-      .eq('id', reservaId);
-    if (e1) return { error: e1 };
-    const { error: e2 } = await this.supabase
-      .from('mapa_asientos_viaje')
-      .update({ estado: 'libre', vendedor_bloqueo_id: null, bloqueado_hasta: null })
-      .eq('id', asientoViajeId);
-    return { error: e2 };
+    return await this.supabase.rpc('rechazar_reserva', {
+      p_reserva_id: reservaId,
+      p_asiento_viaje_id: asientoViajeId,
+      p_motivo: motivo,
+    });
   }
 
   // ===========================================================================

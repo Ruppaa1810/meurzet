@@ -145,8 +145,9 @@ export class Validaciones implements OnInit, OnDestroy {
         }
       }
 
+      const accionActual = this.accion;
       this.cerrarModal();
-      this.mostrarSuccessMensaje = this.accion === 'aprobar'
+      this.mostrarSuccessMensaje = accionActual === 'aprobar'
         ? `Reserva #${reserva.id} aprobada correctamente`
         : `Reserva #${reserva.id} rechazada`;
       this.timeoutId = setTimeout(() => this.mostrarSuccessMensaje = '', 5000);

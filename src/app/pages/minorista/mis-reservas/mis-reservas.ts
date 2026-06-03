@@ -9,6 +9,9 @@ interface ReservaView extends Reserva {
   viajeLabel: string;
   pasajeroNombre: string;
   monto: number;
+  uploading: boolean;
+  uploadMsg: string;
+  uploadOk: boolean;
 }
 
 @Component({
@@ -48,7 +51,7 @@ export class MisReservas implements OnInit {
         const viajeInfo = viajesMap.get(r.viaje_id!);
         const pct = typeof d['porcentaje_pago'] === 'number' ? d['porcentaje_pago'] : 1;
         const monto = viajeInfo ? Math.round(viajeInfo.precio * pct) : 0;
-        return { ...r, viajeLabel: viajeInfo?.label || `Viaje #${r.viaje_id}`, pasajeroNombre: nom, monto };
+        return { ...r, viajeLabel: viajeInfo?.label || `Viaje #${r.viaje_id}`, pasajeroNombre: nom, monto, uploading: false, uploadMsg: '', uploadOk: false };
       });
     } catch (e: any) {
       console.error('Error al cargar reservas:', e?.message);
@@ -76,5 +79,60 @@ export class MisReservas implements OnInit {
 
   formatPrecio(precio: number): string {
     return `$ ${precio.toLocaleString('es-AR')}`;
+  }
+
+  async subirComprobante(reserva: ReservaView, event: Event, fileInput?: HTMLInputElement) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    reserva.uploading = true;
+    reserva.uploadMsg = '';
+    reserva.uploadOk = false;
+    this.cdr.detectChanges();
+
+    try {
+      const userId = (await this.supabaseService.supabase.auth.getSession()).data.session?.user?.id;
+      if (!userId) {
+        reserva.uploadMsg = 'Sesión expirada';
+        return;
+      }
+
+      const basePath = `${userId}/${Date.now()}_${file.name}`;
+
+      const { error: uploadError } = await this.supabaseService.subirComprobante(basePath, file);
+      if (uploadError) {
+        reserva.uploadMsg = 'Error al subir: ' + uploadError.message;
+        return;
+      }
+
+      const { data: signedUrl, error: signedError } = await this.supabaseService.supabase.storage
+        .from('comprobantes')
+        .createSignedUrl(basePath, 60 * 60 * 24 * 365);
+      if (signedError || !signedUrl?.signedUrl) {
+        reserva.uploadMsg = 'Error al generar enlace del comprobante';
+        return;
+      }
+
+      const { error: updateError } = await this.supabaseService.supabase
+        .from('reservas')
+        .update({ comprobante_url: signedUrl.signedUrl, estado: 'pendiente_validacion' })
+        .eq('id', reserva.id);
+
+      if (updateError) {
+        reserva.uploadMsg = 'Error al actualizar: ' + updateError.message;
+        return;
+      }
+
+      reserva.estado = 'pendiente_validacion';
+      reserva.uploadOk = true;
+      reserva.uploadMsg = '';
+    } catch (e: any) {
+      reserva.uploadMsg = e?.message || 'Error inesperado';
+    } finally {
+      reserva.uploading = false;
+      if (fileInput) fileInput.value = '';
+      this.cdr.detectChanges();
+    }
   }
 }
