@@ -176,7 +176,7 @@ export class Reserva implements OnInit {
             return;
           }
 
-          const { error: recalError } = await this.pagoService.recalcularEstadoFinanciero(data.id, this.total);
+          const { error: recalError } = await this.pagoService.recalcularEstadoFinanciero(data.id, this.reservaState.precio);
           if (recalError) {
             console.warn('Error al recalcular estado financiero:', recalError.message);
           }
