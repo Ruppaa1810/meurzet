@@ -38,6 +38,13 @@ export class PagoService {
     return (data || []).reduce((sum, p) => sum + p.monto, 0);
   }
 
+  async actualizarEstadoPagoPorReserva(reservaId: number, estado: EstadoPagoMovimiento) {
+    return await supabase
+      .from('pagos_movimientos')
+      .update({ estado_pago: estado })
+      .eq('reserva_id', reservaId);
+  }
+
   async recalcularEstadoFinanciero(reservaId: number, precioTotal: number) {
     const totalPagado = await this.getTotalPagado(reservaId);
     let estado: EstadoFinanciero;

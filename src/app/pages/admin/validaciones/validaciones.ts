@@ -3,6 +3,7 @@ import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PerfilService } from '../../../services/perfil.service';
 import { ReservaService } from '../../../services/reserva.service';
+import { PagoService } from '../../../services/pago.service';
 import type { Reserva, Viaje, UserRole } from '../../../models/database.types';
 
 type ReservaConViaje = Reserva & { viaje?: Viaje };
@@ -60,6 +61,7 @@ export class Validaciones implements OnInit, OnDestroy {
   constructor(
     private perfilService: PerfilService,
     private reservaService: ReservaService,
+    private pagoService: PagoService,
     private cdr: ChangeDetectorRef,
   ) {}
 
@@ -135,6 +137,8 @@ export class Validaciones implements OnInit, OnDestroy {
       if (this.accion === 'aprobar') {
         const { error } = await this.reservaService.aprobarReserva(reserva.id, reserva.asiento_viaje_id);
         if (error) { this.error = error.message; return; }
+        await this.pagoService.actualizarEstadoPagoPorReserva(reserva.id, 'confirmado');
+        await this.pagoService.recalcularEstadoFinanciero(reserva.id, this.totalReserva(reserva));
         this.reservas = this.reservas.filter(r => r.id !== reserva.id);
         if (this.paginatedReservas.length === 0 && this.currentPage > 1) {
           this.currentPage--;
@@ -142,6 +146,8 @@ export class Validaciones implements OnInit, OnDestroy {
       } else {
         const { error } = await this.reservaService.rechazarReserva(reserva.id, reserva.asiento_viaje_id, this.motivoRechazo.trim());
         if (error) { this.error = error.message; return; }
+        await this.pagoService.actualizarEstadoPagoPorReserva(reserva.id, 'rechazado');
+        await this.pagoService.recalcularEstadoFinanciero(reserva.id, this.totalReserva(reserva));
         this.reservas = this.reservas.filter(r => r.id !== reserva.id);
         if (this.paginatedReservas.length === 0 && this.currentPage > 1) {
           this.currentPage--;
@@ -173,5 +179,8 @@ export class Validaciones implements OnInit, OnDestroy {
     this.comprobanteCargando = false;
     this.comprobanteError = false;
   }
-  
+
+  private totalReserva(reserva: ReservaConViaje): number {
+    return reserva.viaje?.precio_base || 0;
+  }
 }

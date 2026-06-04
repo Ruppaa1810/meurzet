@@ -183,7 +183,7 @@
                       }
                       <button (click)="togglePagos(r)" 
                         class="px-2 py-1 rounded-lg text-[10px] font-semibold bg-meurzet-accent/10 text-meurzet-accent border border-meurzet-accent/30 hover:bg-meurzet-accent hover:text-white transition-all cursor-pointer">
-                        {{ r.mostrandoPagos ? 'Ocultar pagos' : 'Ver pagos (' + (r.pagos?.length || 0) + ')' }}
+                        {{ r.mostrandoPagos ? 'Ocultar pagos' : 'Ver pagos (' + (r.pagos.length || 0) + ')' }}
                       </button>
                     </div>
                     @if (r.mostrandoPagos) {

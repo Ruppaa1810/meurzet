@@ -2,9 +2,10 @@ import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { supabase } from '../../../services/supabase-client';
+import type { MetodoPago } from '../../../models/database.types';
 import { AuthService } from '../../../services/auth.service';
 import { ReservaService } from '../../../services/reserva.service';
+import { PagoService } from '../../../services/pago.service';
 import { ReservaStateService } from '../../../services/reserva-state.service';
 
 @Component({
@@ -23,6 +24,7 @@ export class Reserva implements OnInit {
     private router: Router,
     private authService: AuthService,
     private reservaService: ReservaService,
+    private pagoService: PagoService,
     public reservaState: ReservaStateService,
     private cdr: ChangeDetectorRef,
   ) {}
@@ -98,12 +100,7 @@ export class Reserva implements OnInit {
       const ids: number[] = [];
 
       for (let i = 0; i < asientos.length; i++) {
-        const { data: existente } = await supabase
-          .from('reservas')
-          .select('id')
-          .eq('asiento_viaje_id', asientos[i].asientoId)
-          .in('estado', ['pendiente_comprobante', 'pendiente_validacion', 'aprobado'])
-          .maybeSingle();
+        const { data: existente } = await this.reservaService.checkAsientoTieneReserva(asientos[i].asientoId);
 
         if (existente) {
           this.message = `El asiento ${asientos[i].nroAsiento} ya tiene una reserva activa`;
@@ -133,6 +130,24 @@ export class Reserva implements OnInit {
 
         if (data) {
           ids.push(data.id);
+
+          const { error: pagoError } = await this.pagoService.crearPago({
+            reserva_id: data.id,
+            monto: Math.round(this.montoAPagar / asientos.length),
+            metodo_pago: this.metodoPago as MetodoPago,
+            referencia: null,
+            estado_pago: 'pendiente',
+          });
+
+          if (pagoError) {
+            this.message = pagoError.message;
+            return;
+          }
+
+          const { error: recalError } = await this.pagoService.recalcularEstadoFinanciero(data.id, this.total);
+          if (recalError) {
+            console.warn('Error al recalcular estado financiero:', recalError.message);
+          }
         }
       }
 

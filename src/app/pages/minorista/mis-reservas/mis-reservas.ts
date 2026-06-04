@@ -2,7 +2,6 @@ import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
-import { supabase } from '../../../services/supabase-client';
 import { AuthService } from '../../../services/auth.service';
 import { PerfilService } from '../../../services/perfil.service';
 import { ReservaService } from '../../../services/reserva.service';
