@@ -129,14 +129,12 @@
   }
 </div>
 
+@if (mostrarModalEliminar) {
 <!-- Overlay + Modal Eliminar -->
-<div class="fixed inset-0 z-50 transition-all duration-300"
-  [class.opacity-0]="!mostrarModalEliminar" [class.pointer-events-none]="!mostrarModalEliminar"
-  [class.opacity-100]="mostrarModalEliminar" [class.pointer-events-auto]="mostrarModalEliminar">
+<div class="fixed inset-0 z-50 transition-all duration-300 opacity-100 pointer-events-auto">
   <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" (click)="cerrarModalEliminar()"></div>
   <div class="relative h-full flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl p-8 w-full max-w-[400px] shadow-2xl shadow-[#af4f35]/30 transition-all duration-300"
-      [class.scale-95]="!mostrarModalEliminar" [class.scale-100]="mostrarModalEliminar"
+    <div class="bg-white rounded-2xl p-8 w-full max-w-[400px] shadow-2xl shadow-[#af4f35]/30 transition-all duration-300 scale-100"
       (click)="$event.stopPropagation()">
       <h3 class="text-xl font-bold text-meurzet-primary m-0 mb-2">¿Eliminar unidad?</h3>
       <p class="text-sm text-slate-500 mb-4">Se eliminará la unidad <span class="font-semibold text-[#384752]">{{ unidades.find(u => u.id === eliminarId)?.patente || '' }}</span></p>
@@ -156,15 +154,14 @@
     </div>
   </div>
 </div>
+}
 
+@if (modalAbierto) {
 <!-- Overlay + Modal Nueva/Editar -->
-<div class="fixed inset-0 z-50 transition-all duration-300"
-  [class.opacity-0]="!modalAbierto" [class.pointer-events-none]="!modalAbierto"
-  [class.opacity-100]="modalAbierto" [class.pointer-events-auto]="modalAbierto">
+<div class="fixed inset-0 z-50 transition-all duration-300 opacity-100 pointer-events-auto">
   <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" (click)="cerrarModal()"></div>
   <div class="relative h-full flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl p-8 w-full max-w-[400px] border-2 border-[#af4f35]/30 shadow-2xl shadow-[#af4f35]/30 transition-all duration-300"
-      [class.scale-95]="!modalAbierto" [class.scale-100]="modalAbierto"
+    <div class="bg-white rounded-2xl p-8 w-full max-w-[400px] border-2 border-[#af4f35]/30 shadow-2xl shadow-[#af4f35]/30 transition-all duration-300 scale-100"
       (click)="$event.stopPropagation()">
       <h3 class="text-xl font-bold text-meurzet-primary m-0 mb-6">
         {{ editando ? 'Editar' : 'Nueva' }} Unidad
@@ -211,3 +208,4 @@
     </div>
   </div>
 </div>
+}
