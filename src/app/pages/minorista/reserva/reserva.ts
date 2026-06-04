@@ -56,7 +56,7 @@ export class Reserva implements OnInit {
   }
 
   get totalConRecargo(): number {
-    if (this.metodoPago !== 'tarjeta_credito' || this.cuotasSeleccionadas <= 1) return this.total;
+    if (this.cuotasSeleccionadas <= 1) return this.total;
     const cuota = this.opcionesCuotas.find(c => c.cuotas === this.cuotasSeleccionadas);
     const recargo = cuota?.recargo || 0;
     return Math.round(this.total * (1 + recargo / 100));
@@ -67,7 +67,7 @@ export class Reserva implements OnInit {
   }
 
   get recargoPorcentaje(): number {
-    if (this.metodoPago !== 'tarjeta_credito' || this.cuotasSeleccionadas <= 1) return 0;
+    if (this.cuotasSeleccionadas <= 1) return 0;
     const cuota = this.opcionesCuotas.find(c => c.cuotas === this.cuotasSeleccionadas);
     return cuota?.recargo || 0;
   }
@@ -131,7 +131,7 @@ export class Reserva implements OnInit {
           ...pasajeros[i],
           porcentaje_pago: porcentajePago,
           metodo_pago: this.metodoPago,
-          cuotas: this.metodoPago === 'tarjeta_credito' ? this.cuotasSeleccionadas : null,
+          cuotas: this.cuotasSeleccionadas > 1 ? this.cuotasSeleccionadas : null,
           recargo: this.recargoPorcentaje,
         };
         const { data, error } = await this.reservaService.crearReserva({
