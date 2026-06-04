@@ -9,7 +9,7 @@ import { ViajeService } from '../../../services/viaje.service';
 import { StorageService } from '../../../services/storage.service';
 import { PagoService } from '../../../services/pago.service';
 import { ComprobanteService, DatosComprobante } from '../../../services/comprobante.service';
-import type { Reserva, Viaje, PagoMovimiento } from '../../../models/database.types';
+import type { Reserva, Viaje, PagoMovimiento, MetodoPago } from '../../../models/database.types';
 import { derivarEstadoFinanciero, estadoFinancieroLabel, estadoFinancieroClass, estadoFinancieroDot } from '../../../utils/estado-financiero';
 
 interface ReservaView extends Reserva {
@@ -23,18 +23,31 @@ interface ReservaView extends Reserva {
   mostrandoPagos: boolean;
 }
 
+interface ReservaGroup {
+  grupoId: string;
+  viajeLabel: string;
+  reservas: ReservaView[];
+  estado: string;
+  mostrandoPagos: boolean;
+  expanded: boolean;
+  uploading: boolean;
+  uploadMsg: string;
+  uploadOk: boolean;
+}
+
 @Component({
   selector: 'app-mis-reservas',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './mis-reservas.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MisReservas implements OnInit {
   Math = Math;
   reservas: ReservaView[] = [];
+  grupos: ReservaGroup[] = [];
   loading = true;
-  accionAbierta: number | null = null;
+  accionAbierta: string | null = null;
 
   constructor(
     private authService: AuthService,
@@ -76,10 +89,40 @@ export class MisReservas implements OnInit {
         const { data: pagos } = await this.pagoService.getPagosPorReserva(r.id);
         return { ...r, viajeLabel: viajeInfo?.label || `Viaje #${r.viaje_id}`, pasajeroNombre: nom, monto, uploading: false, uploadMsg: '', uploadOk: false, pagos: pagos || [], mostrandoPagos: false };
       }));
+      this.armarGrupos();
     } catch {
     }
     this.loading = false;
     this.cdr.detectChanges();
+  }
+
+  private armarGrupos() {
+    const map = new Map<string, ReservaGroup>();
+    const order = ['rechazado', 'pendiente_comprobante', 'pendiente_validacion', 'aprobado', ''];
+    for (const r of this.reservas) {
+      const pd = r.pasajero_datos as Record<string, any>;
+      const gid: string = pd?.['grupo_id'] || `single-${r.id}`;
+      if (!map.has(gid)) {
+        map.set(gid, {
+          grupoId: gid,
+          viajeLabel: r.viajeLabel,
+          reservas: [],
+          estado: '',
+          mostrandoPagos: false,
+          expanded: gid.startsWith('single-') ? false : true,
+          uploading: false,
+          uploadMsg: '',
+          uploadOk: false,
+        });
+      }
+      const g = map.get(gid)!;
+      g.reservas.push(r);
+      if (order.indexOf(r.estado || '') < order.indexOf(g.estado)) {
+        g.estado = r.estado || '';
+      }
+      if (r.uploadOk) g.uploadOk = true;
+    }
+    this.grupos = Array.from(map.values());
   }
 
   efLabel(r: ReservaView): string {
@@ -102,7 +145,7 @@ export class MisReservas implements OnInit {
     r.mostrandoPagos = !r.mostrandoPagos;
   }
 
-  toggleAccion(id: number) {
+  toggleAccion(id: string) {
     this.accionAbierta = this.accionAbierta === id ? null : id;
     this.cdr.detectChanges();
   }
@@ -134,6 +177,154 @@ export class MisReservas implements OnInit {
       otro: 'Otro',
     };
     return map[mp] || mp;
+  }
+
+  toggleExpanded(g: ReservaGroup) {
+    g.expanded = !g.expanded;
+    this.cdr.detectChanges();
+  }
+
+  togglePagosGroup(g: ReservaGroup) {
+    g.mostrandoPagos = !g.mostrandoPagos;
+    this.cdr.detectChanges();
+  }
+
+  totalBaseGroup(g: ReservaGroup): number {
+    return g.reservas.reduce((s, r) => s + r.monto, 0);
+  }
+
+  montoPagadoGroup(g: ReservaGroup): number {
+    return g.reservas.reduce((s, r) => s + r.pagos.filter(p => p.estado_pago === 'confirmado').reduce((sp, pp) => sp + pp.monto, 0), 0);
+  }
+
+  saldoPendienteGroup(g: ReservaGroup): number {
+    return this.totalBaseGroup(g) - this.montoPagadoGroup(g);
+  }
+
+  progresoPagoGroup(g: ReservaGroup): number {
+    const total = this.totalBaseGroup(g);
+    return total > 0 ? Math.min(100, Math.round(this.montoPagadoGroup(g) / total * 100)) : 0;
+  }
+
+  verComprobanteGroup(g: ReservaGroup) {
+    const r0 = g.reservas[0];
+    const viajeInfo = { origen: '', destino: '', fecha_salida: '', fecha_llegada: '' };
+    const pd0 = r0.pasajero_datos as Record<string, any>;
+    const pct = typeof pd0?.['porcentaje_pago'] === 'number' ? pd0['porcentaje_pago'] : 1;
+    const cuotas = pd0?.['cuotas'] || 0;
+    const recargo = pd0?.['recargo'] || 0;
+    const totalBase = this.totalBaseGroup(g);
+    const montoAPagar = Math.round(totalBase * pct / 100);
+    const saldoBase = Math.max(0, totalBase - montoAPagar);
+    const saldoConRecargo = cuotas > 1 ? Math.round(saldoBase * (1 + recargo / 100)) : saldoBase;
+    const totalFinal = montoAPagar + saldoConRecargo;
+    const montoPagado = this.montoPagadoGroup(g);
+    const montoPendiente = Math.max(0, totalFinal - montoPagado);
+    const montoPorCuota = cuotas > 1 ? Math.round(saldoConRecargo / cuotas) : 0;
+    const comprobante: DatosComprobante = {
+      codigo: `GRUPO-${g.grupoId.substring(0, 8).toUpperCase()}`,
+      viaje: { ...viajeInfo, ...r0, precio_base: totalBase } as any,
+      asientos: g.reservas.map(r => ({ asientoId: r.asiento_viaje_id || 0, nroAsiento: r.asiento_viaje_id || 0, piso: 1, categoria: '' })),
+      pasajeros: g.reservas.map(r => ({ nombre: r.pasajeroNombre, apellido: '', documento: '', email: '', telefono: '' })),
+      total: totalFinal,
+      montoPagado,
+      montoPendiente,
+      pagoLabel: this.estadoLabel(r0.estado || ''),
+      metodoPago: pd0?.['metodo_pago'] || 'transferencia',
+      cuotasCount: cuotas,
+      montoPorCuota,
+      fecha: new Date().toLocaleString('es-AR'),
+    };
+    this.comprobanteService.abrirParaImprimir(comprobante);
+  }
+
+  verSaldoPendienteGroup(g: ReservaGroup) {
+    const r0 = g.reservas[0];
+    const viajeInfo = { origen: '', destino: '', fecha_salida: '', fecha_llegada: '' };
+    const pd0 = r0.pasajero_datos as Record<string, any>;
+    const pct = typeof pd0?.['porcentaje_pago'] === 'number' ? pd0['porcentaje_pago'] : 1;
+    const cuotas = pd0?.['cuotas'] || 0;
+    const recargo = pd0?.['recargo'] || 0;
+    const totalBase = this.totalBaseGroup(g);
+    const montoAPagar = Math.round(totalBase * pct / 100);
+    const saldoBase = Math.max(0, totalBase - montoAPagar);
+    const saldoConRecargo = cuotas > 1 ? Math.round(saldoBase * (1 + recargo / 100)) : saldoBase;
+    const totalFinal = montoAPagar + saldoConRecargo;
+    const montoPagado = this.montoPagadoGroup(g);
+    const montoPendiente = Math.max(0, totalFinal - montoPagado);
+    const montoPorCuota = cuotas > 1 ? Math.round(saldoConRecargo / cuotas) : 0;
+    const comprobante: DatosComprobante = {
+      codigo: `GRUPO-${g.grupoId.substring(0, 8).toUpperCase()}`,
+      viaje: { ...viajeInfo, ...r0, precio_base: totalBase } as any,
+      asientos: g.reservas.map(r => ({ asientoId: r.asiento_viaje_id || 0, nroAsiento: r.asiento_viaje_id || 0, piso: 1, categoria: '' })),
+      pasajeros: g.reservas.map(r => ({ nombre: r.pasajeroNombre, apellido: '', documento: '', email: '', telefono: '' })),
+      total: totalBase,
+      montoPagado,
+      montoPendiente,
+      pagoLabel: this.estadoLabel(r0.estado || ''),
+      metodoPago: pd0?.['metodo_pago'] || 'transferencia',
+      cuotasCount: cuotas,
+      montoPorCuota,
+      fecha: new Date().toLocaleString('es-AR'),
+    };
+    this.comprobanteService.abrirSaldoParaImprimir(comprobante);
+  }
+
+  async subirComprobanteGroup(g: ReservaGroup, event: Event, fileInput?: HTMLInputElement) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    g.uploading = true;
+    g.uploadMsg = '';
+    this.cdr.detectChanges();
+
+    try {
+      const userId = (await this.authService.getSession()).data.session?.user?.id;
+      if (!userId) {
+        g.uploadMsg = 'Sesión expirada';
+        return;
+      }
+
+      const basePath = `${userId}/${Date.now()}_${file.name}`;
+      const { error: uploadError } = await this.storageService.subirComprobante(basePath, file);
+      if (uploadError) { g.uploadMsg = 'Error al subir: ' + uploadError.message; return; }
+
+      const { data: signedUrl, error: signedError } = await this.storageService.getComprobanteUrl(basePath);
+      if (signedError || !signedUrl?.signedUrl) { g.uploadMsg = 'Error al generar enlace'; return; }
+
+      for (const r of g.reservas) {
+        if (r.estado === 'pendiente_comprobante') {
+          const { error } = await this.reservaService.actualizarComprobanteSingle(r.id, signedUrl.signedUrl);
+          if (!error) r.estado = 'pendiente_validacion';
+        }
+      }
+
+      g.uploadOk = true;
+      g.uploadMsg = '';
+      this.armarGrupos();
+    } catch (e: any) {
+      g.uploadMsg = e?.message || 'Error inesperado';
+    } finally {
+      g.uploading = false;
+      if (fileInput) fileInput.value = '';
+      this.cdr.detectChanges();
+    }
+  }
+
+  hayPendienteComprobante(g: ReservaGroup): boolean {
+    return g.reservas.some(r => r.estado === 'pendiente_comprobante');
+  }
+
+  asientosLabel(g: ReservaGroup): string {
+    const count = g.reservas.length;
+    return `${count} asiento${count > 1 ? 's' : ''}`;
+  }
+
+  pagoPromedio(g: ReservaGroup): string {
+    const pd0 = g.reservas[0]?.pasajero_datos as Record<string, any>;
+    const pct = typeof pd0?.['porcentaje_pago'] === 'number' ? pd0['porcentaje_pago'] : 100;
+    return `${pct}%`;
   }
 
   verComprobante(r: ReservaView) {
@@ -203,13 +394,13 @@ export class MisReservas implements OnInit {
   metodoPagoLabel(r: ReservaView): string {
     const datos = r.pasajero_datos as Record<string, any>;
     const mp = datos?.['metodo_pago'] || 'transferencia';
-    const map: Record<string, string> = {
-      efectivo: 'Efectivo',
-      transferencia: 'Transferencia',
-      tarjeta_credito: 'Tarjeta de crédito',
-      otro: 'Otro',
-    };
-    return map[mp] || mp;
+    return this.metodoPagoStr(mp);
+  }
+
+  metodoPagoGroup(g: ReservaGroup): string {
+    const datos = g.reservas[0]?.pasajero_datos as Record<string, any>;
+    const mp = datos?.['metodo_pago'] || 'transferencia';
+    return this.metodoPagoStr(mp);
   }
 
   saldoPendiente(r: ReservaView): number {

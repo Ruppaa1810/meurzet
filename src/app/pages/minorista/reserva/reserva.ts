@@ -126,6 +126,7 @@ export class Reserva implements OnInit {
       }
 
       const ids: number[] = [];
+      const grupoId = crypto.randomUUID();
 
       for (let i = 0; i < asientos.length; i++) {
         const { data: existente } = await this.reservaService.checkAsientoTieneReserva(asientos[i].asientoId);
@@ -137,6 +138,7 @@ export class Reserva implements OnInit {
 
         const pasajeroConPago = {
           ...pasajeros[i],
+          grupo_id: grupoId,
           porcentaje_pago: porcentajePago,
           metodo_pago: this.metodoPago,
           cuotas: this.cuotasCount > 1 ? this.cuotasCount : null,
@@ -182,6 +184,7 @@ export class Reserva implements OnInit {
       }
 
       this.reservaState.reservaIds = ids;
+      this.reservaState.grupoId = grupoId;
       this.reservaState.metodoPago = this.metodoPago;
       this.reservaState.cuotasSeleccionadas = this.cuotasCount;
       this.reservaState.recargoAplicado = this.recargoPorcentaje;

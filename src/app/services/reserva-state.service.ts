@@ -33,6 +33,7 @@ export class ReservaStateService {
   montoPagado: number = 0;
   cuotasSeleccionadas: number = 1;
   recargoAplicado: number = 0;
+  grupoId: string = '';
 
   get total(): number {
     return this.precio * this.asientos.length;
@@ -83,6 +84,7 @@ export class ReservaStateService {
     this.cuotasSeleccionadas = 1;
     this.recargoAplicado = 0;
     this.metodoPago = 'transferencia';
+    this.grupoId = '';
   }
 
   limpiar() {
@@ -98,5 +100,6 @@ export class ReservaStateService {
     this.cuotasSeleccionadas = 1;
     this.recargoAplicado = 0;
     this.metodoPago = 'transferencia';
+    this.grupoId = '';
   }
 }
