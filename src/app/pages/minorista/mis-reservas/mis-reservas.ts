@@ -128,6 +128,38 @@ export class MisReservas implements OnInit {
     this.comprobanteService.abrirParaImprimir(comprobante);
   }
 
+  verSaldoPendiente(r: ReservaView) {
+    const viajeInfo = { origen: '', destino: '', fecha_salida: '', fecha_llegada: '' };
+    const pd = r.pasajero_datos as Record<string, any>;
+    const pct = typeof pd?.['porcentaje_pago'] === 'number' ? pd['porcentaje_pago'] : 1;
+    const montoPagado = r.pagos?.filter(p => p.estado_pago === 'confirmado').reduce((s, p) => s + p.monto, 0) || 0;
+    const metodoPago = pd?.['metodo_pago'] || 'transferencia';
+    const cuotas = pd?.['cuotas'] || 0;
+    const recargo = pd?.['recargo'] || 0;
+    const totalBase = r.monto;
+    const montoAPagar = Math.round(totalBase * pct / 100);
+    const saldoBase = Math.max(0, totalBase - montoAPagar);
+    const saldoConRecargo = cuotas > 1 ? Math.round(saldoBase * (1 + recargo / 100)) : saldoBase;
+    const totalFinal = montoAPagar + saldoConRecargo;
+    const montoPendiente = Math.max(0, totalFinal - montoPagado);
+    const montoPorCuota = cuotas > 1 ? Math.round(saldoConRecargo / cuotas) : 0;
+    const comprobante: DatosComprobante = {
+      codigo: `MEU-${String(r.id).padStart(6, '0')}`,
+      viaje: { ...viajeInfo, ...r, precio_base: totalBase } as any,
+      asientos: [{ asientoId: r.asiento_viaje_id || 0, nroAsiento: 0, piso: 1, categoria: '' }],
+      pasajeros: [{ nombre: r.pasajeroNombre, apellido: '', documento: '', email: '', telefono: '' }],
+      total: totalBase,
+      montoPagado,
+      montoPendiente,
+      pagoLabel: this.estadoLabel(r.estado || ''),
+      metodoPago,
+      cuotasCount: cuotas,
+      montoPorCuota,
+      fecha: new Date().toLocaleString('es-AR'),
+    };
+    this.comprobanteService.abrirSaldoParaImprimir(comprobante);
+  }
+
   metodoPagoLabel(r: ReservaView): string {
     const datos = r.pasajero_datos as Record<string, any>;
     const mp = datos?.['metodo_pago'] || 'transferencia';

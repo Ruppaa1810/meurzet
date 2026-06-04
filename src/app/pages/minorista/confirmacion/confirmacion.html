@@ -106,6 +106,16 @@
         </div>
       </div>
 
+      <!-- COMPARTIR RESUMEN -->
+      <div class="bg-white rounded-xl p-4 md:p-5 border-2 border-meurzet-accent/30 hover:border-meurzet-info hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 text-center">
+        <h3 class="text-sm md:text-base font-bold text-meurzet-primary mb-1">Compartí el resumen con el cliente</h3>
+        <p class="text-[10px] md:text-xs text-slate-400 mb-3">Se descarga una imagen PNG para enviar por WhatsApp</p>
+        <button (click)="compartirResumen()" [disabled]="compartiendo"
+          class="w-full py-3 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-meurzet-accent to-meurzet-secondary hover:from-meurzet-info hover:to-meurzet-primary hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 cursor-pointer disabled:opacity-60">
+          {{ compartiendo ? 'Generando...' : '📸 Compartir resumen' }}
+        </button>
+      </div>
+
       <!-- DATOS TRANSFERENCIA + SUBIR COMPROBANTE -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         
@@ -121,22 +131,34 @@
               <span class="text-slate-500">Banco:</span>
               <span class="font-medium text-meurzet-primary">Meurzet S.A.</span>
             </div>
-            <div class="flex justify-between">
+            <div class="flex justify-between items-center">
               <span class="text-slate-500">Alias:</span>
-              <span class="font-medium text-meurzet-primary font-mono">MEURZET.PAGOS</span>
+              <div class="flex items-center gap-1.5">
+                <span class="font-bold text-meurzet-accent font-mono">MEURZET.PAGOS</span>
+                <button (click)="copiarAlias()"
+                  class="px-2 py-1 rounded-lg text-[9px] font-semibold border transition-all duration-200 cursor-pointer"
+                  [class]="aliasCopiado ? 'bg-green-50 text-green-600 border-green-300' : 'bg-white text-slate-500 border-slate-300 hover:border-meurzet-accent hover:text-meurzet-accent'">
+                  {{ aliasCopiado ? '✓ Copiado' : '📋' }}
+                </button>
+              </div>
             </div>
-            <div class="flex justify-between">
+            <div class="flex justify-between items-center">
               <span class="text-slate-500">CBU:</span>
-              <span class="font-medium text-meurzet-primary font-mono text-[10px] md:text-xs">1234567890123456789012</span>
+              <div class="flex items-center gap-1.5">
+                <span class="font-medium text-meurzet-primary font-mono text-[10px] md:text-xs">1234567890123456789012</span>
+                <button (click)="copiarCBU()"
+                  class="px-2 py-1 rounded-lg text-[9px] font-semibold border transition-all duration-200 cursor-pointer"
+                  [class]="cbuCopiado ? 'bg-green-50 text-green-600 border-green-300' : 'bg-white text-slate-500 border-slate-300 hover:border-meurzet-accent hover:text-meurzet-accent'">
+                  {{ cbuCopiado ? '✓ Copiado' : '📋' }}
+                </button>
+              </div>
             </div>
             <div class="flex justify-between">
               <span class="text-slate-500">Titular:</span>
               <span class="font-medium text-meurzet-primary">Meurzet Viajes</span>
             </div>
           </div>
-          <div class="mt-3 pt-2 border-t border-meurzet-light">
-            <p class="text-[9px] md:text-[10px] text-slate-500">📌 Subí el comprobante para validar tu reserva</p>
-          </div>
+          <div class="mt-3 pt-2 border-t border-meurzet-light"></div>
         </div>
 
         <!-- SUBIR COMPROBANTE -->

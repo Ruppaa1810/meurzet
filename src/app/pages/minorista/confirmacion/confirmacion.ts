@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
+import html2canvas from 'html2canvas';
 import { AuthService } from '../../../services/auth.service';
 import { StorageService } from '../../../services/storage.service';
 import { ReservaService } from '../../../services/reserva.service';
@@ -186,5 +187,153 @@ export class Confirmacion implements OnInit {
   cerrarPreview() {
     this.mostrarPreview = false;
     this.cdr.detectChanges();
+  }
+
+  aliasCopiado = false;
+  cbuCopiado = false;
+  compartiendo = false;
+
+  async copiarAlias() {
+    try {
+      await navigator.clipboard.writeText('MEURZET.PAGOS');
+      this.aliasCopiado = true;
+      this.cdr.detectChanges();
+      setTimeout(() => { this.aliasCopiado = false; this.cdr.detectChanges(); }, 2500);
+    } catch {}
+  }
+
+  async copiarCBU() {
+    try {
+      await navigator.clipboard.writeText('1234567890123456789012');
+      this.cbuCopiado = true;
+      this.cdr.detectChanges();
+      setTimeout(() => { this.cbuCopiado = false; this.cdr.detectChanges(); }, 2500);
+    } catch {}
+  }
+
+  get vencimiento(): string {
+    const d = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    return d.toLocaleString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  get contacto(): string {
+    return '11 2345-6789';
+  }
+
+  private generarResumenHTML(): string {
+    const v = this.reservaState.viaje!;
+    const salida = new Date(v.fecha_salida).toLocaleString('es-AR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    const llegada = new Date(v.fecha_llegada).toLocaleString('es-AR', { hour: '2-digit', minute: '2-digit' });
+    const pasajerosHtml = this.reservaState.asientos.map((a, i) => {
+      const p = this.reservaState.pasajeros[i];
+      return `
+        <tr>
+          <td style="padding:6px 10px;border-bottom:1px solid #e2e8f0;font-size:11px;">#${a.nroAsiento} · ${a.piso === 1 ? 'Baja' : 'Alta'}</td>
+          <td style="padding:6px 10px;border-bottom:1px solid #e2e8f0;font-size:11px;">${p?.nombre || ''} ${p?.apellido || ''}</td>
+          <td style="padding:6px 10px;border-bottom:1px solid #e2e8f0;font-size:11px;color:#64748b;">${p?.documento || ''}</td>
+        </tr>`;
+    }).join('');
+
+    return `
+<div style="width:480px;font-family:'Segoe UI',Arial,sans-serif;background:#f4f4f3;padding:24px;">
+  <div style="background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);border:1px solid #eec997;">
+    <div style="background:#384752;padding:20px;text-align:center;">
+      <img src="/logo.jpeg" style="width:50px;height:50px;border-radius:50%;object-fit:cover;background:#fff;margin-bottom:8px;" />
+      <h1 style="color:#e4912e;font-size:18px;margin:0 0 2px;">Meurzet Viajes</h1>
+      <p style="color:#eec997;font-size:11px;margin:0;">Resumen de Reserva</p>
+    </div>
+    <div style="text-align:center;padding:16px 20px;border-bottom:1px solid #eec997;">
+      <p style="font-size:22px;font-weight:700;color:#384752;letter-spacing:1px;margin:0;font-family:'Courier New',monospace;">${this.codigoReserva}</p>
+    </div>
+    <div style="padding:16px 20px;border-bottom:1px solid #eec997;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;">
+        <div><span style="color:#969fa3;">Origen:</span> <span style="font-weight:500;color:#384752;">${v.origen}</span></div>
+        <div><span style="color:#969fa3;">Destino:</span> <span style="font-weight:500;color:#384752;">${v.destino}</span></div>
+        <div><span style="color:#969fa3;">Salida:</span> <span style="font-weight:500;color:#384752;">${salida} hs</span></div>
+        <div><span style="color:#969fa3;">Llegada:</span> <span style="font-weight:500;color:#384752;">${llegada} hs</span></div>
+      </div>
+    </div>
+    <div style="padding:0 20px;">
+      <table style="width:100%;border-collapse:collapse;margin:12px 0;">
+        <thead><tr style="background:#f4f4f3;">
+          <th style="padding:6px 10px;text-align:left;font-size:10px;color:#969fa3;font-weight:600;">Asiento</th>
+          <th style="padding:6px 10px;text-align:left;font-size:10px;color:#969fa3;font-weight:600;">Pasajero</th>
+          <th style="padding:6px 10px;text-align:left;font-size:10px;color:#969fa3;font-weight:600;">Doc.</th>
+        </tr></thead>
+        <tbody>${pasajerosHtml}</tbody>
+      </table>
+    </div>
+    <div style="background:#fff5f2;padding:16px 20px;border-top:1px solid #eec997;border-bottom:1px solid #eec997;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;text-align:center;font-size:12px;">
+        <div><span style="color:#969fa3;font-size:10px;">Total base</span><p style="font-weight:700;color:#384752;margin:2px 0 0;">${this.formatPrecio(this.total)}</p></div>
+        <div><span style="color:#969fa3;font-size:10px;">Seña a pagar</span><p style="font-weight:700;color:#e4912e;margin:2px 0 0;">${this.formatPrecio(this.montoAPagar)}</p></div>
+      </div>
+      ${this.montoPendiente > 0 ? `
+      <div style="border-top:1px solid #eec997;margin-top:10px;padding-top:10px;text-align:center;">
+        <span style="color:#969fa3;font-size:10px;">Saldo a financiar${this.recargoPorcentaje > 0 ? ` + ${this.recargoPorcentaje}% recargo` : ''}</span>
+        <p style="font-weight:700;color:#1aa7c4;margin:2px 0 0;font-size:15px;">${this.formatPrecio(this.montoPendiente)}</p>
+        ${this.reservaState.cuotasSeleccionadas > 1 ? `<p style="color:#969fa3;font-size:10px;margin:2px 0 0;">${this.reservaState.cuotasSeleccionadas} cuotas de ${this.formatPrecio(this.montoPorCuota)}</p>` : ''}
+      </div>` : ''}
+      ${this.totalFinal !== this.total ? `
+      <div style="border-top:1px solid #eec997;margin-top:10px;padding-top:10px;text-align:center;">
+        <span style="color:#969fa3;font-size:10px;">Total a pagar</span>
+        <p style="font-weight:700;color:#384752;margin:2px 0 0;font-size:16px;">${this.formatPrecio(this.totalFinal)}</p>
+      </div>` : ''}
+    </div>
+    <div style="padding:16px 20px;border-bottom:1px solid #eec997;">
+      <p style="font-size:11px;font-weight:600;color:#384752;margin:0 0 8px;text-align:center;">📌 Datos para transferencia</p>
+      <div style="font-size:11px;display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        <div><span style="color:#969fa3;">Banco:</span> <span style="font-weight:500;">Meurzet S.A.</span></div>
+        <div><span style="color:#969fa3;">Titular:</span> <span style="font-weight:500;">Meurzet Viajes</span></div>
+        <div style="grid-column:1"><span style="color:#969fa3;">Alias:</span> <span style="font-weight:700;color:#e4912e;">MEURZET.PAGOS</span></div>
+        <div style="grid-column:2">
+          <span style="color:#969fa3;">CBU:</span>
+          <span style="font-weight:500;font-family:'Courier New',monospace;font-size:10px;">1234567890123456789012</span>
+        </div>
+      </div>
+      <p style="font-size:10px;color:#969fa3;margin:8px 0 0;text-align:center;">Referencia: <strong style="color:#384752;">${this.codigoReserva}</strong></p>
+    </div>
+    <div style="padding:12px 20px;text-align:center;background:#f4f4f3;font-size:10px;color:#64748b;">
+      <p style="margin:0 0 4px;">⏳ Vence: ${this.vencimiento} hs</p>
+      <p style="margin:0;">📞 Contacto: ${this.contacto}</p>
+    </div>
+    <div style="padding:10px 20px;text-align:center;font-size:9px;color:#969fa3;">
+      Transferí el monto de la seña y enviá el comprobante a tu vendedor
+    </div>
+  </div>
+</div>`;
+  }
+
+  async compartirResumen() {
+    if (this.compartiendo) return;
+    this.compartiendo = true;
+    this.cdr.detectChanges();
+
+    const div = document.createElement('div');
+    div.style.position = 'fixed';
+    div.style.left = '-9999px';
+    div.style.top = '0';
+    div.innerHTML = this.generarResumenHTML();
+    document.body.appendChild(div);
+
+    try {
+      const canvas = await html2canvas(div, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#f4f4f3',
+        logging: false,
+      });
+      const link = document.createElement('a');
+      link.download = `resumen-${this.codigoReserva.toLowerCase()}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch {
+      this.mensaje = 'Error al generar la imagen';
+    } finally {
+      document.body.removeChild(div);
+      this.compartiendo = false;
+      this.cdr.detectChanges();
+    }
   }
 }

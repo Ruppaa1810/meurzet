@@ -103,10 +103,14 @@
                 <span class="text-[10px] text-slate-400">{{ formatFecha(r.created_at) }}</span>
               </div>
               @if (r.estado === 'aprobado') {
-              <div class="mt-2 pt-2 border-t border-[#eec997]/50">
+              <div class="mt-2 pt-2 border-t border-[#eec997]/50 flex gap-2">
                 <button (click)="verComprobante(r)" 
-                  class="w-full py-1.5 rounded-lg text-[10px] font-semibold bg-meurzet-info/10 text-meurzet-info border border-meurzet-info/30 hover:bg-meurzet-info hover:text-white transition-all cursor-pointer">
+                  class="flex-1 py-1.5 rounded-lg text-[10px] font-semibold bg-meurzet-info/10 text-meurzet-info border border-meurzet-info/30 hover:bg-meurzet-info hover:text-white transition-all duration-200 cursor-pointer">
                   Ver comprobante
+                </button>
+                <button (click)="verSaldoPendiente(r)" 
+                  class="flex-1 py-1.5 rounded-lg text-[10px] font-semibold bg-meurzet-accent/10 text-meurzet-accent border border-meurzet-accent/30 hover:bg-meurzet-accent hover:text-white transition-all duration-200 cursor-pointer">
+                  Saldo pendiente
                 </button>
               </div>
               }
@@ -192,10 +196,16 @@
                   <td class="px-4 md:px-6 py-3">
                     <div class="flex flex-col gap-1">
                       @if (r.estado === 'aprobado') {
-                        <button (click)="verComprobante(r)" 
-                          class="px-2 py-1 rounded-lg text-[10px] font-semibold bg-meurzet-info/10 text-meurzet-info border border-meurzet-info/30 hover:bg-meurzet-info hover:text-white transition-all cursor-pointer">
-                          Ver comprobante
-                        </button>
+                        <div class="flex gap-1">
+                          <button (click)="verComprobante(r)" 
+                            class="flex-1 px-2 py-1 rounded-lg text-[10px] font-semibold bg-meurzet-info/10 text-meurzet-info border border-meurzet-info/30 hover:bg-meurzet-info hover:text-white transition-all duration-200 cursor-pointer">
+                            Ver comprobante
+                          </button>
+                          <button (click)="verSaldoPendiente(r)" 
+                            class="flex-1 px-2 py-1 rounded-lg text-[10px] font-semibold bg-meurzet-accent/10 text-meurzet-accent border border-meurzet-accent/30 hover:bg-meurzet-accent hover:text-white transition-all duration-200 cursor-pointer">
+                            Saldo pend.
+                          </button>
+                        </div>
                       }
                       <button (click)="togglePagos(r)" 
                         class="px-2 py-1 rounded-lg text-[10px] font-semibold bg-meurzet-accent/10 text-meurzet-accent border border-meurzet-accent/30 hover:bg-meurzet-accent hover:text-white transition-all cursor-pointer">
