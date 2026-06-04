@@ -3,11 +3,9 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import type { MetodoPago } from '../../../models/database.types';
-import type { ConfigCuota } from '../../../models/config-pagos.types';
 import { AuthService } from '../../../services/auth.service';
 import { ReservaService } from '../../../services/reserva.service';
 import { PagoService } from '../../../services/pago.service';
-import { ConfigPagosService } from '../../../services/config-pagos.service';
 import { ReservaStateService } from '../../../services/reserva-state.service';
 
 @Component({
@@ -21,25 +19,22 @@ export class Reserva implements OnInit {
   loading = false;
   message = '';
   metodoPago: string = 'transferencia';
-  opcionesCuotas: ConfigCuota[] = [];
-  cuotasSeleccionadas: number = 1;
+  cuotasCount: number = 1;
+  cuotasRecargo: number = 0;
 
   constructor(
     private router: Router,
     private authService: AuthService,
     private reservaService: ReservaService,
     private pagoService: PagoService,
-    private configPagosService: ConfigPagosService,
     public reservaState: ReservaStateService,
     private cdr: ChangeDetectorRef,
   ) {}
 
-  async ngOnInit() {
+  ngOnInit() {
     if (!this.reservaState.viaje || this.reservaState.asientos.length === 0) {
       this.router.navigate(['/minorista/vender'], { replaceUrl: true });
     }
-    this.opcionesCuotas = await this.configPagosService.getOpcionesCuotas();
-    this.cuotasSeleccionadas = 1;
   }
 
   volver() {
@@ -56,10 +51,8 @@ export class Reserva implements OnInit {
   }
 
   get totalConRecargo(): number {
-    if (this.cuotasSeleccionadas <= 1) return this.total;
-    const cuota = this.opcionesCuotas.find(c => c.cuotas === this.cuotasSeleccionadas);
-    const recargo = cuota?.recargo || 0;
-    return Math.round(this.total * (1 + recargo / 100));
+    if (this.cuotasCount <= 1 || !this.cuotasRecargo) return this.total;
+    return Math.round(this.total * (1 + this.cuotasRecargo / 100));
   }
 
   get montoMinimo(): number {
@@ -67,9 +60,8 @@ export class Reserva implements OnInit {
   }
 
   get recargoPorcentaje(): number {
-    if (this.cuotasSeleccionadas <= 1) return 0;
-    const cuota = this.opcionesCuotas.find(c => c.cuotas === this.cuotasSeleccionadas);
-    return cuota?.recargo || 0;
+    if (this.cuotasCount <= 1) return 0;
+    return this.cuotasRecargo;
   }
 
   get montoAPagar(): number {
@@ -131,7 +123,7 @@ export class Reserva implements OnInit {
           ...pasajeros[i],
           porcentaje_pago: porcentajePago,
           metodo_pago: this.metodoPago,
-          cuotas: this.cuotasSeleccionadas > 1 ? this.cuotasSeleccionadas : null,
+          cuotas: this.cuotasCount > 1 ? this.cuotasCount : null,
           recargo: this.recargoPorcentaje,
         };
         const { data, error } = await this.reservaService.crearReserva({
@@ -175,7 +167,7 @@ export class Reserva implements OnInit {
 
       this.reservaState.reservaIds = ids;
       this.reservaState.metodoPago = this.metodoPago;
-      this.reservaState.cuotasSeleccionadas = this.cuotasSeleccionadas;
+      this.reservaState.cuotasSeleccionadas = this.cuotasCount;
       this.reservaState.recargoAplicado = this.recargoPorcentaje;
       this.router.navigate(['/minorista/confirmacion']);
     } catch (e: any) {
