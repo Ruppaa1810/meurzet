@@ -27,9 +27,12 @@ export class ReservaStateService {
   montoPersonalizado: number = 0;
   precio: number = 0;
   reservaIds: number[] = [];
+  metodoPago: string = 'transferencia';
 
   estadoFinanciero: EstadoFinanciero = 'pendiente';
   montoPagado: number = 0;
+  cuotasSeleccionadas: number = 1;
+  recargoAplicado: number = 0;
 
   get total(): number {
     return this.precio * this.asientos.length;
@@ -77,6 +80,9 @@ export class ReservaStateService {
     this.montoPersonalizado = 0;
     this.estadoFinanciero = 'pendiente';
     this.montoPagado = 0;
+    this.cuotasSeleccionadas = 1;
+    this.recargoAplicado = 0;
+    this.metodoPago = 'transferencia';
   }
 
   limpiar() {
@@ -89,5 +95,8 @@ export class ReservaStateService {
     this.reservaIds = [];
     this.estadoFinanciero = 'pendiente';
     this.montoPagado = 0;
+    this.cuotasSeleccionadas = 1;
+    this.recargoAplicado = 0;
+    this.metodoPago = 'transferencia';
   }
 }

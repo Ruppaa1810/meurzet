@@ -63,12 +63,19 @@
         </div>
 
         <div class="bg-[#f4f4f3] px-4 md:px-6 py-3 md:py-4 border-t border-meurzet-light">
-          <div class="grid grid-cols-3 gap-2 md:gap-4 text-center">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 text-center">
             <div>
               <span class="text-slate-500 text-[10px] md:text-xs">Total</span>
-              <p class="font-bold text-base md:text-xl text-meurzet-primary">{{ formatPrecio(total) }}</p>
+              <p class="font-bold text-base md:text-xl text-meurzet-primary">{{ formatPrecio(totalConRecargo) }}</p>
+              @if (recargoPorcentaje > 0) {
+              <p class="text-[9px] text-slate-400">({{ recargoPorcentaje }}% recargo)</p>
+              }
             </div>
-            <div class="border-l border-r border-meurzet-light">
+            <div>
+              <span class="text-slate-500 text-[10px] md:text-xs">Método de pago</span>
+              <p class="font-semibold text-xs md:text-sm text-meurzet-primary capitalize">{{ reservaState.metodoPago.replace('_', ' ') }}</p>
+            </div>
+            <div>
               <span class="text-slate-500 text-[10px] md:text-xs">Tipo de pago</span>
               <p class="font-semibold text-xs md:text-sm text-meurzet-primary">{{ pagoLabel }}</p>
             </div>
@@ -77,6 +84,12 @@
               <p class="font-bold text-base md:text-xl text-meurzet-accent">{{ formatPrecio(montoAPagar) }}</p>
             </div>
           </div>
+          @if (montoPendiente > 0) {
+          <div class="text-center pt-3 mt-3 border-t border-meurzet-light">
+            <span class="text-[10px] md:text-xs text-slate-400">Saldo pendiente</span>
+            <p class="font-bold text-sm md:text-base text-meurzet-secondary">{{ formatPrecio(montoPendiente) }}</p>
+          </div>
+          }
         </div>
       </div>
 
@@ -226,7 +239,14 @@
         <div><span class="text-slate-400">Salida:</span> <span class="font-medium">{{ reservaState.viaje?.fecha_salida | date:'dd/MM/yyyy HH:mm' }} hs</span></div>
         <div><span class="text-slate-400">Llegada:</span> <span class="font-medium">{{ reservaState.viaje?.fecha_llegada | date:'HH:mm' }} hs</span></div>
         <div><span class="text-slate-400">Tipo de pago:</span> <span class="font-medium">{{ pagoLabel }}</span></div>
-        <div><span class="text-slate-400">Total:</span> <span class="font-bold text-meurzet-accent">{{ formatPrecio(total) }}</span></div>
+        <div><span class="text-slate-400">Método de pago:</span> <span class="font-medium capitalize">{{ reservaState.metodoPago.replace('_', ' ') }}</span></div>
+        @if (recargoPorcentaje > 0) {
+        <div><span class="text-slate-400">Recargo:</span> <span class="font-medium">{{ recargoPorcentaje }}% ({{ reservaState.cuotasSeleccionadas }} cuotas)</span></div>
+        }
+        <div><span class="text-slate-400">Total:</span> <span class="font-bold text-meurzet-accent">{{ formatPrecio(totalConRecargo) }}</span></div>
+        @if (montoPendiente > 0) {
+        <div><span class="text-slate-400">Saldo pendiente:</span> <span class="font-bold text-meurzet-secondary">{{ formatPrecio(montoPendiente) }}</span></div>
+        }
       </div>
       <table class="w-full border-collapse">
         <thead><tr class="bg-slate-50 border-b border-meurzet-light">

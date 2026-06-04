@@ -100,7 +100,14 @@
         <div class="mt-4 md:mt-5 p-4 md:p-5 bg-[#fff5f2] rounded-xl text-center border-2 border-meurzet-light">
           <div class="text-[10px] md:text-xs text-slate-500">Monto a pagar ahora</div>
           <div class="text-xl md:text-2xl font-extrabold text-meurzet-accent my-1">{{ formatPrecio(montoAPagar) }}</div>
-          <div class="text-[10px] md:text-xs text-slate-400">{{ reservaState.porcentajePago }}% del total ({{ formatPrecio(total) }})</div>
+          <div class="text-[10px] md:text-xs text-slate-400">{{ reservaState.porcentajePago }}% del total</div>
+          @if (recargoPorcentaje > 0) {
+          <div class="text-[9px] md:text-[10px] text-slate-400 mt-1">
+            Total con recargo: {{ formatPrecio(totalConRecargo) }} ({{ recargoPorcentaje }}% recargo por {{ cuotasSeleccionadas }} cuotas)
+          </div>
+          } @else {
+          <div class="text-[10px] md:text-xs text-slate-400">{{ formatPrecio(totalConRecargo) }}</div>
+          }
         </div>
       </div>
 
@@ -122,11 +129,11 @@
             <span class="text-lg">🏦</span>
             <span>Transferencia</span>
           </button>
-          <button (click)="metodoPago = 'mercadopago'"
+          <button (click)="metodoPago = 'tarjeta_credito'"
             class="flex flex-col items-center gap-1 py-3 md:py-4 rounded-xl text-xs md:text-sm font-bold border-2 transition-all duration-200 cursor-pointer"
-            [class]="metodoPago === 'mercadopago' ? 'border-meurzet-accent bg-[#fff5f2] text-meurzet-accent shadow-md' : 'border-slate-200 bg-white text-slate-600 hover:border-meurzet-accent'">
-            <span class="text-lg">⚡</span>
-            <span>Mercado Pago</span>
+            [class]="metodoPago === 'tarjeta_credito' ? 'border-meurzet-accent bg-[#fff5f2] text-meurzet-accent shadow-md' : 'border-slate-200 bg-white text-slate-600 hover:border-meurzet-accent'">
+            <span class="text-lg">💳</span>
+            <span>Tarjeta de crédito</span>
           </button>
           <button (click)="metodoPago = 'otro'"
             class="flex flex-col items-center gap-1 py-3 md:py-4 rounded-xl text-xs md:text-sm font-bold border-2 transition-all duration-200 cursor-pointer"
@@ -136,6 +143,27 @@
           </button>
         </div>
       </div>
+
+      <!-- Cuotas (solo para tarjeta de crédito) -->
+      @if (metodoPago === 'tarjeta_credito') {
+      <div class="bg-white rounded-xl md:rounded-2xl p-5 md:p-6 shadow-lg border-2 border-meurzet-accent/20 hover:border-meurzet-info hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
+        <h3 class="text-sm md:text-base font-bold text-meurzet-primary mb-3 md:mb-4">
+          Cantidad de cuotas
+        </h3>
+        <div class="flex flex-wrap gap-2 md:gap-3">
+          @for (op of opcionesCuotas; track op.cuotas) {
+            <button (click)="cuotasSeleccionadas = op.cuotas"
+              class="flex-1 min-w-[60px] py-2 md:py-3 rounded-xl text-xs md:text-sm font-bold border-2 transition-all duration-200 cursor-pointer"
+              [class]="cuotasSeleccionadas === op.cuotas ? 'border-meurzet-accent bg-[#fff5f2] text-meurzet-accent shadow-md' : 'border-slate-200 bg-white text-slate-600 hover:border-meurzet-accent'">
+              {{ op.cuotas }} cuota{{ op.cuotas > 1 ? 's' : '' }}
+              @if (op.recargo > 0) {
+              <span class="block text-[9px] md:text-[10px] font-normal">({{ op.recargo }}% recargo)</span>
+              }
+            </button>
+          }
+        </div>
+      </div>
+      }
 
       <!-- Mensaje de error -->
       @if (message) {
@@ -150,7 +178,7 @@
   <!-- BOTÓN CONFIRMAR -->
   <div class="w-full bg-transparent">
     <div class="max-w-4xl mx-auto px-4 md:px-8 pb-6 md:pb-8">
-      <button (click)="confirmarReserva()" [disabled]="loading"
+      <button (click)="confirmarReserva()" [disabled]="loading || !!montoError"
         class="w-full py-3 md:py-4 rounded-xl font-bold text-sm md:text-base text-white 
                bg-gradient-to-r from-meurzet-accent to-meurzet-secondary 
                hover:from-meurzet-info hover:to-meurzet-primary

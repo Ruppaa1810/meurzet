@@ -85,15 +85,31 @@ export class Confirmacion implements OnInit {
     return piso === 1 ? 'Baja' : 'Alta';
   }
 
+  get recargoPorcentaje(): number {
+    return this.reservaState.recargoAplicado;
+  }
+
+  get totalConRecargo(): number {
+    return this.reservaState.recargoAplicado > 0
+      ? Math.round(this.total * (1 + this.reservaState.recargoAplicado / 100))
+      : this.total;
+  }
+
+  get montoPendiente(): number {
+    return Math.max(0, this.totalConRecargo - this.montoAPagar);
+  }
+
   get datosComprobante(): DatosComprobante {
     return {
       codigo: this.codigoReserva,
       viaje: this.reservaState.viaje!,
       asientos: this.reservaState.asientos,
       pasajeros: this.reservaState.pasajeros,
-      total: this.total,
-      montoPagado: this.reservaState.montoPagado,
+      total: this.totalConRecargo,
+      montoPagado: this.montoAPagar,
+      montoPendiente: this.montoPendiente,
       pagoLabel: this.pagoLabel,
+      metodoPago: this.reservaState.metodoPago,
       fecha: new Date().toLocaleString('es-AR'),
     };
   }

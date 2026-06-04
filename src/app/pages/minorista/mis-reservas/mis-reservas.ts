@@ -99,17 +99,41 @@ export class MisReservas implements OnInit {
 
   verComprobante(r: ReservaView) {
     const viajeInfo = { origen: '', destino: '', fecha_salida: '', fecha_llegada: '' };
-    const datos: DatosComprobante = {
+    const datos = r.pasajero_datos as Record<string, any>;
+    const montoPagado = r.pagos?.filter(p => p.estado_pago === 'confirmado').reduce((s, p) => s + p.monto, 0) || 0;
+    const metodoPago = datos?.['metodo_pago'] || 'transferencia';
+    const comprobante: DatosComprobante = {
       codigo: `MEU-${String(r.id).padStart(6, '0')}`,
       viaje: { ...viajeInfo, ...r, precio_base: r.monto } as any,
       asientos: [{ asientoId: r.asiento_viaje_id || 0, nroAsiento: 0, piso: 1, categoria: '' }],
       pasajeros: [{ nombre: r.pasajeroNombre, apellido: '', documento: '', email: '', telefono: '' }],
       total: r.monto,
-      montoPagado: r.pagos?.filter(p => p.estado_pago === 'confirmado').reduce((s, p) => s + p.monto, 0) || 0,
+      montoPagado,
+      montoPendiente: Math.max(0, r.monto - montoPagado),
       pagoLabel: this.estadoLabel(r.estado || ''),
+      metodoPago,
       fecha: new Date().toLocaleString('es-AR'),
     };
-    this.comprobanteService.abrirParaImprimir(datos);
+    this.comprobanteService.abrirParaImprimir(comprobante);
+  }
+
+  metodoPagoLabel(r: ReservaView): string {
+    const datos = r.pasajero_datos as Record<string, any>;
+    const mp = datos?.['metodo_pago'] || 'transferencia';
+    const map: Record<string, string> = {
+      efectivo: 'Efectivo',
+      transferencia: 'Transferencia',
+      tarjeta_credito: 'Tarjeta de crédito',
+      otro: 'Otro',
+    };
+    return map[mp] || mp;
+  }
+
+  saldoPendiente(r: ReservaView): number {
+    const pagado = r.pagos
+      .filter(p => p.estado_pago === 'confirmado')
+      .reduce((s, p) => s + p.monto, 0);
+    return Math.max(0, r.monto - pagado);
   }
 
   estadoLabel(estado: string | null): string {

@@ -7,7 +7,7 @@ export type CategoriaAsiento = 'semicama' | 'cama_ejecutivo' | 'cama_suite';
 export type EstadoValidacion = 'pendiente_comprobante' | 'pendiente_validacion' | 'aprobado' | 'rechazado';
 export type TipoPago = 'parcial' | 'total';
 export type EstadoFinanciero = 'pendiente' | 'pagado_parcial' | 'pagado_total' | 'reembolso_pendiente' | 'reembolsado';
-export type MetodoPago = 'efectivo' | 'transferencia' | 'mercadopago' | 'otro';
+export type MetodoPago = 'efectivo' | 'transferencia' | 'tarjeta_credito' | 'otro';
 export type EstadoPagoMovimiento = 'pendiente' | 'confirmado' | 'rechazado' | 'reembolsado';
 
 // =============================================================================

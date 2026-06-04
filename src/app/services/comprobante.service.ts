@@ -1,6 +1,16 @@
 import { Injectable } from '@angular/core';
-import type { Viaje } from '../models/database.types';
+import type { Viaje, MetodoPago } from '../models/database.types';
 import type { AsientoReserva, PasajeroData } from './reserva-state.service';
+
+function metodoPagoLabel(mp: string): string {
+  const map: Record<MetodoPago, string> = {
+    efectivo: 'Efectivo',
+    transferencia: 'Transferencia',
+    tarjeta_credito: 'Tarjeta de crédito',
+    otro: 'Otro',
+  };
+  return map[mp as MetodoPago] || mp;
+}
 
 export interface DatosComprobante {
   codigo: string;
@@ -9,7 +19,9 @@ export interface DatosComprobante {
   pasajeros: PasajeroData[];
   total: number;
   montoPagado: number;
+  montoPendiente: number;
   pagoLabel: string;
+  metodoPago: string;
   fecha: string;
 }
 
@@ -54,6 +66,7 @@ export class ComprobanteService {
     <div><span class="label">Salida:</span> <span class="value">${new Date(datos.viaje.fecha_salida).toLocaleString('es-AR')}</span></div>
     <div><span class="label">Llegada:</span> <span class="value">${new Date(datos.viaje.fecha_llegada).toLocaleString('es-AR')}</span></div>
     <div><span class="label">Tipo de pago:</span> <span class="value">${datos.pagoLabel}</span></div>
+    <div><span class="label">Método de pago:</span> <span class="value">${metodoPagoLabel(datos.metodoPago)}</span></div>
     <div><span class="label">Emitido:</span> <span class="value">${datos.fecha}</span></div>
   </div>
 
@@ -87,6 +100,10 @@ export class ComprobanteService {
   <div style="text-align: right; font-size: 12px; color: #64748b;">
     Monto pagado: $ ${datos.montoPagado.toLocaleString('es-AR')}
   </div>
+  ${datos.montoPendiente > 0 ? `
+  <div style="text-align: right; font-size: 12px; color: #e4912e; font-weight: 600;">
+    Saldo pendiente: $ ${datos.montoPendiente.toLocaleString('es-AR')}
+  </div>` : ''}
 
   <div class="footer">
     <p>Meurzet Viajes — Este comprobante es válido como constancia de reserva.</p>
