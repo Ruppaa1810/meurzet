@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
@@ -34,6 +34,7 @@ export class MisReservas implements OnInit {
   Math = Math;
   reservas: ReservaView[] = [];
   loading = true;
+  accionAbierta: number | null = null;
 
   constructor(
     private authService: AuthService,
@@ -45,6 +46,11 @@ export class MisReservas implements OnInit {
     private comprobanteService: ComprobanteService,
     private cdr: ChangeDetectorRef,
   ) {}
+
+  @HostListener('document:click')
+  documentClick() {
+    this.accionAbierta = null;
+  }
 
   async ngOnInit() {
     try {
@@ -94,6 +100,40 @@ export class MisReservas implements OnInit {
 
   togglePagos(r: ReservaView) {
     r.mostrandoPagos = !r.mostrandoPagos;
+  }
+
+  toggleAccion(id: number) {
+    this.accionAbierta = this.accionAbierta === id ? null : id;
+    this.cdr.detectChanges();
+  }
+
+  cerrarAccion() {
+    this.accionAbierta = null;
+    this.cdr.detectChanges();
+  }
+
+  progresoPago(r: ReservaView): number {
+    const pd = r.pasajero_datos as Record<string, any>;
+    const pct = typeof pd?.['porcentaje_pago'] === 'number' ? pd['porcentaje_pago'] : 1;
+    const cuotas = pd?.['cuotas'] || 0;
+    const recargo = pd?.['recargo'] || 0;
+    const totalBase = r.monto;
+    const montoAPagar = Math.round(totalBase * pct / 100);
+    const saldoBase = Math.max(0, totalBase - montoAPagar);
+    const saldoConRecargo = cuotas > 1 ? Math.round(saldoBase * (1 + recargo / 100)) : saldoBase;
+    const totalFinal = montoAPagar + saldoConRecargo;
+    const pagado = r.pagos.filter(p => p.estado_pago === 'confirmado').reduce((s, p) => s + p.monto, 0);
+    return totalFinal > 0 ? Math.min(100, Math.round(pagado / totalFinal * 100)) : 0;
+  }
+
+  metodoPagoStr(mp: string): string {
+    const map: Record<string, string> = {
+      efectivo: 'Efectivo',
+      transferencia: 'Transferencia',
+      tarjeta_credito: 'Tarjeta de crédito',
+      otro: 'Otro',
+    };
+    return map[mp] || mp;
   }
 
   verComprobante(r: ReservaView) {
@@ -201,7 +241,6 @@ export class MisReservas implements OnInit {
   formatFecha(fecha: string): string {
     return new Date(fecha).toLocaleDateString('es-AR', {
       day: '2-digit', month: 'short', year: 'numeric',
-      hour: '2-digit', minute: '2-digit',
     });
   }
 
