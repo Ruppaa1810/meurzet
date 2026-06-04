@@ -99,19 +99,24 @@ export class MisReservas implements OnInit {
 
   verComprobante(r: ReservaView) {
     const viajeInfo = { origen: '', destino: '', fecha_salida: '', fecha_llegada: '' };
-    const datos = r.pasajero_datos as Record<string, any>;
+    const pd = r.pasajero_datos as Record<string, any>;
     const montoPagado = r.pagos?.filter(p => p.estado_pago === 'confirmado').reduce((s, p) => s + p.monto, 0) || 0;
-    const metodoPago = datos?.['metodo_pago'] || 'transferencia';
+    const metodoPago = pd?.['metodo_pago'] || 'transferencia';
+    const cuotas = pd?.['cuotas'] || 0;
+    const recargo = pd?.['recargo'] || 0;
+    const totalConRecargo = cuotas > 1 ? Math.round(r.monto * (1 + recargo / 100)) : r.monto;
     const comprobante: DatosComprobante = {
       codigo: `MEU-${String(r.id).padStart(6, '0')}`,
       viaje: { ...viajeInfo, ...r, precio_base: r.monto } as any,
       asientos: [{ asientoId: r.asiento_viaje_id || 0, nroAsiento: 0, piso: 1, categoria: '' }],
       pasajeros: [{ nombre: r.pasajeroNombre, apellido: '', documento: '', email: '', telefono: '' }],
-      total: r.monto,
+      total: totalConRecargo,
       montoPagado,
-      montoPendiente: Math.max(0, r.monto - montoPagado),
+      montoPendiente: Math.max(0, totalConRecargo - montoPagado),
       pagoLabel: this.estadoLabel(r.estado || ''),
       metodoPago,
+      cuotasCount: cuotas,
+      montoPorCuota: cuotas > 1 ? Math.round(totalConRecargo / cuotas) : 0,
       fecha: new Date().toLocaleString('es-AR'),
     };
     this.comprobanteService.abrirParaImprimir(comprobante);

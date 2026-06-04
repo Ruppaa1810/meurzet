@@ -85,6 +85,12 @@ export class Confirmacion implements OnInit {
     return piso === 1 ? 'Baja' : 'Alta';
   }
 
+  get montoPorCuota(): number {
+    return this.reservaState.cuotasSeleccionadas > 1
+      ? Math.round(this.totalConRecargo / this.reservaState.cuotasSeleccionadas)
+      : 0;
+  }
+
   get recargoPorcentaje(): number {
     return this.reservaState.recargoAplicado;
   }
@@ -110,6 +116,8 @@ export class Confirmacion implements OnInit {
       montoPendiente: this.montoPendiente,
       pagoLabel: this.pagoLabel,
       metodoPago: this.reservaState.metodoPago,
+      cuotasCount: this.reservaState.cuotasSeleccionadas,
+      montoPorCuota: this.reservaState.cuotasSeleccionadas > 1 ? Math.round(this.totalConRecargo / this.reservaState.cuotasSeleccionadas) : 0,
       fecha: new Date().toLocaleString('es-AR'),
     };
   }

@@ -88,6 +88,9 @@
           <div class="text-center pt-3 mt-3 border-t border-meurzet-light">
             <span class="text-[10px] md:text-xs text-slate-400">Saldo pendiente</span>
             <p class="font-bold text-sm md:text-base text-meurzet-secondary">{{ formatPrecio(montoPendiente) }}</p>
+            @if (reservaState.cuotasSeleccionadas > 1) {
+            <p class="text-[9px] md:text-[10px] text-slate-400 mt-1">En {{ reservaState.cuotasSeleccionadas }} cuotas de {{ formatPrecio(montoPorCuota) }}</p>
+            }
           </div>
           }
         </div>
@@ -246,6 +249,9 @@
         <div><span class="text-slate-400">Total:</span> <span class="font-bold text-meurzet-accent">{{ formatPrecio(totalConRecargo) }}</span></div>
         @if (montoPendiente > 0) {
         <div><span class="text-slate-400">Saldo pendiente:</span> <span class="font-bold text-meurzet-secondary">{{ formatPrecio(montoPendiente) }}</span></div>
+        @if (reservaState.cuotasSeleccionadas > 1) {
+        <div><span class="text-slate-400">Cuotas:</span> <span class="font-medium">{{ reservaState.cuotasSeleccionadas }} cuotas de {{ formatPrecio(montoPorCuota) }}</span></div>
+        }
         }
       </div>
       <table class="w-full border-collapse">

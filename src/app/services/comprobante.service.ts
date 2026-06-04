@@ -22,6 +22,8 @@ export interface DatosComprobante {
   montoPendiente: number;
   pagoLabel: string;
   metodoPago: string;
+  cuotasCount: number;
+  montoPorCuota: number;
   fecha: string;
 }
 
@@ -103,7 +105,11 @@ export class ComprobanteService {
   ${datos.montoPendiente > 0 ? `
   <div style="text-align: right; font-size: 12px; color: #e4912e; font-weight: 600;">
     Saldo pendiente: $ ${datos.montoPendiente.toLocaleString('es-AR')}
-  </div>` : ''}
+  </div>
+  ${datos.cuotasCount > 1 ? `
+  <div style="text-align: right; font-size: 11px; color: #64748b;">
+    A pagar en ${datos.cuotasCount} cuotas de $ ${datos.montoPorCuota.toLocaleString('es-AR')} cada una
+  </div>` : ''}` : ''}
 
   <div class="footer">
     <p>Meurzet Viajes — Este comprobante es válido como constancia de reserva.</p>
