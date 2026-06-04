@@ -85,24 +85,27 @@ export class Confirmacion implements OnInit {
     return piso === 1 ? 'Baja' : 'Alta';
   }
 
-  get montoPorCuota(): number {
-    return this.reservaState.cuotasSeleccionadas > 1
-      ? Math.round(this.totalConRecargo / this.reservaState.cuotasSeleccionadas)
-      : 0;
-  }
-
   get recargoPorcentaje(): number {
     return this.reservaState.recargoAplicado;
   }
 
-  get totalConRecargo(): number {
-    return this.reservaState.recargoAplicado > 0
-      ? Math.round(this.total * (1 + this.reservaState.recargoAplicado / 100))
-      : this.total;
+  get saldoBase(): number {
+    return Math.max(0, this.total - this.montoAPagar);
+  }
+
+  get totalFinal(): number {
+    if (this.reservaState.cuotasSeleccionadas <= 1 || this.reservaState.recargoAplicado <= 0) return this.total;
+    return this.montoAPagar + Math.round(this.saldoBase * (1 + this.reservaState.recargoAplicado / 100));
   }
 
   get montoPendiente(): number {
-    return Math.max(0, this.totalConRecargo - this.montoAPagar);
+    return Math.max(0, this.totalFinal - this.montoAPagar);
+  }
+
+  get montoPorCuota(): number {
+    return this.reservaState.cuotasSeleccionadas > 1
+      ? Math.round(this.montoPendiente / this.reservaState.cuotasSeleccionadas)
+      : 0;
   }
 
   get datosComprobante(): DatosComprobante {
@@ -111,13 +114,13 @@ export class Confirmacion implements OnInit {
       viaje: this.reservaState.viaje!,
       asientos: this.reservaState.asientos,
       pasajeros: this.reservaState.pasajeros,
-      total: this.totalConRecargo,
+      total: this.totalFinal,
       montoPagado: this.montoAPagar,
       montoPendiente: this.montoPendiente,
       pagoLabel: this.pagoLabel,
       metodoPago: this.reservaState.metodoPago,
       cuotasCount: this.reservaState.cuotasSeleccionadas,
-      montoPorCuota: this.reservaState.cuotasSeleccionadas > 1 ? Math.round(this.totalConRecargo / this.reservaState.cuotasSeleccionadas) : 0,
+      montoPorCuota: this.montoPorCuota,
       fecha: new Date().toLocaleString('es-AR'),
     };
   }

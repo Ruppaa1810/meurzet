@@ -50,15 +50,6 @@ export class Reserva implements OnInit {
     return this.reservaState.total;
   }
 
-  get totalConRecargo(): number {
-    if (this.cuotasCount <= 1 || !this.cuotasRecargo) return this.total;
-    return Math.round(this.total * (1 + this.cuotasRecargo / 100));
-  }
-
-  get montoMinimo(): number {
-    return Math.round(this.totalConRecargo * 0.3);
-  }
-
   get recargoPorcentaje(): number {
     if (this.cuotasCount <= 1) return 0;
     return this.cuotasRecargo;
@@ -66,14 +57,39 @@ export class Reserva implements OnInit {
 
   get montoAPagar(): number {
     if (this.reservaState.tipoPagoMode === 'personalizado') return this.reservaState.montoPersonalizado;
-    return Math.round(this.totalConRecargo * this.reservaState.porcentajePago / 100);
+    return Math.round(this.total * this.reservaState.porcentajePago / 100);
+  }
+
+  get saldoBase(): number {
+    return Math.max(0, this.total - this.montoAPagar);
+  }
+
+  get saldoConRecargo(): number {
+    if (this.cuotasCount <= 1 || !this.cuotasRecargo) return this.saldoBase;
+    return Math.round(this.saldoBase * (1 + this.cuotasRecargo / 100));
+  }
+
+  get totalFinal(): number {
+    return this.montoAPagar + this.saldoConRecargo;
+  }
+
+  get montoPendiente(): number {
+    return Math.max(0, this.totalFinal - this.montoAPagar);
+  }
+
+  get montoPorCuota(): number {
+    return this.cuotasCount > 1 ? Math.round(this.saldoConRecargo / this.cuotasCount) : 0;
+  }
+
+  get montoMinimo(): number {
+    return Math.round(this.total * 0.3);
   }
 
   get montoError(): string {
     const monto = this.reservaState.montoPersonalizado;
     if (this.reservaState.tipoPagoMode !== 'personalizado' || !monto) return '';
     if (monto < this.montoMinimo) return `El mínimo es ${this.formatPrecio(this.montoMinimo)}`;
-    if (monto > this.totalConRecargo) return `El máximo es ${this.formatPrecio(this.totalConRecargo)}`;
+    if (monto > this.total) return `El máximo es ${this.formatPrecio(this.total)}`;
     return '';
   }
 

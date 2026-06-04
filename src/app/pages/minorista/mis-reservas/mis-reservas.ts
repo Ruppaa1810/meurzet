@@ -66,8 +66,7 @@ export class MisReservas implements OnInit {
         const d = (r.pasajero_datos || {}) as Record<string, any>;
         const nom = [d['nombre'], d['apellido']].filter(Boolean).join(' ') || '-';
         const viajeInfo = viajesMap.get(r.viaje_id!);
-        const pct = typeof d['porcentaje_pago'] === 'number' ? d['porcentaje_pago'] : 1;
-        const monto = viajeInfo ? Math.round(viajeInfo.precio * pct) : 0;
+        const monto = viajeInfo?.precio || 0;
         const { data: pagos } = await this.pagoService.getPagosPorReserva(r.id);
         return { ...r, viajeLabel: viajeInfo?.label || `Viaje #${r.viaje_id}`, pasajeroNombre: nom, monto, uploading: false, uploadMsg: '', uploadOk: false, pagos: pagos || [], mostrandoPagos: false };
       }));
@@ -100,23 +99,30 @@ export class MisReservas implements OnInit {
   verComprobante(r: ReservaView) {
     const viajeInfo = { origen: '', destino: '', fecha_salida: '', fecha_llegada: '' };
     const pd = r.pasajero_datos as Record<string, any>;
+    const pct = typeof pd?.['porcentaje_pago'] === 'number' ? pd['porcentaje_pago'] : 1;
     const montoPagado = r.pagos?.filter(p => p.estado_pago === 'confirmado').reduce((s, p) => s + p.monto, 0) || 0;
     const metodoPago = pd?.['metodo_pago'] || 'transferencia';
     const cuotas = pd?.['cuotas'] || 0;
     const recargo = pd?.['recargo'] || 0;
-    const totalConRecargo = cuotas > 1 ? Math.round(r.monto * (1 + recargo / 100)) : r.monto;
+    const totalBase = r.monto;
+    const montoAPagar = Math.round(totalBase * pct / 100);
+    const saldoBase = Math.max(0, totalBase - montoAPagar);
+    const saldoConRecargo = cuotas > 1 ? Math.round(saldoBase * (1 + recargo / 100)) : saldoBase;
+    const totalFinal = montoAPagar + saldoConRecargo;
+    const montoPendiente = Math.max(0, totalFinal - montoPagado);
+    const montoPorCuota = cuotas > 1 ? Math.round(saldoConRecargo / cuotas) : 0;
     const comprobante: DatosComprobante = {
       codigo: `MEU-${String(r.id).padStart(6, '0')}`,
-      viaje: { ...viajeInfo, ...r, precio_base: r.monto } as any,
+      viaje: { ...viajeInfo, ...r, precio_base: totalBase } as any,
       asientos: [{ asientoId: r.asiento_viaje_id || 0, nroAsiento: 0, piso: 1, categoria: '' }],
       pasajeros: [{ nombre: r.pasajeroNombre, apellido: '', documento: '', email: '', telefono: '' }],
-      total: totalConRecargo,
+      total: totalFinal,
       montoPagado,
-      montoPendiente: Math.max(0, totalConRecargo - montoPagado),
+      montoPendiente,
       pagoLabel: this.estadoLabel(r.estado || ''),
       metodoPago,
       cuotasCount: cuotas,
-      montoPorCuota: cuotas > 1 ? Math.round(totalConRecargo / cuotas) : 0,
+      montoPorCuota,
       fecha: new Date().toLocaleString('es-AR'),
     };
     this.comprobanteService.abrirParaImprimir(comprobante);
@@ -135,10 +141,19 @@ export class MisReservas implements OnInit {
   }
 
   saldoPendiente(r: ReservaView): number {
+    const pd = r.pasajero_datos as Record<string, any>;
+    const pct = typeof pd?.['porcentaje_pago'] === 'number' ? pd['porcentaje_pago'] : 1;
+    const cuotas = pd?.['cuotas'] || 0;
+    const recargo = pd?.['recargo'] || 0;
+    const totalBase = r.monto;
+    const montoAPagar = Math.round(totalBase * pct / 100);
+    const saldoBase = Math.max(0, totalBase - montoAPagar);
+    const saldoConRecargo = cuotas > 1 ? Math.round(saldoBase * (1 + recargo / 100)) : saldoBase;
+    const totalFinal = montoAPagar + saldoConRecargo;
     const pagado = r.pagos
       .filter(p => p.estado_pago === 'confirmado')
       .reduce((s, p) => s + p.monto, 0);
-    return Math.max(0, r.monto - pagado);
+    return Math.max(0, totalFinal - pagado);
   }
 
   estadoLabel(estado: string | null): string {
