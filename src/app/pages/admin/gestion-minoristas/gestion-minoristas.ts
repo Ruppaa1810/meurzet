@@ -21,7 +21,7 @@ interface VendedorConReservas extends Perfil {
 })
 export class GestionMinoristas implements OnInit, OnDestroy {
   vendedores: VendedorConReservas[] = [];
-  loading = false;
+  loading = true;
   mensaje = '';
   buscando = '';
 
@@ -35,6 +35,12 @@ export class GestionMinoristas implements OnInit, OnDestroy {
   formNombre = '';
   formAgencia = '';
   formRol: UserRole = 'vendedor_minorista';
+
+  mostrarModalToggle = false;
+  toggleTarget: VendedorConReservas | null = null;
+  togglingId: string | null = null;
+
+  filtroRol: 'todos' | UserRole = 'todos';
 
   rol: UserRole | null = null;
   userId: string | null = null;
@@ -73,6 +79,9 @@ export class GestionMinoristas implements OnInit, OnDestroy {
     let base = this.vendedores;
     if (!this.esAdmin) {
       base = base.filter(v => v.created_by === this.userId && v.rol === 'vendedor_minorista');
+    }
+    if (this.esAdmin && this.filtroRol !== 'todos') {
+      base = base.filter(v => v.rol === this.filtroRol);
     }
     if (!this.buscando.trim()) return base;
     const q = this.buscando.toLowerCase();
@@ -134,12 +143,32 @@ export class GestionMinoristas implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  async toggleActivo(v: VendedorConReservas) {
+  confirmarToggle(v: VendedorConReservas) {
     if (!this.puedeGestionar) return;
+    this.toggleTarget = v;
+    this.mostrarModalToggle = true;
+    this.mensaje = '';
+  }
+
+  cerrarModalToggle() {
+    this.mostrarModalToggle = false;
+    this.toggleTarget = null;
+  }
+
+  async ejecutarToggle() {
+    const v = this.toggleTarget;
+    if (!v) return;
+    this.togglingId = v.id;
+    this.mensaje = '';
     const nuevoEstado = !v.activo;
     const { error } = await this.perfilService.togglePerfilActivo(v.id, nuevoEstado);
-    if (error) { this.mensaje = error.message; return; }
+    this.togglingId = null;
+    if (error) { this.mensaje = error.message; this.mostrarModalToggle = false; return; }
     v.activo = nuevoEstado;
+    this.mostrarSuccess(v.activo ? 'Vendedor activado correctamente' : 'Vendedor desactivado correctamente');
+    this.mostrarModalToggle = false;
+    this.toggleTarget = null;
+    this.cdr.detectChanges();
   }
 
   abrirNuevo() {
