@@ -123,6 +123,12 @@ export class Seleccion implements OnInit, OnDestroy {
     });
   }
 
+  catLabel(cat: string): string {
+    if (cat === 'cama_ejecutivo') return 'Ej';
+    if (cat === 'cama_suite') return 'Su';
+    return 'Se';
+  }
+
   formatPrecio(precio: number): string {
     return `$ ${precio.toLocaleString('es-AR')}`;
   }
@@ -190,9 +196,15 @@ export class Seleccion implements OnInit, OnDestroy {
   }
 
   seatClasses(asiento: SeatView): string {
-    if (asiento.estado === 'bloqueado') return 'seat-blocked';
-    if (asiento.estado === 'confirmado') return 'seat-occupied';
-    return 'seat-free';
+    let cls = '';
+    if (asiento.estado === 'bloqueado') cls = 'seat-blocked';
+    else if (asiento.estado === 'confirmado') cls = 'seat-occupied';
+    else cls = 'seat-free';
+    if (asiento.categoria === 'cama_ejecutivo') cls += ' seat-ejecutivo';
+    else if (asiento.categoria === 'cama_suite') cls += ' seat-suite';
+    else cls += ' seat-semicama';
+    if (asiento.selected) cls += ' seat-selected';
+    return cls;
   }
 
   get selectedList(): SeatView[] {

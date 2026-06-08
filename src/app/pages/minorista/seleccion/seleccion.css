@@ -245,6 +245,70 @@ LEGEND
   border: 2px solid var(--color-meurzet-accent);
 }
 
+.legend-sep {
+  width: 1px;
+  height: 24px;
+  background: #e2e8f0;
+}
+
+.legend-dot.semicama {
+  background: #e0f2fe;
+  border: 1px solid #7dd3fc;
+}
+
+.legend-dot.ejecutivo {
+  background: #ede9fe;
+  border: 1px solid #c4b5fd;
+}
+
+.legend-dot.suite {
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+}
+
+.seat-cat {
+  position: absolute;
+  bottom: 3px;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  opacity: 0.75;
+  text-transform: uppercase;
+}
+
+.seat-semicama {
+  background: linear-gradient(160deg, #e0f2fe, #bae6fd) !important;
+  border-color: #7dd3fc !important;
+  color: #0369a1 !important;
+}
+.seat-semicama:hover {
+  background: linear-gradient(160deg, #38bdf8, #0284c7) !important;
+  color: white !important;
+  box-shadow: 0 10px 20px rgba(56,189,248,.3) !important;
+}
+
+.seat-ejecutivo {
+  background: linear-gradient(160deg, #ede9fe, #ddd6fe) !important;
+  border-color: #c4b5fd !important;
+  color: #6d28d9 !important;
+}
+.seat-ejecutivo:hover {
+  background: linear-gradient(160deg, #8b5cf6, #7c3aed) !important;
+  color: white !important;
+  box-shadow: 0 10px 20px rgba(139,92,246,.3) !important;
+}
+
+.seat-suite {
+  background: linear-gradient(160deg, #fef3c7, #fde68a) !important;
+  border-color: #fcd34d !important;
+  color: #b45309 !important;
+}
+.seat-suite:hover {
+  background: linear-gradient(160deg, #f59e0b, #d97706) !important;
+  color: white !important;
+  box-shadow: 0 10px 20px rgba(245,158,11,.3) !important;
+}
+
 /* =========================================================
 BUSES
 ========================================================= */

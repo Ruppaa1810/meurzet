@@ -155,8 +155,15 @@ export class Viajes implements OnInit {
         const { error } = await this.viajeService.updateViaje(this.editandoId, payload);
         if (error) { this.mensaje = error.message; return; }
       } else {
-        const { error } = await this.viajeService.createViaje(payload);
+        const { data: viajeCreado, error } = await this.viajeService.createViaje(payload);
         if (error) { this.mensaje = error.message; return; }
+        if (viajeCreado && this.form.unidad_id) {
+          const { error: seatsError } = await this.unidadService.generarAsientosParaViaje(viajeCreado.id, this.form.unidad_id);
+          if (seatsError) {
+            this.mensaje = `Viaje creado pero error al generar asientos: ${seatsError.message}`;
+            return;
+          }
+        }
       }
 
       this.modalAbierto = false;

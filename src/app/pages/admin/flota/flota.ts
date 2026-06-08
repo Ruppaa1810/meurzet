@@ -1,13 +1,14 @@
 import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { PerfilService } from '../../../services/perfil.service';
-import { UnidadService } from '../../../services/unidad.service';
+import { UnidadService, type SeatConfig } from '../../../services/unidad.service';
 import type { Unidad, UserRole } from '../../../models/database.types';
 
 @Component({
   selector: 'app-admin-flota',
   standalone: true,
-  imports: [FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './flota.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -70,6 +71,13 @@ export class Flota implements OnInit {
 
   form = { patente: '', empresa: '', pisos: 1 as 1 | 2, asientos_totales: 0 };
 
+  // Seat configuration
+  mostrarModalAsientos = false;
+  asientosUnidad: Unidad | null = null;
+  asientosEditables: SeatConfig[] = [];
+  pisoAsientosActivo = 1;
+  guardandoAsientos = false;
+
   constructor(
     private perfilService: PerfilService,
     private unidadService: UnidadService,
@@ -113,6 +121,63 @@ export class Flota implements OnInit {
       this.form = { patente: '', empresa: '', pisos: 1, asientos_totales: 0 };
     }
     this.modalAbierto = true;
+  }
+
+  configurarAsientos(unidad: Unidad) {
+    const existentes: SeatConfig[] = (unidad.layout_config?.['asientos'] as SeatConfig[]) ?? [];
+    if (existentes.length > 0) {
+      this.asientosEditables = existentes.map(s => ({ ...s }));
+    } else {
+      const seatsPerPiso = Math.floor(unidad.asientos_totales / unidad.pisos);
+      const sobrantes = unidad.asientos_totales % unidad.pisos;
+      this.asientosEditables = [];
+      let nro = 1;
+      for (let p = 1; p <= unidad.pisos; p++) {
+        const count = seatsPerPiso + (p <= sobrantes ? 1 : 0);
+        for (let i = 0; i < count; i++) {
+          this.asientosEditables.push({ nro: nro++, piso: p, categoria: 'semicama' });
+        }
+      }
+    }
+    this.asientosUnidad = unidad;
+    this.pisoAsientosActivo = 1;
+    this.mostrarModalAsientos = true;
+  }
+
+  cerrarModalAsientos() {
+    this.mostrarModalAsientos = false;
+    this.asientosUnidad = null;
+    this.asientosEditables = [];
+    this.guardandoAsientos = false;
+  }
+
+  asignarCategoriaPiso(piso: number, categoria: SeatConfig['categoria']) {
+    this.asientosEditables = this.asientosEditables.map(s =>
+      s.piso === piso ? { ...s, categoria } : s
+    );
+  }
+
+  async guardarConfigAsientos() {
+    if (!this.asientosUnidad) return;
+    this.guardandoAsientos = true;
+    this.mensaje = '';
+    try {
+      const layout = {
+        ...this.asientosUnidad.layout_config,
+        empresa: (this.asientosUnidad.layout_config?.['empresa'] as string) || '',
+        asientos: this.asientosEditables,
+      };
+      const { error } = await this.unidadService.updateUnidad(this.asientosUnidad.id, { layout_config: layout });
+      if (error) { this.mensaje = error.message; return; }
+      this.mostrarSuccess('Configuración de asientos guardada correctamente');
+      this.cerrarModalAsientos();
+      await this.cargar();
+    } catch (e: any) {
+      this.mensaje = e?.message || 'Error al guardar configuración';
+    } finally {
+      this.guardandoAsientos = false;
+      this.cdr.detectChanges();
+    }
   }
 
   cerrarModal() {
