@@ -35,7 +35,7 @@
 
   @if (!loading && grupos.length === 0) {
     <div class="flex flex-col items-center justify-center h-[50vh] text-center">
-      <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-[#f4f4f3] border-2 border-[#eec997] flex items-center justify-center">
+      <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-[#f4f4f3] border-2 border-[#af4f35]/30 flex items-center justify-center">
         <svg class="w-10 h-10 text-[#969fa3]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
         </svg>
@@ -48,9 +48,9 @@
   @if (!loading && grupos.length > 0) {
     <div class="grid grid-cols-1 gap-6">
       @for (g of paginatedGrupos; track g.grupoId) {
-        <div class="bg-white rounded-2xl border-2 border-[#eec997] shadow-md hover:border-[#1aa7c4] hover:shadow-2xl hover:scale-[1.01] transition-all duration-300 overflow-hidden">
+        <div class="bg-white rounded-2xl border-2 border-[#af4f35]/30 shadow-md hover:border-[#1aa7c4] hover:shadow-2xl hover:scale-[1.01] transition-all duration-300 overflow-hidden">
 
-          <div class="bg-[#f4f4f3] px-5 py-3 border-b border-[#eec997]">
+          <div class="bg-[#f4f4f3] px-5 py-3 border-b border-[#af4f35]/30">
             <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
               <div class="flex items-center gap-3">
                 @if (g.reservas.length > 1) {
@@ -91,7 +91,7 @@
             </div>
 
             @if (g.reservas.length > 1 && g.expanded) {
-              <div class="mb-4 border-t border-[#eec997] pt-3">
+              <div class="mb-4 border-t border-[#af4f35]/30 pt-3">
                 <table class="w-full text-xs">
                   <thead>
                     <tr class="text-left text-slate-400 text-[10px] uppercase">
@@ -103,7 +103,7 @@
                   </thead>
                   <tbody>
                     @for (r of g.reservas; track r.id) {
-                      <tr class="border-t border-[#eec997]/50">
+                      <tr class="border-t border-[#af4f35]/30/50">
                         <td class="py-1.5 pr-4 font-mono font-bold">N° {{ r.asiento_viaje_id || '—' }}</td>
                         <td class="py-1.5 pr-4 text-slate-600">{{ pasajeroNombre(r) }}</td>
                         <td class="py-1.5 pr-4 font-medium text-[#af4f35]">$ {{ (r.viaje?.precio_base || 0).toLocaleString('es-AR') }}</td>
@@ -121,7 +121,7 @@
             }
 
             @if (puedeGestionar && puedeAprobarGrupo(g)) {
-              <div class="flex flex-wrap gap-3 pt-3 border-t border-[#eec997]">
+              <div class="flex flex-wrap gap-3 pt-3 border-t border-[#af4f35]/30">
                 @if (g.comprobanteUrl) {
                   <button (click)="verComprobante(g.comprobanteUrl!)"
                     class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border-2 border-[#1aa7c4]/30 text-[#1aa7c4] bg-white hover:bg-[#1aa7c4] hover:text-white hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
@@ -150,7 +150,7 @@
             }
 
             @if (puedeGestionar && !puedeAprobarGrupo(g)) {
-              <div class="pt-3 border-t border-[#eec997]">
+              <div class="pt-3 border-t border-[#af4f35]/30">
                 <p class="text-xs text-slate-400 flex items-center gap-2">
                   <svg class="w-4 h-4 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -165,7 +165,7 @@
       }
     </div>
 
-    <div class="flex items-center justify-between pt-6 border-t border-[#eec997] mt-6">
+    <div class="flex items-center justify-between pt-6 border-t border-[#af4f35]/30 mt-6">
       <p class="text-xs text-slate-400">
         Página {{ currentPage }} de {{ totalPages }}
         <span class="mx-1">·</span>
@@ -195,7 +195,7 @@
 @if (mostrarModal && grupoAccion) {
   <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]"
     (click)="cerrarModal()">
-    <div class="bg-white rounded-2xl p-6 w-[480px] max-w-[90vw] shadow-2xl border-2 border-[#eec997]"
+    <div class="bg-white rounded-2xl p-6 w-[480px] max-w-[90vw] shadow-2xl border-2 border-[#af4f35]/30"
       (click)="$event.stopPropagation()">
       @if (accion === 'aprobar') {
         <div class="text-center mb-4">
@@ -210,13 +210,13 @@
           <p class="text-sm text-slate-500 mt-1">
             Se confirmarán {{ reservasAProcesar.length }} reserva{{ reservasAProcesar.length > 1 ? 's' : '' }} y los asientos quedarán como aprobados.
           </p>
-          <div class="bg-[#f4f4f3] rounded-xl p-3 text-left space-y-1 mt-3 border border-[#eec997]">
+          <div class="bg-[#f4f4f3] rounded-xl p-3 text-left space-y-1 mt-3 border border-[#af4f35]/30">
             <p class="text-xs text-slate-500"><span class="font-semibold text-[#384752]">Viaje:</span> {{ grupoAccion.reservas[0]?.viaje?.origen }} → {{ grupoAccion.reservas[0]?.viaje?.destino }}</p>
             <p class="text-xs text-slate-500"><span class="font-semibold text-[#384752]">Salida:</span> {{ grupoAccion.reservas[0]?.viaje?.fecha_salida | date:'dd/MM/yyyy HH:mm' }} hs</p>
             <p class="text-xs text-slate-500"><span class="font-semibold text-[#384752]">Asientos:</span> {{ grupoAccion.reservas.length }} ({{ reservasAProcesar.length }} a aprobar)</p>
             <p class="text-xs font-semibold text-[#af4f35]">$ {{ totalGrupo(grupoAccion).toLocaleString('es-AR') }}</p>
             @if (grupoAccion.reservas.length > 1) {
-              <div class="mt-2 pt-2 border-t border-[#eec997] space-y-1">
+              <div class="mt-2 pt-2 border-t border-[#af4f35]/30 space-y-1">
                 @for (r of grupoAccion.reservas; track r.id) {
                   <div class="flex justify-between text-[10px]">
                     <span class="text-slate-500">#{{ r.asiento_viaje_id }} · {{ pasajeroNombre(r) }}</span>

@@ -28,6 +28,7 @@ export class Admin implements OnInit {
     if (this.router.url.includes('validaciones')) return 'Validaciones';
     if (this.router.url.includes('flota')) return 'Gestión de Flota';
     if (this.router.url.includes('viajes')) return 'Gestión de Viajes';
+    if (this.router.url.includes('auditoria')) return 'Auditoría';
     return 'Administración';
   }
 

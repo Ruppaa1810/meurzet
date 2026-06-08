@@ -23,23 +23,23 @@
 
   @if (!esAdmin) {
   <div class="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-4 mb-8">
-    <div class="bg-white rounded-2xl p-5 shadow-sm border-l-[6px] border-l-meurzet-accent">
+    <div class="bg-white rounded-2xl p-5 border-2 border-[#af4f35]/30 shadow-md border-l-[6px] border-l-meurzet-accent">
       <div class="text-[0.7rem] font-bold uppercase tracking-[0.5px] text-slate-500">Vendedores</div>
       <div class="text-3xl font-extrabold text-meurzet-primary">{{ totalCreados }}</div>
     </div>
-    <div class="bg-white rounded-2xl p-5 shadow-sm border-l-[6px] border-l-meurzet-secondary">
+    <div class="bg-white rounded-2xl p-5 border-2 border-[#af4f35]/30 shadow-md border-l-[6px] border-l-meurzet-secondary">
       <div class="text-[0.7rem] font-bold uppercase tracking-[0.5px] text-slate-500">Reservas totales</div>
       <div class="text-3xl font-extrabold text-meurzet-primary">{{ totalReservasCreados }}</div>
     </div>
-    <div class="bg-white rounded-2xl p-5 shadow-sm border-l-[6px] border-l-green-600">
+    <div class="bg-white rounded-2xl p-5 border-2 border-[#af4f35]/30 shadow-md border-l-[6px] border-l-green-600">
       <div class="text-[0.7rem] font-bold uppercase tracking-[0.5px] text-slate-500">Aprobadas</div>
       <div class="text-3xl font-extrabold text-green-600">{{ aprobadasCreados }}</div>
     </div>
-    <div class="bg-white rounded-2xl p-5 shadow-sm border-l-[6px] border-l-amber-400">
+    <div class="bg-white rounded-2xl p-5 border-2 border-[#af4f35]/30 shadow-md border-l-[6px] border-l-amber-400">
       <div class="text-[0.7rem] font-bold uppercase tracking-[0.5px] text-slate-500">Pendientes</div>
       <div class="text-3xl font-extrabold text-amber-500">{{ pendientesCreados }}</div>
     </div>
-    <div class="bg-white rounded-2xl p-5 shadow-sm border-l-[6px] border-l-red-500">
+    <div class="bg-white rounded-2xl p-5 border-2 border-[#af4f35]/30 shadow-md border-l-[6px] border-l-red-500">
       <div class="text-[0.7rem] font-bold uppercase tracking-[0.5px] text-slate-500">Rechazadas</div>
       <div class="text-3xl font-extrabold text-red-600">{{ rechazadasCreados }}</div>
     </div>
@@ -60,7 +60,7 @@
     <p class="text-center text-red-600 bg-red-50 px-4 py-3 rounded-lg mt-4">{{ mensaje }}</p>
   }
 
-  <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+  <div class="bg-white rounded-2xl border-2 border-[#af4f35]/30 shadow-md overflow-hidden">
     <table class="w-full border-collapse text-sm">
       <thead>
         <tr class="bg-slate-50 border-b-2 border-slate-200">
