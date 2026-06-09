@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  supabaseUrl: 'https://yenkuvvumgmuyvjludeg.supabase.co',
-  supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inllbmt1dnZ1bWdtdXl2amx1ZGVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxMDc1ODMsImV4cCI6MjA5NDY4MzU4M30.WOnAysNAhia3JubCLut7UkoGhBFWZHjyAS15SHiruT8',
-  serviceRoleKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inllbmt1dnZ1bWdtdXl2amx1ZGVnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTEwNzU4MywiZXhwIjoyMDk0NjgzNTgzfQ.Xwrh7MSgFhfy25ZjtBvvDJvjmtWXvmPSpJhoowWlg3w',
+  supabaseUrl: 'https://api.meurzetviajes.com',
+  supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNjQxNzY5MjAwLCJleHAiOjI3OTk1MzU2MDB9.Jkc49G-YLxKCH0AfBPSQgHhwLIXnobk07MT-9awIr20',
+  serviceRoleKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UiLCJpYXQiOjE2NDE3NjkyMDAsImV4cCI6Mjc5OTUzNTYwMH0.C6V4FA7HG6f2OeUkolaLVqeg5oD7fj2iwQKkhE2eyYw',
 };

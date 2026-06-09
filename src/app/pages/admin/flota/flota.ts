@@ -69,7 +69,15 @@ export class Flota implements OnInit {
 
   rol: UserRole | null = null;
 
-  form = { patente: '', empresa: '', pisos: 1 as 1 | 2, asientos_totales: 0 };
+  form = {
+    patente: '', empresa: '', pisos: 1 as 1 | 2,
+    asientos_piso_1: 0, categoria_piso_1: 'semicama',
+    asientos_piso_2: 0, categoria_piso_2: 'semicama',
+  };
+
+  get asientos_totales(): number {
+    return this.form.asientos_piso_1 + this.form.asientos_piso_2;
+  }
 
   // Seat configuration
   mostrarModalAsientos = false;
@@ -114,11 +122,26 @@ export class Flota implements OnInit {
     if (unidad) {
       this.editando = true;
       this.editandoId = unidad.id;
-      this.form = { patente: unidad.patente, empresa: (unidad.layout_config?.['empresa'] as string) || '', pisos: unidad.pisos, asientos_totales: unidad.asientos_totales };
+      const seats: SeatConfig[] = (unidad.layout_config?.['asientos'] as SeatConfig[]) ?? [];
+      const piso1 = seats.filter(s => s.piso === 1);
+      const piso2 = seats.filter(s => s.piso === 2);
+      this.form = {
+        patente: unidad.patente,
+        empresa: (unidad.layout_config?.['empresa'] as string) || '',
+        pisos: unidad.pisos,
+        asientos_piso_1: piso1.length > 0 ? piso1.length : unidad.asientos_totales,
+        categoria_piso_1: piso1[0]?.categoria || 'semicama',
+        asientos_piso_2: piso2.length > 0 ? piso2.length : 0,
+        categoria_piso_2: piso2[0]?.categoria || 'semicama',
+      };
     } else {
       this.editando = false;
       this.editandoId = null;
-      this.form = { patente: '', empresa: '', pisos: 1, asientos_totales: 0 };
+      this.form = {
+        patente: '', empresa: '', pisos: 1,
+        asientos_piso_1: 0, categoria_piso_1: 'semicama',
+        asientos_piso_2: 0, categoria_piso_2: 'semicama',
+      };
     }
     this.modalAbierto = true;
   }
@@ -162,18 +185,13 @@ export class Flota implements OnInit {
     this.guardandoAsientos = true;
     this.mensaje = '';
     try {
-      const layout = {
-        ...this.asientosUnidad.layout_config,
-        empresa: (this.asientosUnidad.layout_config?.['empresa'] as string) || '',
-        asientos: this.asientosEditables,
-      };
-      const { error } = await this.unidadService.updateUnidad(this.asientosUnidad.id, { layout_config: layout });
+      const { error } = await this.unidadService.actualizarAsientosUnidad(this.asientosUnidad.id, this.asientosEditables);
       if (error) { this.mensaje = error.message; return; }
-      this.mostrarSuccess('Configuración de asientos guardada correctamente');
+      this.mostrarSuccess('Configuraci\u00f3n de asientos guardada correctamente');
       this.cerrarModalAsientos();
       await this.cargar();
     } catch (e: any) {
-      this.mensaje = e?.message || 'Error al guardar configuración';
+      this.mensaje = e?.message || 'Error al guardar configuraci\u00f3n';
     } finally {
       this.guardandoAsientos = false;
       this.cdr.detectChanges();
@@ -191,24 +209,30 @@ export class Flota implements OnInit {
 
   async guardar() {
     if (!this.esAdmin) return;
-    if (!this.form.patente.trim() || this.form.asientos_totales < 1) return;
+    if (!this.form.patente.trim() || this.asientos_totales < 1) return;
 
     this.guardando = true;
     this.mensaje = '';
 
     try {
-      const payload = {
-        patente: this.form.patente,
-        pisos: this.form.pisos,
-        asientos_totales: this.form.asientos_totales,
-        layout_config: { empresa: this.form.empresa },
-      };
-
       if (this.editando && this.editandoId != null) {
+        const payload = {
+          patente: this.form.patente,
+          pisos: this.form.pisos,
+          asientos_totales: this.asientos_totales,
+          layout_config: { empresa: this.form.empresa } as Record<string, unknown>,
+        };
         const { error } = await this.unidadService.updateUnidad(this.editandoId, payload);
         if (error) { this.mensaje = error.message; return; }
       } else {
-        const { error } = await this.unidadService.createUnidad(payload);
+        const { error } = await this.unidadService.crearUnidadConAsientos({
+          p_patente: this.form.patente,
+          p_asientos_piso_1: this.form.asientos_piso_1,
+          p_categoria_piso_1: this.form.categoria_piso_1,
+          p_asientos_piso_2: this.form.asientos_piso_2,
+          p_categoria_piso_2: this.form.categoria_piso_2,
+          p_empresa: this.form.empresa,
+        });
         if (error) { this.mensaje = error.message; return; }
       }
 

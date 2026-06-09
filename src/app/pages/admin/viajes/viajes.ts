@@ -133,6 +133,11 @@ export class Viajes implements OnInit {
     setTimeout(() => this.successMensaje = '', 5000);
   }
 
+  unidadLabel(viaje: Viaje): string {
+    const u = this.unidades.find(u => u.id === viaje.unidad_id);
+    return u ? `${u.patente} (${u.asientos_totales} as.)` : 'Sin asignar';
+  }
+
   async guardar() {
     if (!this.esAdmin) return;
     if (!this.form.origen.trim() || !this.form.destino.trim() || !this.form.fecha_salida || !this.form.fecha_llegada) return;
@@ -155,15 +160,16 @@ export class Viajes implements OnInit {
         const { error } = await this.viajeService.updateViaje(this.editandoId, payload);
         if (error) { this.mensaje = error.message; return; }
       } else {
-        const { data: viajeCreado, error } = await this.viajeService.createViaje(payload);
+        const { data: viajeCreado, error } = await this.viajeService.crearViajeConAsientos({
+          p_origen: payload.origen,
+          p_destino: payload.destino,
+          p_fecha_salida: payload.fecha_salida,
+          p_fecha_llegada: payload.fecha_llegada,
+          p_precio_base: payload.precio_base,
+          p_activo: payload.activo,
+          p_unidad_id: payload.unidad_id,
+        });
         if (error) { this.mensaje = error.message; return; }
-        if (viajeCreado && this.form.unidad_id) {
-          const { error: seatsError } = await this.unidadService.generarAsientosParaViaje(viajeCreado.id, this.form.unidad_id);
-          if (seatsError) {
-            this.mensaje = `Viaje creado pero error al generar asientos: ${seatsError.message}`;
-            return;
-          }
-        }
       }
 
       this.modalAbierto = false;

@@ -98,8 +98,15 @@ export class Seleccion implements OnInit, OnDestroy {
   seatRowsIzq(piso: number): SeatView[][] {
     const seats = this.asientosPorPiso(piso);
     const rows: SeatView[][] = [];
-    for (let i = 0; i + 1 < seats.length; i += 4) {
-      rows.push([seats[i], seats[i + 1]]);
+    const full = Math.floor(seats.length / 4);
+    const rem = seats.length % 4;
+    for (let i = 0; i < full; i++) {
+      rows.push([seats[i * 4], seats[i * 4 + 1]]);
+    }
+    if (rem >= 1) {
+      const r: SeatView[] = [seats[full * 4]];
+      if (rem >= 2) r.push(seats[full * 4 + 1]);
+      rows.push(r);
     }
     return rows;
   }
@@ -107,10 +114,19 @@ export class Seleccion implements OnInit, OnDestroy {
   seatRowsDer(piso: number): SeatView[][] {
     const seats = this.asientosPorPiso(piso);
     const rows: SeatView[][] = [];
-    for (let i = 2; i + 1 < seats.length; i += 4) {
-      rows.push([seats[i], seats[i + 1]]);
+    const full = Math.floor(seats.length / 4);
+    const rem = seats.length % 4;
+    for (let i = 0; i < full; i++) {
+      rows.push([seats[i * 4 + 2], seats[i * 4 + 3]]);
+    }
+    if (rem === 3) {
+      rows.push([seats[full * 4 + 2]]);
     }
     return rows;
+  }
+
+  get mostrarPlantaAlta(): boolean {
+    return this.asientos.some(a => a.piso === 2);
   }
 
   get asientosLibres(): number {
@@ -196,15 +212,10 @@ export class Seleccion implements OnInit, OnDestroy {
   }
 
   seatClasses(asiento: SeatView): string {
-    let cls = '';
-    if (asiento.estado === 'bloqueado') cls = 'seat-blocked';
-    else if (asiento.estado === 'confirmado') cls = 'seat-occupied';
-    else cls = 'seat-free';
-    if (asiento.categoria === 'cama_ejecutivo') cls += ' seat-ejecutivo';
-    else if (asiento.categoria === 'cama_suite') cls += ' seat-suite';
-    else cls += ' seat-semicama';
-    if (asiento.selected) cls += ' seat-selected';
-    return cls;
+    if (asiento.selected) return 'seat-free seat-selected';
+    if (asiento.estado === 'bloqueado') return 'seat-blocked';
+    if (asiento.estado === 'confirmado') return 'seat-occupied';
+    return 'seat-free';
   }
 
   get selectedList(): SeatView[] {

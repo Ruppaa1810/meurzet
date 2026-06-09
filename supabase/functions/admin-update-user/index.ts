@@ -5,11 +5,9 @@ serve(async (req) => {
   if (req.method !== 'PUT') return new Response('Method not allowed', { status: 405 })
 
   try {
-    const authHeader = req.headers.get('Authorization')
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-      { global: { headers: { Authorization: authHeader } } },
     )
 
     const { userId, email, password } = await req.json()
