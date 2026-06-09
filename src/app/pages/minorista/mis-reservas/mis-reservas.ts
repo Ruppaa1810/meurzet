@@ -29,7 +29,7 @@ interface ReservaGroup {
   reservas: ReservaView[];
   estado: string;
   mostrandoPagos: boolean;
-  expanded: boolean;
+  detalleAbierto: boolean;
   uploading: boolean;
   uploadMsg: string;
   uploadOk: boolean;
@@ -48,6 +48,51 @@ export class MisReservas implements OnInit {
   grupos: ReservaGroup[] = [];
   loading = true;
   accionAbierta: string | null = null;
+
+  // Filtros
+  filtroEstado = '';
+  filtroFecha = '';
+  fechaBuffer = '';
+
+  estadosFiltro = [
+    { valor: '', label: 'Todos' },
+    { valor: 'pendiente_comprobante', label: 'Pendiente' },
+    { valor: 'aprobado', label: 'Aprobado' },
+    { valor: 'rechazado', label: 'Rechazado' },
+  ];
+
+  get gruposFiltrados(): ReservaGroup[] {
+    return this.grupos.filter(g => {
+      if (this.filtroEstado && g.estado !== this.filtroEstado) return false;
+      if (this.filtroFecha) {
+        const f = new Date(g.reservas[0]?.created_at || '');
+        const diaSel = new Date(this.filtroFecha + 'T00:00:00');
+        if (f.toDateString() !== diaSel.toDateString()) return false;
+      }
+      return true;
+    });
+  }
+
+  hayFiltrosActivos(): boolean {
+    return !!this.filtroEstado || !!this.filtroFecha;
+  }
+
+  limpiarFiltros() {
+    this.filtroEstado = '';
+    this.filtroFecha = '';
+    this.fechaBuffer = '';
+    this.cdr.detectChanges();
+  }
+
+  setFiltroEstado(valor: string) {
+    this.filtroEstado = valor;
+    this.cdr.detectChanges();
+  }
+
+  aplicarFecha() {
+    this.filtroFecha = this.fechaBuffer;
+    this.cdr.detectChanges();
+  }
 
   // Modal registro de pago
   mostrarModalPago = false;
@@ -117,7 +162,7 @@ export class MisReservas implements OnInit {
           reservas: [],
           estado: '',
           mostrandoPagos: false,
-          expanded: false,
+          detalleAbierto: false,
           uploading: false,
           uploadMsg: '',
           uploadOk: false,
@@ -215,8 +260,8 @@ export class MisReservas implements OnInit {
     return map[mp] || mp;
   }
 
-  toggleExpanded(g: ReservaGroup) {
-    g.expanded = !g.expanded;
+  toggleDetalle(g: ReservaGroup) {
+    g.detalleAbierto = !g.detalleAbierto;
     this.cdr.detectChanges();
   }
 
@@ -568,6 +613,18 @@ export class MisReservas implements OnInit {
       rechazado: 'Rechazado',
     };
     return estado ? map[estado] || estado : 'Desconocido';
+  }
+
+  estadoBadgeClass(estado: string | null): string {
+    return estado === 'aprobado' ? 'bg-green-50 text-green-700 border border-green-200'
+      : estado === 'rechazado' ? 'bg-red-50 text-red-700 border border-red-200'
+      : 'bg-amber-50 text-amber-700 border border-amber-200';
+  }
+
+  estadoDotClass(estado: string | null): string {
+    return estado === 'aprobado' ? 'bg-green-500'
+      : estado === 'rechazado' ? 'bg-red-500'
+      : 'bg-amber-500';
   }
 
   formatFecha(fecha: string): string {
