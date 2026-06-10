@@ -2,9 +2,11 @@ import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
+import { PerfilService } from '../../../services/perfil.service';
 import { ViajeService } from '../../../services/viaje.service';
 import { ReservaService } from '../../../services/reserva.service';
 import { UnidadService } from '../../../services/unidad.service';
+import type { Perfil } from '../../../models/database.types';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -14,6 +16,7 @@ import { UnidadService } from '../../../services/unidad.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AdminDashboard implements OnInit {
+  perfil: Perfil | null = null;
   viajesActivos = 0;
   totalUnidades = 0;
   reservasHoy = 0;
@@ -21,7 +24,12 @@ export class AdminDashboard implements OnInit {
   actividadReciente: any[] = [];
   loading = true;
 
+  get esAdmin(): boolean {
+    return this.perfil?.rol === 'admin_mayorista';
+  }
+
   constructor(
+    private perfilService: PerfilService,
     private viajeService: ViajeService,
     private reservaService: ReservaService,
     private unidadService: UnidadService,
@@ -31,6 +39,9 @@ export class AdminDashboard implements OnInit {
 
   async ngOnInit() {
     try {
+      const { data: perfil } = await this.perfilService.getCurrentProfile();
+      this.perfil = perfil;
+
       const [viajesRes, unidadesRes, confirmadasRes, bloqueadosRes, actividadRes] = await Promise.all([
         this.viajeService.getViajes(),
         this.unidadService.getUnidadesCount(),
