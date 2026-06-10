@@ -258,17 +258,48 @@
       <div class="mb-4">
         <label class="block text-sm font-semibold text-meurzet-primary mb-1">Pisos</label>
         <select [(ngModel)]="form.pisos"
+          (ngModelChange)="form.asientos_piso_2 = $event === 1 ? 0 : form.asientos_piso_2"
           class="w-full p-3 border-2 border-slate-200 rounded-xl text-sm box-border outline-none bg-[#1aa7c4]/5 focus:border-[#1aa7c4] focus:ring-2 focus:ring-[#1aa7c4]/20 transition-all">
           <option [ngValue]="1">1 piso</option>
           <option [ngValue]="2">2 pisos</option>
         </select>
       </div>
 
-      <div class="mb-6">
-        <label class="block text-sm font-semibold text-meurzet-primary mb-1">Asientos totales</label>
-        <input [(ngModel)]="form.asientos_totales" type="number"
-          class="w-full p-3 border-2 border-slate-200 rounded-xl text-sm box-border outline-none bg-[#1aa7c4]/5 focus:border-[#1aa7c4] focus:ring-2 focus:ring-[#1aa7c4]/20 transition-all">
+      <div class="grid grid-cols-2 gap-3 mb-6">
+        <div>
+          <label class="block text-sm font-semibold text-meurzet-primary mb-1">Asientos Planta Baja</label>
+          <input [(ngModel)]="form.asientos_piso_1" type="number" min="0"
+            class="w-full p-3 border-2 border-slate-200 rounded-xl text-sm box-border outline-none bg-[#1aa7c4]/5 focus:border-[#1aa7c4] focus:ring-2 focus:ring-[#1aa7c4]/20 transition-all">
+          <select [(ngModel)]="form.categoria_piso_1"
+            class="w-full mt-2 p-2.5 border-2 border-slate-200 rounded-xl text-xs box-border outline-none bg-white focus:border-[#1aa7c4] transition-all">
+            <option value="semicama">Semicama</option>
+            <option value="cama_ejecutivo">Cama Ejecutivo</option>
+            <option value="cama_suite">Cama Suite</option>
+          </select>
+        </div>
+        @if (form.pisos === 2) {
+        <div>
+          <label class="block text-sm font-semibold text-meurzet-primary mb-1">Asientos Planta Alta</label>
+          <input [(ngModel)]="form.asientos_piso_2" type="number" min="0"
+            class="w-full p-3 border-2 border-slate-200 rounded-xl text-sm box-border outline-none bg-[#1aa7c4]/5 focus:border-[#1aa7c4] focus:ring-2 focus:ring-[#1aa7c4]/20 transition-all">
+          <select [(ngModel)]="form.categoria_piso_2"
+            class="w-full mt-2 p-2.5 border-2 border-slate-200 rounded-xl text-xs box-border outline-none bg-white focus:border-[#1aa7c4] transition-all">
+            <option value="semicama">Semicama</option>
+            <option value="cama_ejecutivo">Cama Ejecutivo</option>
+            <option value="cama_suite">Cama Suite</option>
+          </select>
+        </div>
+        }
       </div>
+
+      @if (asientos_totales > 0) {
+      <div class="mb-6 text-center text-xs text-slate-400 font-semibold bg-slate-50 rounded-xl py-2">
+        Total: <span class="text-[#384752]">{{ asientos_totales }}</span> asientos
+        @if (form.pisos === 2) {
+        &middot; PB: {{ form.asientos_piso_1 }} &middot; PA: {{ form.asientos_piso_2 }}
+        }
+      </div>
+      }
 
       <div class="flex gap-3">
         <button (click)="cerrarModal()"

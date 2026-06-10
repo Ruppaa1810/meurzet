@@ -15,6 +15,7 @@
         <tr class="bg-slate-50 border-b-2 border-[#af4f35]/20">
           <th class="p-4 text-left text-slate-500 font-semibold">Origen</th>
           <th class="p-4 text-left text-slate-500 font-semibold">Destino</th>
+          <th class="p-4 text-left text-slate-500 font-semibold">Unidad</th>
           <th class="p-4 text-left text-slate-500 font-semibold">Salida</th>
           <th class="p-4 text-left text-slate-500 font-semibold">Llegada</th>
           <th class="p-4 text-left text-slate-500 font-semibold">Precio</th>
@@ -27,6 +28,9 @@
           <tr class="relative hover:bg-[#1aa7c4]/10 hover:scale-[1.01] hover:z-10 hover:shadow-lg hover:shadow-[#1aa7c4]/20 transition-all duration-200">
             <td class="p-4 font-semibold">{{ v.origen }}</td>
             <td class="p-4">{{ v.destino }}</td>
+            <td class="p-4">
+              <span class="text-xs font-semibold text-slate-500">{{ unidadLabel(v) }}</span>
+            </td>
             <td class="p-4">
               <div class="flex flex-col gap-0.5">
                 <span class="font-bold text-blue-700 leading-tight">{{ v.fecha_salida | date:'dd/MM/yy' }}</span>
@@ -76,7 +80,7 @@
           </tr>
         } @empty {
           <tr>
-            <td colspan="7" class="p-8 text-center text-slate-400">No hay viajes registrados</td>
+            <td colspan="8" class="p-8 text-center text-slate-400">No hay viajes registrados</td>
           </tr>
         }
       </tbody>

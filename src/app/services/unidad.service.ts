@@ -48,6 +48,24 @@ export class UnidadService {
       .single<Unidad>();
   }
 
+  async crearUnidadConAsientos(params: {
+    p_patente: string;
+    p_asientos_piso_1: number;
+    p_categoria_piso_1: string;
+    p_asientos_piso_2: number;
+    p_categoria_piso_2: string;
+    p_empresa: string;
+  }) {
+    return await supabase.rpc('crear_unidad_con_asientos', params);
+  }
+
+  async actualizarAsientosUnidad(unidadId: number, asientos: SeatConfig[]) {
+    return await supabase.rpc('actualizar_asientos_unidad', {
+      p_unidad_id: unidadId,
+      p_asientos: asientos,
+    });
+  }
+
   async deleteUnidad(id: number) {
     return await supabase
       .from('unidades')

@@ -29,8 +29,8 @@ yarn-error.log
 !.vscode/mcp.json
 .history/*
 
-# Sensitive scripts
-crear-funcion.cjs
+# Deployment scripts with credentials
+scripts/*.js
 
 # Miscellaneous
 /.angular/cache

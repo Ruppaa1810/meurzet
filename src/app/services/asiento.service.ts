@@ -36,6 +36,21 @@ export class AsientoService {
     return res;
   }
 
+  async getConteoLibresPorViaje(viajeIds: number[]): Promise<Record<number, number>> {
+    if (viajeIds.length === 0) return {};
+    const { data } = await supabase
+      .from('mapa_asientos_viaje')
+      .select('viaje_id, estado')
+      .in('viaje_id', viajeIds);
+    const counts: Record<number, number> = {};
+    for (const a of data ?? []) {
+      if (a.estado === 'libre') {
+        counts[a.viaje_id!] = (counts[a.viaje_id!] ?? 0) + 1;
+      }
+    }
+    return counts;
+  }
+
   async liberarAsiento(viajeId: number, nroAsiento: number) {
     const { data } = await this.getAsientoPorNumero(viajeId, nroAsiento);
     const res = await supabase.rpc('liberar_asiento', {

@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 
+import { AsientoService } from '../../../services/asiento.service';
 import { ViajeService } from '../../../services/viaje.service';
 import type { Viaje } from '../../../models/database.types';
 
@@ -17,6 +18,7 @@ export class Inicio implements OnInit {
   todosViajes: Viaje[] = [];
   viajesFiltrados: Viaje[] = [];
   loading = true;
+  asientosLibres: Record<number, number> = {};
 
   filtroOrigen = '';
   filtroDestino = '';
@@ -25,6 +27,7 @@ export class Inicio implements OnInit {
 
   constructor(
     private viajeService: ViajeService,
+    private asientoService: AsientoService,
     private cdr: ChangeDetectorRef,
   ) {}
 
@@ -34,6 +37,7 @@ export class Inicio implements OnInit {
       if (!error && data) {
         this.todosViajes = data;
         this.viajesFiltrados = data;
+        this.asientosLibres = await this.asientoService.getConteoLibresPorViaje(data.map(v => v.id));
       }
     } catch {
     }
@@ -80,6 +84,7 @@ export class Inicio implements OnInit {
   }
 
   asientosLabel(viaje: Viaje): string {
-    return 'Consultar';
+    const count = this.asientosLibres[viaje.id] ?? 0;
+    return `${count} asiento${count !== 1 ? 's' : ''}`;
   }
 }
