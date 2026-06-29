@@ -78,6 +78,9 @@ export interface PagoMovimiento {
   metodo_pago: MetodoPago;
   referencia: string | null;
   estado_pago: EstadoPagoMovimiento;
+  tipo: string;
+  cuota_numero: number | null;
+  cuotas_totales: number | null;
   created_at: string;
 }
 
@@ -87,4 +90,12 @@ export interface AuditoriaPasaje {
   vendedor_id: string | null;
   accion: string;
   fecha: string;
+}
+
+export interface ConfigPagoOpcion {
+  id: number;
+  cuotas: number;
+  recargo: number;
+  activo: boolean;
+  created_at: string;
 }

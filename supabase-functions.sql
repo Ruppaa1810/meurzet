@@ -39,10 +39,10 @@ BEGIN
     AND estado = 'bloqueado';
 
   IF NOT FOUND THEN
-    RAISE EXCEPTION 'Unidad no encontrada';
+    RAISE EXCEPTION 'Asiento no encontrado';
   END IF;
 
-  RETURN v_unidad;
+  RETURN true;
 END;
 $func$;
 
@@ -150,10 +150,16 @@ BEGIN
   RETURNING * INTO v_unidad;
 
   IF NOT FOUND THEN
-    RAISE EXCEPTION 'Asiento no encontrado';
+    RAISE EXCEPTION 'Unidad no encontrada';
   END IF;
 
-  RETURN true;
+  UPDATE mapa_asientos_viaje m
+  SET categoria = (s.value->>'categoria')::categoria_asiento
+  FROM jsonb_array_elements(p_asientos) AS s
+  WHERE m.viaje_id IN (SELECT id FROM viajes WHERE unidad_id = p_unidad_id)
+    AND m.nro_asiento = (s.value->>'nro')::int;
+
+  RETURN v_unidad;
 END;
 $func$;
 

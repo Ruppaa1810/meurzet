@@ -7,6 +7,7 @@ import { AuthService } from '../../../services/auth.service';
 import { ReservaService } from '../../../services/reserva.service';
 import { PagoService } from '../../../services/pago.service';
 import { ReservaStateService } from '../../../services/reserva-state.service';
+import { ConfigPagosService, type OpcionCuota } from '../../../services/config-pagos.service';
 
 @Component({
   selector: 'app-reserva',
@@ -21,6 +22,8 @@ export class Reserva implements OnInit {
   metodoPago: string = 'transferencia';
   cuotasCount: number = 1;
   cuotasRecargo: number = 0;
+  opcionesCuotas: OpcionCuota[] = [];
+  modoCuotaPersonalizado = false;
 
   constructor(
     private router: Router,
@@ -28,12 +31,31 @@ export class Reserva implements OnInit {
     private reservaService: ReservaService,
     private pagoService: PagoService,
     public reservaState: ReservaStateService,
+    private configPagosService: ConfigPagosService,
     private cdr: ChangeDetectorRef,
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
     if (!this.reservaState.viaje || this.reservaState.asientos.length === 0) {
       this.router.navigate(['/minorista/vender'], { replaceUrl: true });
+      return;
+    }
+    this.opcionesCuotas = await this.configPagosService.getOpcionesCuotas();
+  }
+
+  seleccionarCuota(opcion: OpcionCuota) {
+    this.modoCuotaPersonalizado = false;
+    this.cuotasCount = opcion.cuotas;
+    this.cuotasRecargo = opcion.recargo;
+  }
+
+  seleccionarCuotaPersonalizado() {
+    this.modoCuotaPersonalizado = true;
+  }
+
+  marcarResponsable(idx: number) {
+    for (let i = 0; i < this.reservaState.pasajeros.length; i++) {
+      this.reservaState.pasajeros[i].es_responsable_financiero = i === idx;
     }
   }
 
@@ -163,20 +185,46 @@ export class Reserva implements OnInit {
         if (data) {
           ids.push(data.id);
 
-          const { error: pagoError } = await this.pagoService.crearPago({
+          const montoAPagarPorAsiento = Math.round(this.montoAPagar / asientos.length);
+          const totalBasePorAsiento = Math.round(this.reservaState.total / asientos.length);
+          const saldoBasePorAsiento = Math.max(0, totalBasePorAsiento - montoAPagarPorAsiento);
+          const saldoConRecargoPorAsiento = this.cuotasCount > 1 && this.cuotasRecargo > 0
+            ? Math.round(saldoBasePorAsiento * (1 + this.cuotasRecargo / 100))
+            : saldoBasePorAsiento;
+          const montoPorCuota = this.cuotasCount > 1
+            ? Math.round(saldoConRecargoPorAsiento / this.cuotasCount)
+            : 0;
+
+          // Crear pago de la seña
+          const { error: señaError } = await this.pagoService.crearPago({
             reserva_id: data.id,
-            monto: Math.round(this.montoAPagar / asientos.length),
+            monto: montoAPagarPorAsiento,
             metodo_pago: this.metodoPago as MetodoPago,
             referencia: null,
             estado_pago: 'pendiente',
+            tipo: 'seña',
+            cuota_numero: null,
+            cuotas_totales: null,
           });
+          if (señaError) { this.message = señaError.message; return; }
 
-          if (pagoError) {
-            this.message = pagoError.message;
-            return;
+          // Crear pagos de cada cuota
+          for (let c = 1; c <= this.cuotasCount; c++) {
+            const { error: cuotaError } = await this.pagoService.crearPago({
+              reserva_id: data.id,
+              monto: montoPorCuota,
+              metodo_pago: this.metodoPago as MetodoPago,
+              referencia: null,
+              estado_pago: 'pendiente',
+              tipo: 'cuota',
+              cuota_numero: c,
+              cuotas_totales: this.cuotasCount,
+            });
+            if (cuotaError) { this.message = cuotaError.message; return; }
           }
 
-          const { error: recalError } = await this.pagoService.recalcularEstadoFinanciero(data.id, this.reservaState.precio);
+          const totalFinalPorAsiento = montoAPagarPorAsiento + saldoConRecargoPorAsiento;
+          const { error: recalError } = await this.pagoService.recalcularEstadoFinanciero(data.id, totalFinalPorAsiento);
           if (recalError) {
             console.warn('Error al recalcular estado financiero:', recalError.message);
           }

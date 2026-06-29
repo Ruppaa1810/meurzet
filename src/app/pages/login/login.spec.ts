@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 
 import { Login } from './login';
-import { SupabaseService } from '../../services/supabase.service';
+import { AuthService } from '../../services/auth.service';
 
 describe('Login', () => {
   let component: Login;
@@ -14,11 +14,10 @@ describe('Login', () => {
       providers: [
         provideRouter([]),
         {
-          provide: SupabaseService,
+          provide: AuthService,
           useValue: {
-            supabase: { auth: { getSession: () => Promise.resolve({ data: { session: null } }) } },
+            getSession: () => Promise.resolve({ data: { session: null }, error: null }),
             login: () => Promise.resolve({ data: { user: null }, error: null }),
-            getPerfil: () => Promise.resolve({ data: null, error: null })
           }
         }
       ]

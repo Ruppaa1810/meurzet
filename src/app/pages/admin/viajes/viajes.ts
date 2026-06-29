@@ -5,11 +5,13 @@ import { PerfilService } from '../../../services/perfil.service';
 import { ViajeService } from '../../../services/viaje.service';
 import { UnidadService } from '../../../services/unidad.service';
 import type { Viaje, Unidad, UserRole } from '../../../models/database.types';
+import { Paginacion } from '../../../utils/paginacion';
+import { PaginacionComponent } from '../../../components/paginacion';
 
 @Component({
   selector: 'app-admin-viajes',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PaginacionComponent],
   templateUrl: './viajes.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -29,27 +31,10 @@ export class Viajes implements OnInit {
   eliminarId: number | null = null;
   eliminando = false;
 
-  // Paginación
-  currentPage = 1;
-  readonly itemsPerPage = 6;
+  paginacion = new Paginacion(6);
 
   get paginatedViajes(): Viaje[] {
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    return this.viajes.slice(start, start + this.itemsPerPage);
-  }
-
-  get totalPages(): number {
-    return Math.max(1, Math.ceil(this.viajes.length / this.itemsPerPage));
-  }
-
-  get pages(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
-  }
-
-  irAPagina(page: number) {
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
-    }
+    return this.paginacion.getPaginated(this.viajes);
   }
 
   rol: UserRole | null = null;
@@ -87,7 +72,7 @@ export class Viajes implements OnInit {
   async cargar() {
     this.loading = true;
     this.mensaje = '';
-    this.currentPage = 1;
+    this.paginacion.irAPagina(1);
     try {
       const [viajesRes, unidadesRes] = await Promise.all([
         this.viajeService.getViajesAdmin(),

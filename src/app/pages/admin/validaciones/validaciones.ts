@@ -3,65 +3,37 @@ import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { PerfilService } from '../../../services/perfil.service';
-import { ReservaService } from '../../../services/reserva.service';
-import { PagoService } from '../../../services/pago.service';
-import type { Reserva, Viaje, UserRole } from '../../../models/database.types';
-
-type ReservaConViaje = Reserva & { viaje?: Viaje };
-
-interface GrupoValidacion {
-  grupoId: string;
-  reservas: ReservaConViaje[];
-  estado: string;
-  expanded: boolean;
-  comprobanteUrl: string | null;
-}
+import { PagoService, type PagoConReserva } from '../../../services/pago.service';
+import { AuditoriaService } from '../../../services/auditoria.service';
+import type { UserRole } from '../../../models/database.types';
+import { Paginacion } from '../../../utils/paginacion';
+import { PaginacionComponent } from '../../../components/paginacion';
 
 @Component({
   selector: 'app-validaciones',
   standalone: true,
-  imports: [CommonModule, DatePipe, FormsModule],
+  imports: [CommonModule, DatePipe, FormsModule, PaginacionComponent],
   templateUrl: './validaciones.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Validaciones implements OnInit, OnDestroy {
-  private _reservas: ReservaConViaje[] = [];
-  grupos: GrupoValidacion[] = [];
+  pagos: PagoConReserva[] = [];
   loading = true;
   error = '';
   rol: UserRole | null = null;
 
-  // Paginación (por grupos)
-  currentPage = 1;
-  readonly itemsPerPage = 5;
+  paginacion = new Paginacion(5);
 
-  get paginatedGrupos(): GrupoValidacion[] {
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    return this.grupos.slice(start, start + this.itemsPerPage);
+  get paginatedPagos(): PagoConReserva[] {
+    return this.paginacion.getPaginated(this.pagos);
   }
 
-  get totalPages(): number {
-    return Math.max(1, Math.ceil(this.grupos.length / this.itemsPerPage));
-  }
-
-  get pages(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
-  }
-
-  irAPagina(page: number) {
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
-    }
-  }
-
-  // Modal de confirmación
   mostrarModal = false;
   accion: 'aprobar' | 'rechazar' | null = null;
-  grupoAccion: GrupoValidacion | null = null;
+  pagoAccion: PagoConReserva | null = null;
   motivoRechazo = '';
   guardando = false;
 
-  // Modal de comprobante
   comprobanteUrl: string | null = null;
   comprobanteCargando = false;
   comprobanteError = false;
@@ -70,8 +42,8 @@ export class Validaciones implements OnInit, OnDestroy {
 
   constructor(
     private perfilService: PerfilService,
-    private reservaService: ReservaService,
     private pagoService: PagoService,
+    private auditoriaService: AuditoriaService,
     private cdr: ChangeDetectorRef,
   ) {}
 
@@ -86,69 +58,32 @@ export class Validaciones implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    if (this.timeoutId) {
-      clearTimeout(this.timeoutId);
-      this.timeoutId = null;
-    }
+    if (this.timeoutId) clearTimeout(this.timeoutId);
   }
 
   async cargar() {
     this.loading = true;
     this.error = '';
-    this.currentPage = 1;
-    const { data, error } = await this.reservaService.getReservasPendientes();
+    this.paginacion.irAPagina(1);
+    const { data, error } = await this.pagoService.getPagosPendientes();
     if (error) {
-      this.error = `Error al cargar reservas: ${error.message}`;
+      this.error = `Error al cargar pagos: ${error.message}`;
     } else if (data) {
-      this._reservas = data;
-      this.armarGrupos();
+      this.pagos = data;
     }
     this.loading = false;
     this.cdr.detectChanges();
   }
 
-  private armarGrupos() {
-    const map = new Map<string, GrupoValidacion>();
-    const order = ['pendiente_comprobante', 'pendiente_validacion'];
-
-    for (const r of this._reservas) {
-      const pd = r.pasajero_datos as Record<string, any>;
-      const gid: string = pd?.['grupo_id'] || `single-${r.id}`;
-
-      if (!map.has(gid)) {
-        map.set(gid, {
-          grupoId: gid,
-          reservas: [],
-          estado: '',
-          expanded: !gid.startsWith('single-'),
-          comprobanteUrl: null,
-        });
-      }
-
-      const g = map.get(gid)!;
-      g.reservas.push(r);
-
-      if (order.indexOf(r.estado || '') < order.indexOf(g.estado || '')) {
-        g.estado = r.estado || '';
-      }
-
-      if (r.comprobante_url && !g.comprobanteUrl) {
-        g.comprobanteUrl = r.comprobante_url;
-      }
-    }
-
-    this.grupos = Array.from(map.values());
-  }
-
-  confirmarAprobar(grupo: GrupoValidacion) {
-    this.grupoAccion = grupo;
+  confirmarAprobar(pago: PagoConReserva) {
+    this.pagoAccion = pago;
     this.accion = 'aprobar';
     this.motivoRechazo = '';
     this.mostrarModal = true;
   }
 
-  confirmarRechazar(grupo: GrupoValidacion) {
-    this.grupoAccion = grupo;
+  confirmarRechazar(pago: PagoConReserva) {
+    this.pagoAccion = pago;
     this.accion = 'rechazar';
     this.motivoRechazo = '';
     this.mostrarModal = true;
@@ -156,77 +91,47 @@ export class Validaciones implements OnInit, OnDestroy {
 
   cerrarModal() {
     this.mostrarModal = false;
-    this.grupoAccion = null;
+    this.pagoAccion = null;
     this.accion = null;
     this.motivoRechazo = '';
     this.guardando = false;
   }
 
-  toggleExpand(g: GrupoValidacion) {
-    g.expanded = !g.expanded;
-    this.cdr.detectChanges();
-  }
-
   mostrarSuccessMensaje = '';
 
-  get reservasAProcesar(): ReservaConViaje[] {
-    if (!this.grupoAccion) return [];
-    return this.accion === 'aprobar'
-      ? this.grupoAccion.reservas.filter(r => r.estado === 'pendiente_validacion')
-      : this.grupoAccion.reservas;
-  }
-
   async ejecutarAccion() {
-    if (!this.puedeGestionar || !this.grupoAccion) return;
-
+    if (!this.puedeGestionar || !this.pagoAccion) return;
     if (this.accion === 'rechazar' && !this.motivoRechazo.trim()) return;
 
-    const aProcesar = this.reservasAProcesar;
-    if (aProcesar.length === 0) {
-      this.error = 'No hay reservas pendientes para procesar en este grupo';
-      this.cerrarModal();
-      return;
-    }
-
     this.guardando = true;
+    const pago = this.pagoAccion;
+    const reserva = pago.reserva;
+    const reservaId = reserva?.id || pago.reserva_id;
 
     try {
-      const idsProcesados = new Set<number>();
-
-      for (const reserva of aProcesar) {
-        if (!reserva.asiento_viaje_id) {
-          this.error = `La reserva #${reserva.id} no tiene un asiento asignado`;
-          continue;
-        }
-
-        if (this.accion === 'aprobar') {
-          const { error } = await this.reservaService.aprobarReserva(reserva.id, reserva.asiento_viaje_id);
-          if (error) { this.error = error.message; return; }
-          await this.pagoService.actualizarEstadoPagoPorReserva(reserva.id, 'confirmado');
-          await this.pagoService.recalcularEstadoFinanciero(reserva.id, this.totalReserva(reserva));
-        } else {
-          const { error } = await this.reservaService.rechazarReserva(reserva.id, reserva.asiento_viaje_id, this.motivoRechazo.trim());
-          if (error) { this.error = error.message; return; }
-          await this.pagoService.actualizarEstadoPagoPorReserva(reserva.id, 'rechazado');
-          await this.pagoService.recalcularEstadoFinanciero(reserva.id, this.totalReserva(reserva));
-        }
-
-        idsProcesados.add(reserva.id);
+      if (this.accion === 'aprobar') {
+        const { error } = await this.pagoService.actualizarEstadoPago(pago.id, 'confirmado');
+        if (error) { this.error = error.message; return; }
+        await this.pagoService.recalcularEstadoFinanciero(reservaId, reserva?.viaje?.precio_base || 0);
+        await this.auditoriaService.log(reserva?.id || 0, `Pago aprobado: $${pago.monto} (${pago.metodo_pago})`);
+      } else {
+        const { error } = await this.pagoService.actualizarEstadoPago(pago.id, 'rechazado');
+        if (error) { this.error = error.message; return; }
+        await this.pagoService.recalcularEstadoFinanciero(reservaId, reserva?.viaje?.precio_base || 0);
+        await this.auditoriaService.log(reserva?.id || 0, `Pago rechazado: $${pago.monto} - Motivo: ${this.motivoRechazo.trim()}`);
       }
 
-      this._reservas = this._reservas.filter(r => !idsProcesados.has(r.id));
-      this.armarGrupos();
+      this.pagos = this.pagos.filter(p => p.id !== pago.id);
 
-      if (this.paginatedGrupos.length === 0 && this.currentPage > 1) {
-        this.currentPage--;
+      if (this.paginatedPagos.length === 0 && this.paginacion.currentPage > 1) {
+        this.paginacion.irAPagina(this.paginacion.currentPage - 1);
       }
 
       const accionActual = this.accion;
-      const count = aProcesar.length;
       this.cerrarModal();
       this.mostrarSuccessMensaje = accionActual === 'aprobar'
-        ? `${count} reserva${count > 1 ? 's' : ''} aprobada${count > 1 ? 's' : ''} correctamente`
-        : `${count} reserva${count > 1 ? 's' : ''} rechazada${count > 1 ? 's' : ''}`;
+        ? 'Pago aprobado correctamente'
+        : 'Pago rechazado';
       this.timeoutId = setTimeout(() => this.mostrarSuccessMensaje = '', 5000);
     } catch (e: any) {
       this.error = e?.message || 'Error inesperado';
@@ -248,28 +153,41 @@ export class Validaciones implements OnInit, OnDestroy {
     this.comprobanteError = false;
   }
 
-  totalGrupo(g: GrupoValidacion): number {
-    return g.reservas.reduce((s, r) => s + (r.viaje?.precio_base || 0), 0);
-  }
-
-  puedeAprobarGrupo(g: GrupoValidacion): boolean {
-    return g.reservas.some(r => r.estado === 'pendiente_validacion');
-  }
-
-  estadoLabel(estado: string | null): string {
-    const map: Record<string, string> = {
-      pendiente_comprobante: 'Esperando comprobante',
-      pendiente_validacion: 'Pendiente de validación',
-    };
-    return estado ? map[estado] || estado : 'Desconocido';
-  }
-
-  pasajeroNombre(r: ReservaConViaje): string {
+  pasajeroNombre(r: NonNullable<PagoConReserva['reserva']>): string {
     const d = (r.pasajero_datos || {}) as Record<string, any>;
     return [d['nombre'], d['apellido']].filter(Boolean).join(' ') || '-';
   }
 
-  private totalReserva(reserva: ReservaConViaje): number {
+  esResponsable(r: NonNullable<PagoConReserva['reserva']>): boolean {
+    const d = (r.pasajero_datos || {}) as Record<string, any>;
+    return d['es_responsable_financiero'] === true;
+  }
+
+  metodoPagoLabel(m: string): string {
+    const map: Record<string, string> = {
+      efectivo: 'Efectivo', transferencia: 'Transferencia',
+      tarjeta_credito: 'Tarjeta de crédito', otro: 'Otro',
+    };
+    return map[m] || m;
+  }
+
+  tipoPagoLabel(p: import('../../../services/pago.service').PagoConReserva): string {
+    if (p.tipo === 'seña') return 'Seña';
+    return p.cuota_numero && p.cuotas_totales ? `Cuota ${p.cuota_numero}/${p.cuotas_totales}` : 'Cuota';
+  }
+
+  infoPlanPago(r: NonNullable<import('../../../services/pago.service').PagoConReserva['reserva']>): string {
+    const d = (r.pasajero_datos || {}) as Record<string, any>;
+    const pct = d['porcentaje_pago'] || 100;
+    const cuotas = d['cuotas'] || 0;
+    const recargo = d['recargo'] || 0;
+    const parts: string[] = [`Seña: ${pct}%`];
+    if (cuotas > 1) parts.push(`${cuotas} cuotas`);
+    if (recargo > 0) parts.push(`${recargo}% recargo`);
+    return parts.join(' · ');
+  }
+
+  private totalReserva(reserva: NonNullable<PagoConReserva['reserva']>): number {
     return reserva.viaje?.precio_base || 0;
   }
 }

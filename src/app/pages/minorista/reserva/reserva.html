@@ -52,6 +52,16 @@
               <input type="text" [(ngModel)]="reservaState.pasajeros[i].telefono" 
                 class="w-full px-3 md:px-4 py-2 md:py-3 border-2 border-meurzet-accent/30 rounded-lg md:rounded-xl text-sm focus:outline-none focus:border-meurzet-info focus:ring-2 focus:ring-meurzet-info/20 hover:border-meurzet-info transition-all duration-200">
             </div>
+            <div class="md:col-span-2">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="responsable_financiero" [value]="true"
+                  [checked]="reservaState.pasajeros[i].es_responsable_financiero"
+                  (change)="marcarResponsable(i)"
+                  class="w-4 h-4 text-meurzet-info accent-meurzet-info">
+                <span class="text-[10px] md:text-xs font-semibold text-slate-600">Responsable financiero</span>
+              </label>
+              <p class="text-[9px] md:text-[10px] text-slate-400 mt-0.5 ml-6">Esta persona es responsable de todos los pagos de la reserva</p>
+            </div>
           </div>
         </div>
       }
@@ -167,19 +177,49 @@
         <h3 class="text-sm md:text-base font-bold text-meurzet-primary mb-3 md:mb-4">
           Cuotas
         </h3>
-        <p class="text-[10px] md:text-xs text-slate-400 mb-3">1 cuota = contado, sin recargo. Ingresá la cantidad de cuotas y el recargo acordado con el cliente.</p>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-[10px] md:text-xs font-semibold text-slate-600 mb-1">Cantidad de cuotas</label>
-            <input type="number" min="1" [(ngModel)]="cuotasCount" (ngModelChange)="cuotasCount = $event < 1 ? 1 : $event"
-              class="w-full px-3 md:px-4 py-2 md:py-3 border-2 border-meurzet-accent/30 rounded-lg md:rounded-xl text-sm font-bold focus:outline-none focus:border-meurzet-info focus:ring-2 focus:ring-meurzet-info/20 hover:border-meurzet-info transition-all duration-200">
+        <p class="text-[10px] md:text-xs text-slate-400 mb-3">Elegí la cantidad de cuotas y el recargo acordado con el cliente, o seleccioná Personalizado para valores libres.</p>
+
+        @if (opcionesCuotas.length > 0) {
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 md:gap-3 mb-4">
+            @for (opcion of opcionesCuotas; track opcion.cuotas + '-' + opcion.recargo) {
+              <button (click)="seleccionarCuota(opcion)"
+                class="py-2 md:py-3 rounded-xl text-[10px] md:text-xs font-bold border-2 transition-all duration-200 cursor-pointer"
+                [class]="!modoCuotaPersonalizado && cuotasCount === opcion.cuotas && cuotasRecargo === opcion.recargo ? 'border-meurzet-accent bg-[#fff5f2] text-meurzet-accent shadow-md' : 'border-slate-200 bg-white text-slate-600 hover:border-meurzet-accent'">
+                {{ opcion.cuotas }} cuota{{ opcion.cuotas > 1 ? 's' : '' }}
+                <span class="block text-[9px] md:text-[10px]" [class]="!modoCuotaPersonalizado && cuotasCount === opcion.cuotas && cuotasRecargo === opcion.recargo ? 'text-meurzet-accent/70' : 'text-slate-400'">
+                  {{ opcion.recargo }}% recargo
+                </span>
+              </button>
+            }
+            <button (click)="seleccionarCuotaPersonalizado()"
+              class="py-2 md:py-3 rounded-xl text-[10px] md:text-xs font-bold border-2 transition-all duration-200 cursor-pointer"
+              [class]="modoCuotaPersonalizado ? 'border-meurzet-accent bg-[#fff5f2] text-meurzet-accent shadow-md' : 'border-slate-200 bg-white text-slate-600 hover:border-meurzet-accent'">
+              Personalizado
+              <span class="block text-[9px] md:text-[10px] text-slate-400">valores libres</span>
+            </button>
           </div>
-          <div>
-            <label class="block text-[10px] md:text-xs font-semibold text-slate-600 mb-1">Recargo %</label>
-            <input type="number" min="0" step="0.1" [(ngModel)]="cuotasRecargo" [disabled]="cuotasCount <= 1"
-              class="w-full px-3 md:px-4 py-2 md:py-3 border-2 border-meurzet-accent/30 rounded-lg md:rounded-xl text-sm font-bold focus:outline-none focus:border-meurzet-info focus:ring-2 focus:ring-meurzet-info/20 hover:border-meurzet-info transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+        }
+
+        @if (modoCuotaPersonalizado || opcionesCuotas.length === 0) {
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[10px] md:text-xs font-semibold text-slate-600 mb-1">Cantidad de cuotas</label>
+              <input type="number" min="1" [(ngModel)]="cuotasCount" (ngModelChange)="cuotasCount = $event < 1 ? 1 : $event"
+                class="w-full px-3 md:px-4 py-2 md:py-3 border-2 border-meurzet-accent/30 rounded-lg md:rounded-xl text-sm font-bold focus:outline-none focus:border-meurzet-info focus:ring-2 focus:ring-meurzet-info/20 hover:border-meurzet-info transition-all duration-200">
+            </div>
+            <div>
+              <label class="block text-[10px] md:text-xs font-semibold text-slate-600 mb-1">Recargo %</label>
+              <input type="number" min="0" step="0.1" [(ngModel)]="cuotasRecargo" [disabled]="cuotasCount <= 1"
+                class="w-full px-3 md:px-4 py-2 md:py-3 border-2 border-meurzet-accent/30 rounded-lg md:rounded-xl text-sm font-bold focus:outline-none focus:border-meurzet-info focus:ring-2 focus:ring-meurzet-info/20 hover:border-meurzet-info transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+            </div>
           </div>
-        </div>
+        } @else {
+          <p class="text-[10px] md:text-xs text-slate-400 mt-2">
+            Seleccionaste <strong>{{ cuotasCount }} cuota{{ cuotasCount > 1 ? 's' : '' }}</strong>
+            con <strong>{{ cuotasRecargo }}% de recargo</strong>.
+            <button (click)="seleccionarCuotaPersonalizado()" class="text-meurzet-accent underline hover:text-meurzet-info cursor-pointer bg-transparent border-none p-0 ml-1">Cambiar</button>
+          </p>
+        }
       </div>
 
       <!-- Mensaje de error -->

@@ -86,24 +86,8 @@
 
   <div class="flex items-center justify-between mt-3">
     <p class="text-xs text-slate-400">{{ unidades.length }} unidad{{ unidades.length !== 1 ? 'es' : '' }} registrada{{ unidades.length !== 1 ? 's' : '' }}</p>
-    @if (unidades.length > 10) {
-      <div class="flex items-center gap-2">
-        <button (click)="irAPagina(currentPage - 1)" [disabled]="currentPage === 1"
-          class="px-2.5 py-1 rounded-lg text-xs font-semibold border border-[#af4f35]/30 text-slate-500 bg-white hover:bg-[#1aa7c4] hover:text-white hover:border-[#1aa7c4] transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-500 disabled:hover:border-[#af4f35]/30">
-          Anterior
-        </button>
-        @for (page of pages; track page) {
-          <button (click)="irAPagina(page)"
-            [class]="'px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all duration-200 ' + (currentPage === page ? 'bg-[#1aa7c4] text-white border-[#1aa7c4]' : 'border-[#af4f35]/30 text-slate-500 bg-white hover:bg-[#1aa7c4] hover:text-white hover:border-[#1aa7c4]')">
-            {{ page }}
-          </button>
-        }
-        <button (click)="irAPagina(currentPage + 1)" [disabled]="currentPage === totalPages"
-          class="px-2.5 py-1 rounded-lg text-xs font-semibold border border-[#af4f35]/30 text-slate-500 bg-white hover:bg-[#1aa7c4] hover:text-white hover:border-[#1aa7c4] transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-500 disabled:hover:border-[#af4f35]/30">
-          Siguiente
-        </button>
-      </div>
-    }
+    <app-paginacion [currentPage]="paginacion.currentPage" [totalPages]="paginacion.totalPages"
+      (pageChange)="paginacion.irAPagina($event)" />
   </div>
 
   @if (successMensaje) {

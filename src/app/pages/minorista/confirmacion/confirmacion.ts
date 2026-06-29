@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@
 import { DatePipe } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import html2canvas from 'html2canvas';
+import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../../services/auth.service';
 import { StorageService } from '../../../services/storage.service';
 import { ReservaService } from '../../../services/reserva.service';
@@ -189,13 +190,15 @@ export class Confirmacion implements OnInit {
     this.cdr.detectChanges();
   }
 
+  readonly banco = environment.banco;
+
   aliasCopiado = false;
   cbuCopiado = false;
   compartiendo = false;
 
   async copiarAlias() {
     try {
-      await navigator.clipboard.writeText('MEURZET.PAGOS');
+      await navigator.clipboard.writeText(environment.banco.alias);
       this.aliasCopiado = true;
       this.cdr.detectChanges();
       setTimeout(() => { this.aliasCopiado = false; this.cdr.detectChanges(); }, 2500);
@@ -204,7 +207,7 @@ export class Confirmacion implements OnInit {
 
   async copiarCBU() {
     try {
-      await navigator.clipboard.writeText('1234567890123456789012');
+      await navigator.clipboard.writeText(environment.banco.cbu);
       this.cbuCopiado = true;
       this.cdr.detectChanges();
       setTimeout(() => { this.cbuCopiado = false; this.cdr.detectChanges(); }, 2500);
@@ -283,12 +286,12 @@ export class Confirmacion implements OnInit {
     <div style="padding:16px 20px;border-bottom:1px solid #eec997;">
       <p style="font-size:11px;font-weight:600;color:#384752;margin:0 0 8px;text-align:center;">📌 Datos para transferencia</p>
       <div style="font-size:11px;display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-        <div><span style="color:#969fa3;">Banco:</span> <span style="font-weight:500;">Meurzet S.A.</span></div>
-        <div><span style="color:#969fa3;">Titular:</span> <span style="font-weight:500;">Meurzet Viajes</span></div>
-        <div style="grid-column:1"><span style="color:#969fa3;">Alias:</span> <span style="font-weight:700;color:#e4912e;">MEURZET.PAGOS</span></div>
+        <div><span style="color:#969fa3;">Banco:</span> <span style="font-weight:500;">${environment.banco.banco}</span></div>
+        <div><span style="color:#969fa3;">Titular:</span> <span style="font-weight:500;">${environment.banco.titular}</span></div>
+        <div style="grid-column:1"><span style="color:#969fa3;">Alias:</span> <span style="font-weight:700;color:#e4912e;">${environment.banco.alias}</span></div>
         <div style="grid-column:2">
           <span style="color:#969fa3;">CBU:</span>
-          <span style="font-weight:500;font-family:'Courier New',monospace;font-size:10px;">1234567890123456789012</span>
+          <span style="font-weight:500;font-family:'Courier New',monospace;font-size:10px;">${environment.banco.cbu}</span>
         </div>
       </div>
       <p style="font-size:10px;color:#969fa3;margin:8px 0 0;text-align:center;">Referencia: <strong style="color:#384752;">${this.codigoReserva}</strong></p>

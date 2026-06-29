@@ -14,7 +14,7 @@ export class AuditoriaService {
     if (!vendedorId) return { error: new Error('Sesión expirada') };
 
     return await supabase
-      .from('auditoria_pasaje')
+      .from('auditoria_pasajes')
       .insert({ asiento_viaje_id: asientoViajeId, vendedor_id: vendedorId, accion })
       .select()
       .single<AuditoriaPasaje>();
@@ -22,7 +22,7 @@ export class AuditoriaService {
 
   async getAll(limit = 50) {
     return await supabase
-      .from('auditoria_pasaje')
+      .from('auditoria_pasajes')
       .select('*, perfil:vendedor_id(nombre)')
       .order('fecha', { ascending: false })
       .limit(limit) as unknown as { data: AuditoriaConVendedor[] | null; error: any };

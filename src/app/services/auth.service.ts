@@ -6,10 +6,11 @@ export class AuthService {
   isPasswordRecovery = false;
 
   constructor() {
-    this.isPasswordRecovery = localStorage.getItem('meurzet_recovery') === 'true';
-    if (this.isPasswordRecovery) {
-      localStorage.removeItem('meurzet_recovery');
-    }
+    supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        this.isPasswordRecovery = true;
+      }
+    });
   }
 
   async login(email: string, password: string) {
@@ -23,7 +24,7 @@ export class AuthService {
   async resetPassword(email: string) {
     const res = await Promise.race([
       supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/?recovery=true`,
+        redirectTo: `${window.location.origin}/sistema/`,
       }),
       new Promise<any>((_, reject) =>
         setTimeout(() => reject(new Error('timeout')), 15000)

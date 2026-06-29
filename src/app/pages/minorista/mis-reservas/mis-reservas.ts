@@ -311,15 +311,46 @@ export class MisReservas implements OnInit {
     return g.reservas.reduce((s, r) => s + r.pagos.filter(p => p.estado_pago === 'confirmado').length, 0);
   }
 
-  // ---- Modal de registro de pago ----
+  // ---- Payment Plan Helpers ----
+
+  todosPagos(g: ReservaGroup): PagoMovimiento[] {
+    const pagos: PagoMovimiento[] = [];
+    for (const r of g.reservas) {
+      for (const p of r.pagos) pagos.push(p);
+    }
+    return pagos;
+  }
+
+  pagosSeña(g: ReservaGroup): PagoMovimiento[] {
+    return this.todosPagos(g).filter(p => p.tipo === 'seña');
+  }
+
+  pagosCuotas(g: ReservaGroup): PagoMovimiento[] {
+    return this.todosPagos(g).filter(p => p.tipo === 'cuota');
+  }
+
+  señaConfirmada(g: ReservaGroup): boolean {
+    return this.pagosSeña(g).every(p => p.estado_pago === 'confirmado');
+  }
+
+  cuotasConfirmadas(g: ReservaGroup): number {
+    return this.pagosCuotas(g).filter(p => p.estado_pago === 'confirmado').length;
+  }
+
+  cuotasPendientesList(g: ReservaGroup): PagoMovimiento[] {
+    return this.pagosCuotas(g).filter(p => p.estado_pago === 'pendiente');
+  }
+
+  // ---- Modal de registro de pago (ahora sobre cuotas existentes) ----
+
+  cuotasPendientesModal: PagoMovimiento[] = [];
+  pagoCuotaSeleccionada: PagoMovimiento | null = null;
 
   abrirModalPago(g: ReservaGroup) {
     this.pagoGrupo = g;
-    const saldo = this.saldoPendienteGroup(g);
-    const cuotas = this.cuotasAcordadas(g);
-    const pagadas = this.cuotasPagadas(g);
-    const restantes = cuotas > 0 ? cuotas - pagadas : 1;
-    this.pagoMonto = restantes > 0 ? Math.round(saldo / restantes / 100) * 100 : saldo;
+    this.cuotasPendientesModal = this.cuotasPendientesList(g);
+    this.pagoCuotaSeleccionada = null;
+    this.pagoMonto = 0;
     this.pagoMetodo = 'transferencia';
     this.pagoReferencia = '';
     this.mostrarModalPago = true;
@@ -327,9 +358,16 @@ export class MisReservas implements OnInit {
     this.cdr.detectChanges();
   }
 
+  seleccionarCuotaModal(p: PagoMovimiento) {
+    this.pagoCuotaSeleccionada = p;
+    this.pagoMonto = p.monto;
+  }
+
   cerrarModalPago() {
     this.mostrarModalPago = false;
     this.pagoGrupo = null;
+    this.cuotasPendientesModal = [];
+    this.pagoCuotaSeleccionada = null;
     this.pagoMonto = 0;
     this.pagoMetodo = 'transferencia';
     this.pagoReferencia = '';
@@ -337,42 +375,21 @@ export class MisReservas implements OnInit {
   }
 
   async registrarPago() {
-    const grupo = this.pagoGrupo;
-    if (!grupo || !this.pagoMonto || this.pagoMonto <= 0) return;
+    if (!this.pagoCuotaSeleccionada) return;
 
     this.pagoGuardando = true;
 
     try {
-      const reservas = grupo.reservas;
+      const { error } = await this.pagoService.confirmarPago(
+        this.pagoCuotaSeleccionada.id,
+        this.pagoMetodo,
+        this.pagoReferencia || null,
+      );
+      if (error) throw error;
 
-      if (grupo.grupoId.startsWith('single-') || reservas.length === 1) {
-        const { error } = await this.pagoService.crearPago({
-          reserva_id: reservas[0].id,
-          monto: this.pagoMonto,
-          metodo_pago: this.pagoMetodo as MetodoPago,
-          referencia: this.pagoReferencia || null,
-          estado_pago: 'pendiente',
-        });
-        if (error) throw error;
-        await this.pagoService.recalcularEstadoFinanciero(reservas[0].id, this.totalFinalGrupo(grupo));
-      } else {
-        const montoBase = Math.round(this.pagoMonto / reservas.length);
-        let rem = this.pagoMonto - montoBase * reservas.length;
-        for (let i = 0; i < reservas.length; i++) {
-          const monto = i === reservas.length - 1 ? montoBase + rem : montoBase;
-          const { error } = await this.pagoService.crearPago({
-            reserva_id: reservas[i].id,
-            monto,
-            metodo_pago: this.pagoMetodo as MetodoPago,
-            referencia: this.pagoReferencia || null,
-            estado_pago: 'pendiente',
-          });
-          if (error) throw error;
-          await this.pagoService.recalcularEstadoFinanciero(reservas[i].id, this.totalFinalGrupo(grupo) / reservas.length);
-        }
-      }
+      await this.pagoService.recalcularEstadoFinanciero(this.pagoCuotaSeleccionada.reserva_id, this.totalFinalGrupo(this.pagoGrupo!) / this.pagoGrupo!.reservas.length);
 
-      for (const r of reservas) {
+      for (const r of this.pagoGrupo!.reservas) {
         const { data } = await this.pagoService.getPagosPorReserva(r.id);
         if (data) r.pagos = data;
       }
@@ -380,7 +397,6 @@ export class MisReservas implements OnInit {
       this.cerrarModalPago();
       this.cdr.detectChanges();
     } catch (e: any) {
-      // error is shown in the pagos list after refresh
       this.cerrarModalPago();
     } finally {
       this.pagoGuardando = false;

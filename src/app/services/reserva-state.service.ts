@@ -14,6 +14,7 @@ export interface PasajeroData {
   documento: string;
   email: string;
   telefono: string;
+  es_responsable_financiero?: boolean;
 }
 
 export type TipoPagoMode = 'total' | 'parcial' | 'personalizado';
@@ -73,8 +74,9 @@ export class ReservaStateService {
       piso: a.piso,
       categoria: a.categoria,
     }));
-    this.pasajeros = asientos.map(() => ({
+    this.pasajeros = asientos.map((_, idx) => ({
       nombre: '', apellido: '', documento: '', email: '', telefono: '',
+      es_responsable_financiero: idx === 0,
     }));
     this.precio = viaje.precio_base;
     this.tipoPagoMode = 'parcial';

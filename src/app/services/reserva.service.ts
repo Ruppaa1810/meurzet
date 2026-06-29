@@ -35,14 +35,13 @@ export class ReservaService {
       .order('created_at', { ascending: false });
   }
 
-  async getReservasConfirmadasHoy() {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+  async getReservasConfirmadasEnRango(desde: Date, hasta: Date) {
     return await supabase
       .from('reservas')
       .select('id', { count: 'exact', head: true })
       .eq('estado', 'aprobado')
-      .gte('created_at', today.toISOString());
+      .gte('created_at', desde.toISOString())
+      .lt('created_at', hasta.toISOString());
   }
 
   async getActividadReciente() {
@@ -107,6 +106,14 @@ export class ReservaService {
       .eq('asiento_viaje_id', asientoViajeId)
       .in('estado', ['pendiente_comprobante', 'pendiente_validacion', 'aprobado'])
       .maybeSingle();
+  }
+
+  async getTotalVendido(): Promise<number> {
+    const { data } = await supabase
+      .from('reservas')
+      .select('viaje:viaje_id(precio_base)')
+      .eq('estado', 'aprobado');
+    return (data || []).reduce((sum: number, r: any) => sum + (r.viaje?.precio_base || 0), 0);
   }
 
   async actualizarComprobante(ids: number[], url: string) {

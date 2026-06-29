@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 
 import { AuthService } from '../../services/auth.service';
 import { PerfilService } from '../../services/perfil.service';
+import { traducirError } from '../../utils/errors';
 
 @Component({
   selector: 'app-login',
@@ -45,25 +46,10 @@ export class Login {
       this.remember = true;
     }
 
-    if (this.authService.isPasswordRecovery) {
+    if (window.location.hash.includes('type=recovery') || this.authService.isPasswordRecovery) {
       this.showRecoveryForm = true;
       this.showForgotPassword = false;
     }
-  }
-
-  private traducirError(msj: string): string {
-    const er: Record<string, string> = {
-      'invalid login credentials': 'Credenciales inválidas. Revisá email y contraseña.',
-      'email not confirmed': 'Email no confirmado. Revisá tu bandeja de entrada.',
-      'invalid email': 'El formato del email no es válido.',
-      'user already registered': 'Este email ya está registrado.',
-      'password should be at least 6 characters': 'La contraseña debe tener al menos 6 caracteres.',
-      'rate limit exceeded': 'Demasiados intentos. Esperá unos minutos y volvé a intentar.',
-      'timeout': 'La conexión tardó demasiado. Verificá tu internet.',
-      'new password should be different': 'La contraseña nueva debe ser distinta a la anterior.',
-    };
-    const key = Object.keys(er).find(k => msj.toLowerCase().includes(k));
-    return key ? er[key] : msj;
   }
 
   async login() {
@@ -74,7 +60,7 @@ export class Login {
       const { data, error } = await this.authService.login(this.email, this.password);
 
       if (error) {
-        this.message = this.traducirError(error.message);
+        this.message = traducirError(error.message);
         this.loading = false;
         return;
       }
@@ -101,7 +87,7 @@ export class Login {
       }
       this.redirigirSegunRol(perfil.rol);
     } catch (e: any) {
-      this.message = this.traducirError(e?.message || 'Error inesperado');
+      this.message = traducirError(e?.message || 'Error inesperado');
     }
 
     this.loading = false;
@@ -115,17 +101,16 @@ export class Login {
     this.loading = true;
     this.resetMessage = '';
     this.resetEnviado = false;
-    localStorage.setItem('meurzet_recovery', 'true');
     try {
       const { error } = await this.authService.resetPassword(this.forgotEmail);
       if (error) {
-        this.resetMessage = this.traducirError(error.message);
+        this.resetMessage = traducirError(error.message);
       } else {
         this.resetEnviado = true;
         this.resetMessage = 'Te enviamos un enlace para restablecer tu contraseña';
       }
     } catch (e: any) {
-      this.resetMessage = this.traducirError(e?.message || 'Error inesperado');
+      this.resetMessage = traducirError(e?.message || 'Error inesperado');
     } finally {
       this.loading = false;
       this.cdr.detectChanges();
@@ -152,14 +137,14 @@ export class Login {
     try {
       const { error } = await this.authService.updatePassword(this.newPassword);
       if (error) {
-        this.recoveryError = this.traducirError(error.message);
+        this.recoveryError = traducirError(error.message);
         return;
       }
       this.showRecoveryForm = false;
       this.isSuccessMessage = true;
       this.message = 'Contraseña actualizada correctamente. Ya podés iniciar sesión.';
     } catch (e: any) {
-      this.recoveryError = this.traducirError(e?.message || 'Error inesperado');
+      this.recoveryError = traducirError(e?.message || 'Error inesperado');
     } finally {
       this.recoveryLoading = false;
       this.cdr.detectChanges();

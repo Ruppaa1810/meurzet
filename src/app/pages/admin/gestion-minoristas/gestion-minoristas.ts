@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PerfilService } from '../../../services/perfil.service';
 import { ReservaService } from '../../../services/reserva.service';
+import { traducirError } from '../../../utils/errors';
 import type { Perfil, UserRole } from '../../../models/database.types';
 
 interface VendedorConReservas extends Perfil {
@@ -215,7 +216,7 @@ export class GestionMinoristas implements OnInit, OnDestroy {
   }
 
   async guardar() {
-    if (!this.formNombre.trim()) { this.mensaje = 'El nombre es obligatorio'; return; }
+    if (!this.formNombre.trim()) { this.mensaje = 'El nombre es obligatorio'; this.cdr.detectChanges(); return; }
     this.mensaje = '';
     this.guardando = true;
 
@@ -223,14 +224,18 @@ export class GestionMinoristas implements OnInit, OnDestroy {
     try {
       if (esEdicion) {
         if (this.formEmail.trim() || this.formPassword.trim()) {
+          const email = this.formEmail.trim();
+          if (email && !email.includes('@')) {
+            this.mensaje = 'El formato del email no es válido.'; this.guardando = false; this.cdr.detectChanges(); return;
+          }
           const { error: authErr } = await this.perfilService.actualizarAuthUser(
             this.editando!.id,
             {
-              email: this.formEmail.trim() || undefined,
+              email: email || undefined,
               password: this.formPassword || undefined,
             },
           );
-          if (authErr) { this.mensaje = authErr.message; return; }
+          if (authErr) { this.mensaje = traducirError(authErr.message); this.guardando = false; this.cdr.detectChanges(); return; }
         }
 
         const updateData: any = { nombre: this.formNombre.trim() };
@@ -239,11 +244,13 @@ export class GestionMinoristas implements OnInit, OnDestroy {
           updateData.agencia_nombre = this.formAgencia.trim() || null;
         }
         const { error } = await this.perfilService.actualizarPerfil(this.editando!.id, updateData);
-        if (error) { this.mensaje = error.message; return; }
+        if (error) { this.mensaje = traducirError(error.message); this.guardando = false; this.cdr.detectChanges(); return; }
       } else {
         if (!this.formEmail.trim() || !this.formPassword.trim()) {
-          this.mensaje = 'Email y contraseña son obligatorios';
-          return;
+          this.mensaje = 'Email y contraseña son obligatorios'; this.guardando = false; this.cdr.detectChanges(); return;
+        }
+        if (!this.formEmail.trim().includes('@')) {
+          this.mensaje = 'El formato del email no es válido.'; this.guardando = false; this.cdr.detectChanges(); return;
         }
         const { error } = await this.perfilService.crearVendedorMinorista(
           this.formEmail.trim(),
@@ -253,7 +260,7 @@ export class GestionMinoristas implements OnInit, OnDestroy {
           this.formRol,
           this.userId ?? undefined,
         );
-        if (error) { this.mensaje = error.message; return; }
+        if (error) { this.mensaje = traducirError(error.message); this.guardando = false; this.cdr.detectChanges(); return; }
       }
 
       this.cerrarModal();
@@ -262,9 +269,10 @@ export class GestionMinoristas implements OnInit, OnDestroy {
         this.mostrarSuccess(esEdicion ? 'Usuario actualizado correctamente' : 'Usuario creado correctamente');
       }
     } catch (e: any) {
-      this.mensaje = e?.message || 'Error inesperado';
+      this.mensaje = traducirError(e?.message || 'Error inesperado');
     } finally {
       this.guardando = false;
+      this.cdr.detectChanges();
     }
   }
 }

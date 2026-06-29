@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { PerfilService } from '../../../services/perfil.service';
 import { AuthService } from '../../../services/auth.service';
 import type { Perfil as PerfilType } from '../../../models/database.types';
+import { traducirError } from '../../../utils/errors';
 
 @Component({
   selector: 'app-perfil',
@@ -85,9 +86,7 @@ export class Perfil implements OnInit {
     try {
       const { error } = await this.authService.updatePassword(this.newPassword);
       if (error) {
-        this.passwordMessage = error.message.includes('different')
-          ? 'La contraseña debe ser distinta a la anterior'
-          : error.message;
+        this.passwordMessage = traducirError(error.message);
         return;
       }
       this.passwordMessage = 'Contraseña actualizada correctamente';

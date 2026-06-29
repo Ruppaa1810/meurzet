@@ -4,11 +4,13 @@ import { CommonModule } from '@angular/common';
 import { PerfilService } from '../../../services/perfil.service';
 import { UnidadService, type SeatConfig } from '../../../services/unidad.service';
 import type { Unidad, UserRole } from '../../../models/database.types';
+import { Paginacion } from '../../../utils/paginacion';
+import { PaginacionComponent } from '../../../components/paginacion';
 
 @Component({
   selector: 'app-admin-flota',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PaginacionComponent],
   templateUrl: './flota.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -39,27 +41,10 @@ export class Flota implements OnInit {
     return this.unidades.filter(u => u.pisos === 2).length;
   }
 
-  // Paginación
-  currentPage = 1;
-  readonly itemsPerPage = 6;
+  paginacion = new Paginacion(6);
 
   get paginatedUnidades(): Unidad[] {
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    return this.unidades.slice(start, start + this.itemsPerPage);
-  }
-
-  get totalPages(): number {
-    return Math.max(1, Math.ceil(this.unidades.length / this.itemsPerPage));
-  }
-
-  get pages(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
-  }
-
-  irAPagina(page: number) {
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
-    }
+    return this.paginacion.getPaginated(this.unidades);
   }
 
   // Modal eliminar

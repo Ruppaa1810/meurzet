@@ -50,7 +50,6 @@
         </svg>
         Validaciones
       </a>
-      @if (esAdmin) {
       <a class="flex items-center gap-3 px-4 py-[0.6rem] mx-4 my-1 rounded-xl text-meurzet-muted no-underline text-sm transition-all duration-200 hover:bg-white/10 hover:text-white" routerLink="/admin/flota" routerLinkActive="bg-meurzet-accent text-white" (click)="closeSidebar()">
         <svg class="w-[1.1rem] h-[1.1rem]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M8 17a2 2 0 11-4 0 2 2 0 014 0zM20 17a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -65,7 +64,7 @@
         </svg>
         Viajes
       </a>
-      }
+
       @if (esAdmin) {
       <a class="flex items-center gap-3 px-4 py-[0.6rem] mx-4 my-1 rounded-xl text-meurzet-muted no-underline text-sm transition-all duration-200 hover:bg-white/10 hover:text-white" routerLink="/admin/auditoria" routerLinkActive="bg-meurzet-accent text-white" (click)="closeSidebar()">
         <svg class="w-[1.1rem] h-[1.1rem]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">

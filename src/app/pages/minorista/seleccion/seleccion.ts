@@ -29,7 +29,6 @@ export class Seleccion implements OnInit, OnDestroy {
   private userId: string | null = null;
   private viajeId: number = 0;
   private realtimeChannel: ReturnType<typeof supabase.channel> | null = null;
-  private pollingInterval: ReturnType<typeof setInterval> | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -64,7 +63,6 @@ export class Seleccion implements OnInit, OnDestroy {
     this.cdr.detectChanges();
 
     this.initRealtime();
-    this.pollingInterval = setInterval(() => this.cargarAsientos(), 5000);
   }
 
   private initRealtime() {
@@ -85,9 +83,6 @@ export class Seleccion implements OnInit, OnDestroy {
   ngOnDestroy() {
     if (this.realtimeChannel) {
       supabase.removeChannel(this.realtimeChannel);
-    }
-    if (this.pollingInterval) {
-      clearInterval(this.pollingInterval);
     }
   }
 
