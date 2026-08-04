@@ -42,6 +42,9 @@ testem.log
 /typings
 __screenshots__/
 
+# Generated Tailwind CSS
+/src/styles.processed.css
+
 # System files
 .DS_Store
 Thumbs.db
