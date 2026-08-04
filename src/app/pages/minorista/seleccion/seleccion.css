@@ -1,25 +1,13 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* =========================================================
+BACK BUTTON
+========================================================= */
 
-body {
-  font-family: 'Inter', system-ui, sans-serif;
-  background:
-    radial-gradient(circle at top left, rgba(26,167,196,0.05), transparent 30%),
-    radial-gradient(circle at bottom right, rgba(175,79,53,0.04), transparent 30%),
-    #f4f4f3;
-  min-height: 100vh;
-}
-
-/* BACK BUTTON */
 .back-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 6px 14px;
-  margin-bottom: 12px;
+  margin-top: 12px;
   background: white;
   border: 1px solid #eec997;
   border-radius: 10px;
@@ -154,6 +142,10 @@ TRIP PANEL
 .trip-panel-divider {
   height: 1px;
   background: rgba(255,255,255,.08);
+}
+
+.trip-panel-block.full {
+  width: 100%;
 }
 
 .price-tag {
@@ -662,6 +654,10 @@ PASILLO
     );
 }
 
+.pa-aisle .aisle-line {
+  width: 40px;
+}
+
 /* =========================================================
 AMENITIES
 ========================================================= */
@@ -740,6 +736,52 @@ BOXES
   flex-direction: row;
 
   gap: 6px;
+}
+
+.bus-amenities-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+/* =========================================================
+EQUIPAJE (PLANTA BAJA)
+========================================================= */
+
+.luggage-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+
+  padding: 12px 0 10px;
+}
+
+.luggage-grid {
+  display: flex;
+  gap: 8px;
+}
+
+.luggage-box {
+  width: 46px;
+  height: 28px;
+
+  border-radius: 5px;
+
+  background: linear-gradient(135deg, #cfd6dc, #b7c0c7);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.8),
+    0 1px 3px rgba(0,0,0,0.06);
+}
+
+.luggage-label {
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #8c98a0;
 }
 
 .amenity-icon {
@@ -1051,47 +1093,4 @@ RESPONSIVE
   .continue-btn {
     width: 100%;
   }
-}
-.der-seats-luggage {
-  display: flex;
-  gap: 14px;
-  align-items: flex-start;
-}
-
-/* columna derecha */
-.seats-col.single {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-/* equipaje SOLO abajo */
-.luggage-side {
-  display: flex;
-  flex-direction: column;
-
-  align-items: center;
-  justify-content: flex-start;
-
-  gap: 5px;
-
-  /* baja el equipaje a la altura 73/74 */
-  margin-top: 178px;
-}
-.luggage-box-v {
-  width: 50px;
-  height: 30px;
-  border-radius: 5px;
-  background: linear-gradient(135deg, #cfd6dc, #b7c0c7);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 1px 3px rgba(0,0,0,0.06);
-}
-
-.luggage-label-v {
-  font-size: 7px;
-  font-weight: 800;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: #8c98a0;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
 }

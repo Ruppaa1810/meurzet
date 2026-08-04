@@ -2,13 +2,6 @@ import { Injectable } from '@angular/core';
 import { supabase } from './supabase-client';
 import type { ConfigPagoOpcion } from '../models/database.types';
 
-const OPCIONES_DEFAULT: { cuotas: number; recargo: number }[] = [
-  { cuotas: 1, recargo: 0 },
-  { cuotas: 3, recargo: 5 },
-  { cuotas: 6, recargo: 10 },
-  { cuotas: 12, recargo: 20 },
-];
-
 export interface OpcionCuota {
   cuotas: number;
   recargo: number;
@@ -27,7 +20,6 @@ export class ConfigPagosService {
 
   async getOpcionesCuotas(): Promise<OpcionCuota[]> {
     const opciones = await this.getOpciones();
-    if (opciones.length === 0) return OPCIONES_DEFAULT;
     return opciones.map(o => ({ cuotas: o.cuotas, recargo: o.recargo }));
   }
 
