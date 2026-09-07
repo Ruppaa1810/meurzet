@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy, HostListener } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -20,7 +20,6 @@ interface ReservaView extends Reserva {
   uploadMsg: string;
   uploadOk: boolean;
   pagos: PagoMovimiento[];
-  mostrandoPagos: boolean;
 }
 
 interface ReservaGroup {
@@ -28,7 +27,6 @@ interface ReservaGroup {
   viajeLabel: string;
   reservas: ReservaView[];
   estado: string;
-  mostrandoPagos: boolean;
   detalleAbierto: boolean;
   uploading: boolean;
   uploadMsg: string;
@@ -47,7 +45,6 @@ export class MisReservas implements OnInit {
   reservas: ReservaView[] = [];
   grupos: ReservaGroup[] = [];
   loading = true;
-  accionAbierta: string | null = null;
 
   filtroEstado = '';
   filtroFecha = '';
@@ -110,11 +107,6 @@ export class MisReservas implements OnInit {
     private cdr: ChangeDetectorRef,
   ) {}
 
-  @HostListener('document:click')
-  documentClick() {
-    this.accionAbierta = null;
-  }
-
   async ngOnInit() {
     try {
       const { data: perfil } = await this.perfilService.getCurrentProfile();
@@ -145,7 +137,6 @@ export class MisReservas implements OnInit {
           uploadMsg: '',
           uploadOk: false,
           pagos: pagosMap.get(r.id) || [],
-          mostrandoPagos: false,
         };
       });
       this.armarGrupos();
@@ -166,7 +157,6 @@ export class MisReservas implements OnInit {
           viajeLabel: r.viajeLabel,
           reservas: [],
           estado: '',
-          mostrandoPagos: false,
           detalleAbierto: false,
           uploading: false,
           uploadMsg: '',
@@ -200,58 +190,17 @@ export class MisReservas implements OnInit {
     return estadoFinancieroLabel(r.estado_financiero || this.derivarFallback(r));
   }
 
-  efClass(r: ReservaView): string {
-    return estadoFinancieroClass(r.estado_financiero || this.derivarFallback(r));
-  }
-
-  efDot(r: ReservaView): string {
-    return estadoFinancieroDot(r.estado_financiero || this.derivarFallback(r));
-  }
-
   private derivarFallback(r: ReservaView): EstadoFinanciero {
     if (r.estado === 'aprobado') return r.tipo_pago === 'total' ? 'pagado_total' : 'pagado_parcial';
     if (r.estado === 'rechazado') return 'reembolso_pendiente';
     return 'pendiente';
   }
 
-  estadoFinancieroGrupo(g: ReservaGroup): EstadoFinanciero {
-    const c = this.calcGrupo(g);
-    if (c.porcentajePagado <= 0) return 'pendiente';
-    if (c.porcentajePagado >= 100) return 'pagado_total';
-    return 'pagado_parcial';
-  }
-
-  efGrupoLabel(g: ReservaGroup): string { return estadoFinancieroLabel(this.estadoFinancieroGrupo(g)); }
-  efGrupoClass(g: ReservaGroup): string { return estadoFinancieroClass(this.estadoFinancieroGrupo(g)); }
-  efGrupoDot(g: ReservaGroup): string { return estadoFinancieroDot(this.estadoFinancieroGrupo(g)); }
-
   get montoTotalPagado(): number {
     return this.reservas.reduce((sum, r) => sum + montoPagadoConfirmado(r.pagos), 0);
   }
 
-  togglePagos(r: ReservaView) { r.mostrandoPagos = !r.mostrandoPagos; }
-
-  toggleAccion(id: string) {
-    this.accionAbierta = this.accionAbierta === id ? null : id;
-    this.cdr.detectChanges();
-  }
-
-  cerrarAccion() {
-    this.accionAbierta = null;
-    this.cdr.detectChanges();
-  }
-
-  progresoPago(r: ReservaView): number {
-    return this.calcReserva(r).porcentajePagado;
-  }
-
-  metodoPagoStr(mp: string): string {
-    const map: Record<string, string> = { efectivo: 'Efectivo', transferencia: 'Transferencia', tarjeta_credito: 'Tarjeta de crédito', otro: 'Otro' };
-    return map[mp] || mp;
-  }
-
   toggleDetalle(g: ReservaGroup) { g.detalleAbierto = !g.detalleAbierto; this.cdr.detectChanges(); }
-  togglePagosGroup(g: ReservaGroup) { g.mostrandoPagos = !g.mostrandoPagos; this.cdr.detectChanges(); }
 
   totalBaseGroup(g: ReservaGroup): number {
     return g.reservas.reduce((s, r) => s + r.monto, 0);
@@ -281,6 +230,10 @@ export class MisReservas implements OnInit {
     return this.todosPagos(g).filter(p => p.tipo === 'cuota' && p.estado_pago === 'confirmado').length;
   }
 
+  cuotasPendientesCount(g: ReservaGroup): number {
+    return this.todosPagos(g).filter(p => p.tipo === 'cuota' && p.estado_pago === 'pendiente').length;
+  }
+
   todosPagos(g: ReservaGroup): PagoMovimiento[] {
     return g.reservas.flatMap(r => r.pagos);
   }
@@ -295,10 +248,6 @@ export class MisReservas implements OnInit {
 
   señaConfirmada(g: ReservaGroup): boolean {
     return this.pagosSeña(g).every(p => p.estado_pago === 'confirmado');
-  }
-
-  cuotasConfirmadas(g: ReservaGroup): number {
-    return this.pagosCuotas(g).filter(p => p.estado_pago === 'confirmado').length;
   }
 
   cuotasPendientesList(g: ReservaGroup): PagoMovimiento[] {
@@ -316,7 +265,6 @@ export class MisReservas implements OnInit {
     this.pagoMetodo = 'transferencia';
     this.pagoReferencia = '';
     this.mostrarModalPago = true;
-    this.accionAbierta = null;
     this.cdr.detectChanges();
   }
 
@@ -453,6 +401,17 @@ export class MisReservas implements OnInit {
     return g.reservas.some(r => r.estado === 'pendiente_comprobante');
   }
 
+  esEsperandoAprobacion(g: ReservaGroup): boolean {
+    return g.reservas.every(r => r.estado === 'pendiente_validacion');
+  }
+
+  motivoRechazo(g: ReservaGroup): string {
+    for (const r of g.reservas) {
+      if (r.motivo_rechazo) return r.motivo_rechazo;
+    }
+    return '';
+  }
+
   asientosLabel(g: ReservaGroup): string {
     const count = g.reservas.length;
     return `${count} asiento${count > 1 ? 's' : ''}`;
@@ -461,17 +420,6 @@ export class MisReservas implements OnInit {
   pagoPromedio(g: ReservaGroup): string {
     const { porcentajePago } = parsearPagoPasajero(g.reservas[0]?.pasajero_datos as Record<string, unknown>);
     return `${porcentajePago}%`;
-  }
-
-  estructuraPago(g: ReservaGroup): string {
-    const { porcentajePago, cuotas, recargo } = parsearPagoPasajero(g.reservas[0]?.pasajero_datos as Record<string, unknown>);
-    const c = this.calcGrupo(g);
-    const parts: string[] = [`Seña: ${porcentajePago}%`];
-    if (cuotas > 1) {
-      if (recargo > 0) parts.push(`Recargo: ${recargo}%`);
-      parts.push(`${cuotas} cuota${cuotas > 1 ? 's' : ''} de ${this.formatPrecio(c.montoPorCuota)}`);
-    }
-    return parts.join(' · ');
   }
 
   verComprobante(r: ReservaView) {
@@ -528,8 +476,8 @@ export class MisReservas implements OnInit {
 
   estadoLabel(estado: string | null): string {
     const map: Record<string, string> = {
-      pendiente_comprobante: 'Pendiente de comprobante',
-      pendiente_validacion: 'Pendiente de validación',
+      pendiente_comprobante: 'Pendiente comprobante',
+      pendiente_validacion: 'Esperando aprobación',
       aprobado: 'Aprobado',
       rechazado: 'Rechazado',
     };
@@ -539,11 +487,15 @@ export class MisReservas implements OnInit {
   estadoBadgeClass(estado: string | null): string {
     return estado === 'aprobado' ? 'bg-green-50 text-green-700 border border-green-200'
       : estado === 'rechazado' ? 'bg-red-50 text-red-700 border border-red-200'
+      : estado === 'pendiente_validacion' ? 'bg-blue-50 text-blue-700 border border-blue-200'
       : 'bg-amber-50 text-amber-700 border border-amber-200';
   }
 
   estadoDotClass(estado: string | null): string {
-    return estado === 'aprobado' ? 'bg-green-500' : estado === 'rechazado' ? 'bg-red-500' : 'bg-amber-500';
+    return estado === 'aprobado' ? 'bg-green-500'
+      : estado === 'rechazado' ? 'bg-red-500'
+      : estado === 'pendiente_validacion' ? 'bg-blue-500'
+      : 'bg-amber-500';
   }
 
   formatFecha(fecha: string): string {
@@ -554,39 +506,8 @@ export class MisReservas implements OnInit {
     return `$ ${precio.toLocaleString('es-AR')}`;
   }
 
-  async subirComprobante(reserva: ReservaView, event: Event, fileInput?: HTMLInputElement) {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-
-    reserva.uploading = true;
-    reserva.uploadMsg = '';
-    reserva.uploadOk = false;
-    this.cdr.detectChanges();
-
-    try {
-      const userId = (await this.authService.getSession()).data.session?.user?.id;
-      if (!userId) { reserva.uploadMsg = 'Sesión expirada'; return; }
-
-      const basePath = `${userId}/${Date.now()}_${file.name}`;
-      const { error: uploadError } = await this.storageService.subirComprobante(basePath, file);
-      if (uploadError) { reserva.uploadMsg = 'Error al subir: ' + uploadError.message; return; }
-
-      const { data: signedUrl, error: signedError } = await this.storageService.getComprobanteUrl(basePath);
-      if (signedError || !signedUrl?.signedUrl) { reserva.uploadMsg = 'Error al generar enlace del comprobante'; return; }
-
-      const { error: updateError } = await this.reservaService.actualizarComprobanteSingle(reserva.id, signedUrl.signedUrl);
-      if (updateError) { reserva.uploadMsg = 'Error al actualizar: ' + updateError.message; return; }
-
-      reserva.estado = 'pendiente_validacion';
-      reserva.uploadOk = true;
-      reserva.uploadMsg = '';
-    } catch (e: any) {
-      reserva.uploadMsg = e?.message || 'Error inesperado';
-    } finally {
-      reserva.uploading = false;
-      if (fileInput) fileInput.value = '';
-      this.cdr.detectChanges();
-    }
+  private metodoPagoStr(mp: string): string {
+    const map: Record<string, string> = { efectivo: 'Efectivo', transferencia: 'Transferencia', tarjeta_credito: 'Tarjeta de crédito', otro: 'Otro' };
+    return map[mp] || mp;
   }
 }
