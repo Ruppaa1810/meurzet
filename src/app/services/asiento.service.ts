@@ -51,6 +51,30 @@ export class AsientoService {
     return counts;
   }
 
+  async getCategoriasPorViaje(viajeIds: number[]): Promise<Record<number, string>> {
+    if (viajeIds.length === 0) return {};
+    const { data } = await supabase
+      .from('mapa_asientos_viaje')
+      .select('viaje_id, categoria')
+      .in('viaje_id', viajeIds);
+    const cats: Record<number, Set<string>> = {};
+    for (const a of data ?? []) {
+      if (!cats[a.viaje_id!]) cats[a.viaje_id!] = new Set();
+      cats[a.viaje_id!].add(a.categoria);
+    }
+    const result: Record<number, string> = {};
+    const labels: Record<string, string> = {
+      semicama: 'Semi Cama',
+      cama_ejecutivo: 'Cama Ejecutivo',
+      cama_suite: 'Cama Suite',
+    };
+    for (const [id, set] of Object.entries(cats)) {
+      const arr = Array.from(set);
+      result[Number(id)] = arr.length === 1 ? (labels[arr[0]] || arr[0]) : 'Mixto';
+    }
+    return result;
+  }
+
   async liberarAsiento(viajeId: number, nroAsiento: number) {
     const { data } = await this.getAsientoPorNumero(viajeId, nroAsiento);
     const res = await supabase.rpc('liberar_asiento', {

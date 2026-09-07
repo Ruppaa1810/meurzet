@@ -33,6 +33,7 @@ export class AdminDashboard implements OnInit {
 
   deltaConfirmados = 0;
   ultimaActualizacion = '';
+  filtroFecha: 'hoy' | 'semana' | 'mes' = 'mes';
 
   get esAdmin(): boolean {
     return this.perfil?.rol === 'admin_mayorista';
@@ -94,6 +95,29 @@ export class AdminDashboard implements OnInit {
 
   irA(ruta: string) {
     this.router.navigate([`/admin/${ruta}`]);
+  }
+
+  async aplicarFiltro(filtro: 'hoy' | 'semana' | 'mes') {
+    this.filtroFecha = filtro;
+    const rango = this.getRangoFecha();
+    const actividadRes = await this.reservaService.getActividadRecienteEnRango(rango.ini, rango.fin);
+    if (actividadRes.data) this.actividadReciente = actividadRes.data;
+    this.cdr.detectChanges();
+  }
+
+  private getRangoFecha(): { ini: Date; fin: Date } {
+    const hoy = new Date(); hoy.setHours(23,59,59,999);
+    const inicio = new Date(hoy);
+    if (this.filtroFecha === 'hoy') {
+      inicio.setHours(0,0,0,0);
+    } else if (this.filtroFecha === 'semana') {
+      inicio.setDate(inicio.getDate() - 7);
+      inicio.setHours(0,0,0,0);
+    } else {
+      inicio.setDate(1);
+      inicio.setHours(0,0,0,0);
+    }
+    return { ini: inicio, fin: hoy };
   }
 
   labelEstado(estado: string): string {

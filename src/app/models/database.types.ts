@@ -17,6 +17,7 @@ export type EstadoPagoMovimiento = 'pendiente' | 'confirmado' | 'rechazado' | 'r
 export interface Perfil {
   id: string;
   nombre: string;
+  email: string | null;
   agencia_nombre: string | null;
   rol: UserRole;
   activo: boolean | null;
@@ -97,5 +98,6 @@ export interface ConfigPagoOpcion {
   cuotas: number;
   recargo: number;
   activo: boolean;
+  porcentaje_minimo_seia: number | null;
   created_at: string;
 }

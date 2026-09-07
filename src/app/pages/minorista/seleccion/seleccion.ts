@@ -224,10 +224,10 @@ export class Seleccion implements OnInit, OnDestroy {
     return `${count} asiento${count > 1 ? 's' : ''} — ${this.formatPrecio(total)}`;
   }
 
-  continuarReserva() {
+  async continuarReserva() {
     const sel = this.selectedList;
     if (sel.length === 0 || !this.viaje) return;
-    this.reservaState.iniciar(this.viaje, sel);
+    await this.reservaState.iniciar(this.viaje, sel);
     this.router.navigate(['/minorista/reserva']);
   }
 

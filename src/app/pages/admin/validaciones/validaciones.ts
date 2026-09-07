@@ -113,12 +113,12 @@ export class Validaciones implements OnInit, OnDestroy {
         const { error } = await this.pagoService.actualizarEstadoPago(pago.id, 'confirmado');
         if (error) { this.error = error.message; return; }
         await this.pagoService.recalcularEstadoFinanciero(reservaId, reserva?.viaje?.precio_base || 0);
-        await this.auditoriaService.log(reserva?.id || 0, `Pago aprobado: $${pago.monto} (${pago.metodo_pago})`);
+        await this.auditoriaService.log(reserva?.asiento_viaje_id || 0, `Pago aprobado: $${pago.monto} (${pago.metodo_pago})`);
       } else {
         const { error } = await this.pagoService.actualizarEstadoPago(pago.id, 'rechazado');
         if (error) { this.error = error.message; return; }
         await this.pagoService.recalcularEstadoFinanciero(reservaId, reserva?.viaje?.precio_base || 0);
-        await this.auditoriaService.log(reserva?.id || 0, `Pago rechazado: $${pago.monto} - Motivo: ${this.motivoRechazo.trim()}`);
+        await this.auditoriaService.log(reserva?.asiento_viaje_id || 0, `Pago rechazado: $${pago.monto} - Motivo: ${this.motivoRechazo.trim()}`);
       }
 
       this.pagos = this.pagos.filter(p => p.id !== pago.id);

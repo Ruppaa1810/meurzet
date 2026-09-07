@@ -43,7 +43,7 @@ export class PerfilService {
     return await this.adminApi.crearVendedorMinorista(email, password, nombre, agenciaNombre, rol, createdBy);
   }
 
-  async actualizarPerfil(id: string, datos: Partial<Pick<Perfil, 'nombre' | 'agencia_nombre' | 'rol'>>) {
+  async actualizarPerfil(id: string, datos: Partial<Pick<Perfil, 'nombre' | 'email' | 'agencia_nombre' | 'rol'>>) {
     return await supabase
       .from('perfiles')
       .update(datos)

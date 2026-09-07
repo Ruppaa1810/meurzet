@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import type { Viaje, MetodoPago } from '../models/database.types';
 import type { AsientoReserva, PasajeroData } from './reserva-state.service';
+import { ConfigGeneralService } from './config-general.service';
 
 function metodoPagoLabel(mp: string): string {
   const map: Record<MetodoPago, string> = {
@@ -29,7 +30,16 @@ export interface DatosComprobante {
 
 @Injectable({ providedIn: 'root' })
 export class ComprobanteService {
-  private contacto = '11 2345-6789';
+  private contacto = '';
+
+  constructor(private configGeneral: ConfigGeneralService) {}
+
+  private async getContacto(): Promise<string> {
+    if (!this.contacto) {
+      this.contacto = await this.configGeneral.getContacto();
+    }
+    return this.contacto;
+  }
 
   generarHTML(datos: DatosComprobante): string {
     return `
@@ -141,7 +151,8 @@ export class ComprobanteService {
     w.focus();
   }
 
-  generarHTMLSaldo(datos: DatosComprobante): string {
+  async generarHTMLSaldo(datos: DatosComprobante): Promise<string> {
+    const contacto = await this.getContacto();
     const saldoBase = datos.total - datos.montoPagado;
     const recargoMonto = datos.montoPendiente - Math.max(0, saldoBase);
     const recargoPct = saldoBase > 0 ? Math.round(recargoMonto / saldoBase * 100) : 0;
@@ -233,7 +244,7 @@ export class ComprobanteService {
     ${datos.cuotasCount > 1 ? `
     <div class="cuota-row">En ${datos.cuotasCount} cuotas de $ ${datos.montoPorCuota.toLocaleString('es-AR')} cada una</div>` : ''}
   </div>
-  <div class="contacto">&#128222; Contacto: ${this.contacto}</div>
+  <div class="contacto">&#128222; Contacto: ${contacto}</div>
   <div class="footer">
     <p>Meurzet Viajes — Documento informativo de saldo pendiente</p>
     <p>${datos.fecha}</p>
@@ -242,8 +253,8 @@ export class ComprobanteService {
 </html>`;
   }
 
-  descargarSaldo(datos: DatosComprobante) {
-    const html = this.generarHTMLSaldo(datos);
+  async descargarSaldo(datos: DatosComprobante) {
+    const html = await this.generarHTMLSaldo(datos);
     const blob = new Blob([html], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -253,8 +264,8 @@ export class ComprobanteService {
     URL.revokeObjectURL(url);
   }
 
-  abrirSaldoParaImprimir(datos: DatosComprobante) {
-    const html = this.generarHTMLSaldo(datos);
+  async abrirSaldoParaImprimir(datos: DatosComprobante) {
+    const html = await this.generarHTMLSaldo(datos);
     const w = window.open('', '_blank');
     if (!w) return;
     w.document.write(html);

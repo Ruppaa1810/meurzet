@@ -21,7 +21,7 @@ serve(async (req) => {
     const userId = authData.user.id
 
     const { error: perfilError } = await supabase.from('perfiles').upsert({
-      id: userId, nombre, agencia_nombre: agencia_nombre || null,
+      id: userId, nombre, email, agencia_nombre: agencia_nombre || null,
       rol: rol || 'vendedor_minorista', activo: true,
       ...(created_by ? { created_by } : {}),
     })

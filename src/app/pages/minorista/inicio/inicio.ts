@@ -19,6 +19,7 @@ export class Inicio implements OnInit {
   viajesFiltrados: Viaje[] = [];
   loading = true;
   asientosLibres: Record<number, number> = {};
+  categoriasPorViaje: Record<number, string> = {};
 
   filtroOrigen = '';
   filtroDestino = '';
@@ -38,6 +39,7 @@ export class Inicio implements OnInit {
         this.todosViajes = data;
         this.viajesFiltrados = data;
         this.asientosLibres = await this.asientoService.getConteoLibresPorViaje(data.map(v => v.id));
+        this.categoriasPorViaje = await this.asientoService.getCategoriasPorViaje(data.map(v => v.id));
       }
     } catch {
     }
@@ -80,7 +82,7 @@ export class Inicio implements OnInit {
   }
 
   servicioLabel(viaje: Viaje): string {
-    return 'Cama Ejecutivo';
+    return this.categoriasPorViaje[viaje.id] || 'Cama Ejecutivo';
   }
 
   asientosLabel(viaje: Viaje): string {

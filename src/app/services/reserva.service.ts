@@ -27,6 +27,14 @@ export class ReservaService {
       .order('created_at', { ascending: false });
   }
 
+  async getReservasPorVendedorConViaje(vendedorId: string) {
+    return await supabase
+      .from('reservas')
+      .select('*, viaje:viaje_id(origen, destino, precio_base)')
+      .eq('vendedor_id', vendedorId)
+      .order('created_at', { ascending: false });
+  }
+
   async getReservasPendientes() {
     return await supabase
       .from('reservas')
@@ -52,6 +60,16 @@ export class ReservaService {
       .limit(10);
   }
 
+  async getActividadRecienteEnRango(desde: Date, hasta: Date) {
+    return await supabase
+      .from('reservas')
+      .select('id, estado, created_at, viaje:viaje_id(origen, destino)')
+      .gte('created_at', desde.toISOString())
+      .lt('created_at', hasta.toISOString())
+      .order('created_at', { ascending: false })
+      .limit(20);
+  }
+
   private async notificar(reservaId: number, tipo: 'aprobada' | 'rechazada', motivo?: string) {
     const { data: reserva } = await supabase
       .from('reservas')
@@ -62,10 +80,10 @@ export class ReservaService {
 
     const { data: perfil } = await supabase
       .from('perfiles')
-      .select('id, agencia_nombre')
+      .select('id, email, agencia_nombre')
       .eq('id', reserva.vendedor_id)
-      .single<{ id: string; agencia_nombre: string | null }>();
-    const email = perfil?.agencia_nombre || '';
+      .single<{ id: string; email: string | null; agencia_nombre: string | null }>();
+    const email = perfil?.email || perfil?.agencia_nombre || '';
 
     if (tipo === 'aprobada') {
       this.notificaciones.notificarReservaAprobada(reservaId, email);

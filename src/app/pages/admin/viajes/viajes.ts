@@ -127,6 +127,21 @@ export class Viajes implements OnInit {
     if (!this.esAdmin) return;
     if (!this.form.origen.trim() || !this.form.destino.trim() || !this.form.fecha_salida || !this.form.fecha_llegada) return;
 
+    const salida = new Date(this.form.fecha_salida);
+    const llegada = new Date(this.form.fecha_llegada);
+    const ahora = new Date();
+
+    if (!this.editando && salida.getTime() <= ahora.getTime()) {
+      this.mensaje = 'La fecha de salida no puede ser en el pasado';
+      this.cdr.detectChanges();
+      return;
+    }
+    if (llegada.getTime() <= salida.getTime()) {
+      this.mensaje = 'La fecha de llegada debe ser posterior a la de salida';
+      this.cdr.detectChanges();
+      return;
+    }
+
     this.guardando = true;
     this.mensaje = '';
 

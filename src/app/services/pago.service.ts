@@ -16,6 +16,15 @@ export class PagoService {
       .order('created_at', { ascending: false });
   }
 
+  async getPagosPorReservas(reservaIds: number[]) {
+    if (reservaIds.length === 0) return { data: [] as PagoMovimiento[], error: null };
+    return await supabase
+      .from('pagos_movimientos')
+      .select('*')
+      .in('reserva_id', reservaIds)
+      .order('created_at', { ascending: false });
+  }
+
   async getPagosPendientes() {
     return await supabase
       .from('pagos_movimientos')

@@ -88,6 +88,7 @@ export class GestionMinoristas implements OnInit, OnDestroy {
     const q = this.buscando.toLowerCase();
     return base.filter(v =>
       v.nombre.toLowerCase().includes(q) ||
+      (v.email || '').toLowerCase().includes(q) ||
       (v.agencia_nombre || '').toLowerCase().includes(q)
     );
   }
@@ -239,6 +240,7 @@ export class GestionMinoristas implements OnInit, OnDestroy {
         }
 
         const updateData: any = { nombre: this.formNombre.trim() };
+        if (this.formEmail.trim()) updateData.email = this.formEmail.trim();
         if (this.esAdmin) updateData.rol = this.formRol;
         if (this.formRol !== 'operador_admin') {
           updateData.agencia_nombre = this.formAgencia.trim() || null;

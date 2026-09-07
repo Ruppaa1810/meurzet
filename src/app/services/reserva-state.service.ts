@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import type { Viaje, MapaAsientoViaje, EstadoFinanciero } from '../models/database.types';
+import { ConfigGeneralService } from './config-general.service';
 
 export interface AsientoReserva {
   asientoId: number;
@@ -35,13 +36,20 @@ export class ReservaStateService {
   cuotasSeleccionadas: number = 1;
   recargoAplicado: number = 0;
   grupoId: string = '';
+  porcentajeMinimoSenia: number = 30;
+
+  constructor(private configGeneral: ConfigGeneralService) {}
+
+  async cargarConfig(): Promise<void> {
+    this.porcentajeMinimoSenia = await this.configGeneral.getPorcentajeMinimoSenia();
+  }
 
   get total(): number {
     return this.precio * this.asientos.length;
   }
 
   get montoMinimo(): number {
-    return Math.round(this.total * 0.3);
+    return Math.round(this.total * this.porcentajeMinimoSenia / 100);
   }
 
   get montoPendiente(): number {
@@ -50,7 +58,7 @@ export class ReservaStateService {
 
   get porcentajePago(): number {
     if (this.tipoPagoMode === 'total') return 100;
-    if (this.tipoPagoMode === 'parcial') return 30;
+    if (this.tipoPagoMode === 'parcial') return this.porcentajeMinimoSenia;
     if (this.total === 0) return 0;
     return Math.min(100, Math.round(this.montoPersonalizado / this.total * 100));
   }
@@ -66,7 +74,8 @@ export class ReservaStateService {
     }
   }
 
-  iniciar(viaje: Viaje, asientos: MapaAsientoViaje[]) {
+  async iniciar(viaje: Viaje, asientos: MapaAsientoViaje[]) {
+    await this.cargarConfig();
     this.viaje = viaje;
     this.asientos = asientos.map(a => ({
       asientoId: a.id,

@@ -20,6 +20,10 @@ serve(async (req) => {
     const { error } = await supabase.auth.admin.updateUserById(userId, body)
     if (error) return new Response(JSON.stringify({ error: error.message }), { status: 400 })
 
+    if (email) {
+      await supabase.from('perfiles').update({ email }).eq('id', userId)
+    }
+
     return new Response(JSON.stringify({ data: { userId } }), { status: 200 })
   } catch (err) {
     return new Response(JSON.stringify({ error: err.message }), { status: 500 })

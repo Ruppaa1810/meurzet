@@ -2,12 +2,12 @@ import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@
 import { DatePipe } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import html2canvas from 'html2canvas';
-import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../../services/auth.service';
 import { StorageService } from '../../../services/storage.service';
 import { ReservaService } from '../../../services/reserva.service';
 import { ReservaStateService } from '../../../services/reserva-state.service';
 import { ComprobanteService, DatosComprobante } from '../../../services/comprobante.service';
+import { ConfigGeneralService, BancoConfig } from '../../../services/config-general.service';
 import { estadoFinancieroLabel, estadoFinancieroClass, estadoFinancieroDot, derivarEstadoFinanciero } from '../../../utils/estado-financiero';
 
 @Component({
@@ -29,14 +29,21 @@ export class Confirmacion implements OnInit {
     private storageService: StorageService,
     private reservaService: ReservaService,
     private comprobanteService: ComprobanteService,
+    private configGeneral: ConfigGeneralService,
     private router: Router,
     private cdr: ChangeDetectorRef,
   ) {}
 
-  ngOnInit() {
+  banco: BancoConfig = { alias: '', cbu: '', titular: '', banco: '' };
+  contacto = '';
+
+  async ngOnInit() {
     if (!this.reservaState.viaje || this.reservaState.asientos.length === 0) {
       this.router.navigate(['/minorista/vender'], { replaceUrl: true });
     }
+    this.banco = await this.configGeneral.getBanco();
+    this.contacto = await this.configGeneral.getContacto();
+    this.cdr.detectChanges();
   }
 
   get fechaActual(): string {
@@ -190,15 +197,13 @@ export class Confirmacion implements OnInit {
     this.cdr.detectChanges();
   }
 
-  readonly banco = environment.banco;
-
   aliasCopiado = false;
   cbuCopiado = false;
   compartiendo = false;
 
   async copiarAlias() {
     try {
-      await navigator.clipboard.writeText(environment.banco.alias);
+      await navigator.clipboard.writeText(this.banco.alias);
       this.aliasCopiado = true;
       this.cdr.detectChanges();
       setTimeout(() => { this.aliasCopiado = false; this.cdr.detectChanges(); }, 2500);
@@ -207,7 +212,7 @@ export class Confirmacion implements OnInit {
 
   async copiarCBU() {
     try {
-      await navigator.clipboard.writeText(environment.banco.cbu);
+      await navigator.clipboard.writeText(this.banco.cbu);
       this.cbuCopiado = true;
       this.cdr.detectChanges();
       setTimeout(() => { this.cbuCopiado = false; this.cdr.detectChanges(); }, 2500);
@@ -217,10 +222,6 @@ export class Confirmacion implements OnInit {
   get vencimiento(): string {
     const d = new Date(Date.now() + 24 * 60 * 60 * 1000);
     return d.toLocaleString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-  }
-
-  get contacto(): string {
-    return '11 2345-6789';
   }
 
   private generarResumenHTML(): string {
@@ -286,12 +287,12 @@ export class Confirmacion implements OnInit {
     <div style="padding:16px 20px;border-bottom:1px solid #eec997;">
       <p style="font-size:11px;font-weight:600;color:#384752;margin:0 0 8px;text-align:center;">📌 Datos para transferencia</p>
       <div style="font-size:11px;display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-        <div><span style="color:#969fa3;">Banco:</span> <span style="font-weight:500;">${environment.banco.banco}</span></div>
-        <div><span style="color:#969fa3;">Titular:</span> <span style="font-weight:500;">${environment.banco.titular}</span></div>
-        <div style="grid-column:1"><span style="color:#969fa3;">Alias:</span> <span style="font-weight:700;color:#e4912e;">${environment.banco.alias}</span></div>
+        <div><span style="color:#969fa3;">Banco:</span> <span style="font-weight:500;">${this.banco.banco}</span></div>
+        <div><span style="color:#969fa3;">Titular:</span> <span style="font-weight:500;">${this.banco.titular}</span></div>
+        <div style="grid-column:1"><span style="color:#969fa3;">Alias:</span> <span style="font-weight:700;color:#e4912e;">${this.banco.alias}</span></div>
         <div style="grid-column:2">
           <span style="color:#969fa3;">CBU:</span>
-          <span style="font-weight:500;font-family:'Courier New',monospace;font-size:10px;">${environment.banco.cbu}</span>
+          <span style="font-weight:500;font-family:'Courier New',monospace;font-size:10px;">${this.banco.cbu}</span>
         </div>
       </div>
       <p style="font-size:10px;color:#969fa3;margin:8px 0 0;text-align:center;">Referencia: <strong style="color:#384752;">${this.codigoReserva}</strong></p>

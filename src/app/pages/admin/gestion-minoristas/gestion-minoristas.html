@@ -96,7 +96,12 @@
       <tbody>
         @for (v of vendedoresFiltrados; track v.id) {
           <tr class="border-b border-slate-100 cursor-pointer hover:bg-[#1aa7c4]/10 hover:scale-[1.01] hover:z-10 hover:shadow-lg hover:shadow-[#1aa7c4]/20 transition-all duration-200" (click)="toggleExpand(v)">
-            <td class="p-4 font-semibold">{{ v.nombre }}</td>
+            <td class="p-4">
+              <div class="font-semibold">{{ v.nombre }}</div>
+              @if (v.email) {
+                <div class="text-xs text-slate-400 mt-0.5">{{ v.email }}</div>
+              }
+            </td>
             @if (esAdmin) {
             <td class="p-4">
               <span [class.text-purple-600]="v.rol === 'operador_admin'" [class.text-slate-600]="v.rol !== 'operador_admin'"

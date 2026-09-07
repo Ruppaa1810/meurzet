@@ -245,9 +245,15 @@
         
         <!-- Filtros de fecha -->
         <div class="flex gap-2">
-          <button class="px-2 sm:px-3 py-1 text-[10px] sm:text-xs rounded-lg border border-[#af4f35]/30 hover:bg-[#1aa7c4] hover:text-white hover:border-[#1aa7c4] transition-all">Hoy</button>
-          <button class="px-2 sm:px-3 py-1 text-[10px] sm:text-xs rounded-lg border border-[#af4f35]/30 hover:bg-[#1aa7c4] hover:text-white hover:border-[#1aa7c4] transition-all">Semana</button>
-          <button class="px-2 sm:px-3 py-1 text-[10px] sm:text-xs rounded-lg bg-[#1aa7c4]/10 text-[#1aa7c4] border border-[#1aa7c4]/30">Mes</button>
+          <button (click)="aplicarFiltro('hoy')"
+            [class]="filtroFecha === 'hoy' ? 'bg-[#1aa7c4] text-white border-[#1aa7c4]' : 'border-[#af4f35]/30 hover:bg-[#1aa7c4] hover:text-white hover:border-[#1aa7c4]'"
+            class="px-2 sm:px-3 py-1 text-[10px] sm:text-xs rounded-lg border transition-all">Hoy</button>
+          <button (click)="aplicarFiltro('semana')"
+            [class]="filtroFecha === 'semana' ? 'bg-[#1aa7c4] text-white border-[#1aa7c4]' : 'border-[#af4f35]/30 hover:bg-[#1aa7c4] hover:text-white hover:border-[#1aa7c4]'"
+            class="px-2 sm:px-3 py-1 text-[10px] sm:text-xs rounded-lg border transition-all">Semana</button>
+          <button (click)="aplicarFiltro('mes')"
+            [class]="filtroFecha === 'mes' ? 'bg-[#1aa7c4] text-white border-[#1aa7c4]' : 'border-[#af4f35]/30 hover:bg-[#1aa7c4] hover:text-white hover:border-[#1aa7c4]'"
+            class="px-2 sm:px-3 py-1 text-[10px] sm:text-xs rounded-lg border transition-all">Mes</button>
         </div>
       </div>
 

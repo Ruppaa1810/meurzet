@@ -12,6 +12,6 @@ export class StorageService {
   async getComprobanteUrl(filePath: string) {
     return await supabase.storage
       .from('comprobantes')
-      .createSignedUrl(filePath, 60 * 60 * 24 * 365);
+      .createSignedUrl(filePath, 60 * 60 * 24 * 30);
   }
 }
