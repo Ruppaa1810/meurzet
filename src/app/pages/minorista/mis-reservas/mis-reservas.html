@@ -137,6 +137,36 @@
                 <span class="text-slate-400">Total {{ formatPrecio(totalFinalGrupo(g)) }}</span>
                 <span class="font-medium text-green-600">{{ progresoPagoGroup(g) }}%</span>
               </div>
+              <!-- Desglose: Seña + Cuotas -->
+              <div class="mt-2 pt-2 border-t border-[#eec997]/50 space-y-0.5">
+                <div class="flex items-center justify-between text-[11px]">
+                  <span class="text-slate-500">Seña ({{ pagoPromedio(g) }})</span>
+                  @if (pagosSena(g).length > 0 && senaConfirmada(g)) {
+                    <span class="text-green-600 font-semibold flex items-center gap-0.5">
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                      Pagada
+                    </span>
+                  } @else if (pagosSena(g).length > 0) {
+                    <span class="text-amber-600 font-semibold">Pendiente</span>
+                  } @else {
+                    <span class="text-slate-400">Sin registrar</span>
+                  }
+                </div>
+                @if (cuotasAcordadas(g) > 0) {
+                <div class="flex items-center justify-between text-[11px]">
+                  <span class="text-slate-500">Cuotas</span>
+                  <span class="font-semibold" [class]="cuotasPagadas(g) === cuotasAcordadas(g) ? 'text-green-600' : 'text-amber-600'">
+                    {{ cuotasPagadas(g) }} / {{ cuotasAcordadas(g) }} pagadas
+                  </span>
+                </div>
+                @if (cuotasPendientesCount(g) > 0) {
+                <div class="flex items-center justify-between text-[10px] text-slate-400">
+                  <span>Faltan {{ cuotasPendientesCount(g) }} cuota{{ cuotasPendientesCount(g) > 1 ? 's' : '' }}</span>
+                  <span>{{ formatPrecio(totalFinalGrupo(g) / cuotasAcordadas(g)) }} c/u</span>
+                </div>
+                }
+                }
+              </div>
             </div>
 
             <!-- Acciones inline -->
@@ -218,6 +248,7 @@
                 <th class="px-4 py-3 text-right">Total</th>
                 <th class="px-4 py-3 text-right">Pagado</th>
                 <th class="px-4 py-3 text-right">Pendiente</th>
+                <th class="px-4 py-3 text-center">Detalle pago</th>
                 <th class="px-4 py-3 text-center">Acciones</th>
               </tr>
             </thead>
@@ -241,6 +272,27 @@
                 <td class="px-4 py-3 text-right font-semibold text-[#384752]">{{ formatPrecio(totalFinalGrupo(g)) }}</td>
                 <td class="px-4 py-3 text-right font-semibold text-green-600">{{ formatPrecio(montoPagadoGroup(g)) }}</td>
                 <td class="px-4 py-3 text-right font-semibold text-[#af4f35]">{{ formatPrecio(saldoPendienteGroup(g)) }}</td>
+                <td class="px-4 py-3 text-center">
+                  <div class="text-[11px] space-y-0.5">
+                    <div class="flex items-center justify-center gap-1">
+                      @if (pagosSena(g).length > 0 && senaConfirmada(g)) {
+                        <span class="text-green-600 font-medium flex items-center gap-0.5">
+                          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                          Seña OK
+                        </span>
+                      } @else if (pagosSena(g).length > 0) {
+                        <span class="text-amber-600 font-medium">Seña pend.</span>
+                      } @else {
+                        <span class="text-slate-400">Sin seña</span>
+                      }
+                    </div>
+                    @if (cuotasAcordadas(g) > 0) {
+                    <div class="text-[10px]" [class]="cuotasPagadas(g) === cuotasAcordadas(g) ? 'text-green-600' : 'text-amber-600'">
+                      Cuotas {{ cuotasPagadas(g) }}/{{ cuotasAcordadas(g) }}
+                    </div>
+                    }
+                  </div>
+                </td>
                 <td class="px-4 py-3">
                   <div class="flex items-center justify-center gap-1">
                     @if (hayPendienteComprobante(g) && !g.uploadOk) {

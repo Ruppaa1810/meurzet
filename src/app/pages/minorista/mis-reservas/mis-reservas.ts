@@ -238,7 +238,7 @@ export class MisReservas implements OnInit {
     return g.reservas.flatMap(r => r.pagos);
   }
 
-  pagosSeña(g: ReservaGroup): PagoMovimiento[] {
+  pagosSena(g: ReservaGroup): PagoMovimiento[] {
     return this.todosPagos(g).filter(p => p.tipo === 'seña');
   }
 
@@ -246,8 +246,8 @@ export class MisReservas implements OnInit {
     return this.todosPagos(g).filter(p => p.tipo === 'cuota');
   }
 
-  señaConfirmada(g: ReservaGroup): boolean {
-    return this.pagosSeña(g).every(p => p.estado_pago === 'confirmado');
+  senaConfirmada(g: ReservaGroup): boolean {
+    return this.pagosSena(g).every(p => p.estado_pago === 'confirmado');
   }
 
   cuotasPendientesList(g: ReservaGroup): PagoMovimiento[] {
