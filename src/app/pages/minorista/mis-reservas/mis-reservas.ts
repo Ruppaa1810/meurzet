@@ -90,6 +90,8 @@ export class MisReservas implements OnInit {
     this.cdr.detectChanges();
   }
 
+  selectedGroup: ReservaGroup | null = null;
+
   mostrarModalPago = false;
   pagoGrupo: ReservaGroup | null = null;
   pagoMonto = 0;
@@ -173,7 +175,7 @@ export class MisReservas implements OnInit {
     this.grupos = Array.from(map.values());
   }
 
-  private calcGrupo(g: ReservaGroup) {
+  calcGrupo(g: ReservaGroup) {
     const { porcentajePago, cuotas, recargo } = parsearPagoPasajero(g.reservas[0]?.pasajero_datos as Record<string, unknown>);
     const totalBase = this.totalBaseGroup(g);
     const pagado = montoPagadoConfirmado(this.todosPagos(g));
@@ -201,6 +203,56 @@ export class MisReservas implements OnInit {
   }
 
   toggleDetalle(g: ReservaGroup) { g.detalleAbierto = !g.detalleAbierto; this.cdr.detectChanges(); }
+
+  abrirDetalle(g: ReservaGroup) {
+    this.selectedGroup = g;
+    document.body.style.overflow = 'hidden';
+    this.cdr.detectChanges();
+  }
+
+  cerrarDetalle() {
+    this.selectedGroup = null;
+    document.body.style.overflow = '';
+    this.cdr.detectChanges();
+  }
+
+  pasajeroDatos(r: ReservaView): Record<string, any> {
+    return (r.pasajero_datos || {}) as Record<string, any>;
+  }
+
+  esGrupo(g: ReservaGroup): boolean {
+    return g.reservas.length > 1;
+  }
+
+  fechaSalida(g: ReservaGroup): string {
+    const v = (g.reservas[0] as any)?.viaje;
+    return v?.fecha_salida || '';
+  }
+
+  fechaLlegada(g: ReservaGroup): string {
+    const v = (g.reservas[0] as any)?.viaje;
+    return v?.fecha_llegada || '';
+  }
+
+  categoriaAsiento(g: ReservaGroup): string {
+    const v = (g.reservas[0] as any)?.viaje;
+    return v?.categoria || '';
+  }
+
+  formatFechaHora(fecha: string): string {
+    if (!fecha) return '-';
+    return new Date(fecha).toLocaleString('es-AR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  pagoEstadoClass(estado: string): string {
+    return estado === 'confirmado' ? 'bg-green-100 text-green-700'
+      : estado === 'rechazado' ? 'bg-red-100 text-red-700'
+      : 'bg-amber-100 text-amber-700';
+  }
+
+  pagoEstadoLabel(estado: string): string {
+    return estado === 'confirmado' ? 'Confirmado' : estado === 'rechazado' ? 'Rechazado' : 'Pendiente';
+  }
 
   totalBaseGroup(g: ReservaGroup): number {
     return g.reservas.reduce((s, r) => s + r.monto, 0);
@@ -509,5 +561,9 @@ export class MisReservas implements OnInit {
   private metodoPagoStr(mp: string): string {
     const map: Record<string, string> = { efectivo: 'Efectivo', transferencia: 'Transferencia', tarjeta_credito: 'Tarjeta de crédito', otro: 'Otro' };
     return map[mp] || mp;
+  }
+
+  metodoPagoDirecto(mp: string): string {
+    return this.metodoPagoStr(mp);
   }
 }
