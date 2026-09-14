@@ -16,7 +16,8 @@
           <th class="p-4 text-left text-slate-500 font-semibold">Origen</th>
           <th class="p-4 text-left text-slate-500 font-semibold">Destino</th>
           <th class="p-4 text-left text-slate-500 font-semibold">Unidad</th>
-          <th class="p-4 text-left text-slate-500 font-semibold">Embarque</th>
+          <th class="p-4 text-left text-slate-500 font-semibold">Embarque 1</th>
+          <th class="p-4 text-left text-slate-500 font-semibold">Embarque 2</th>
           <th class="p-4 text-left text-slate-500 font-semibold">Salida</th>
           <th class="p-4 text-left text-slate-500 font-semibold">Llegada</th>
           <th class="p-4 text-left text-slate-500 font-semibold">Precio</th>
@@ -35,6 +36,13 @@
             <td class="p-4">
               @if (lugarEmbarqueId(v)) {
                 <span class="text-xs font-semibold text-purple-600">{{ lugarEmbarqueLabel(v) }}</span>
+              } @else {
+                <span class="text-xs text-slate-400">-</span>
+              }
+            </td>
+            <td class="p-4">
+              @if (lugarEmbarque2Id(v)) {
+                <span class="text-xs font-semibold text-purple-600">{{ lugarEmbarque2Label(v) }}</span>
               } @else {
                 <span class="text-xs text-slate-400">-</span>
               }
@@ -88,7 +96,7 @@
           </tr>
         } @empty {
           <tr>
-            <td colspan="9" class="p-8 text-center text-slate-400">No hay viajes registrados</td>
+            <td colspan="10" class="p-8 text-center text-slate-400">No hay viajes registrados</td>
           </tr>
         }
       </tbody>
@@ -207,6 +215,17 @@
       <div class="mt-4">
         <label class="block text-sm font-semibold text-meurzet-primary mb-1">Lugar de Embarque</label>
         <select [(ngModel)]="form.lugar_embarque_id"
+          class="w-full p-3 border-2 border-slate-200 rounded-xl text-sm box-border outline-none bg-[#1aa7c4]/5 focus:border-[#1aa7c4] focus:ring-2 focus:ring-[#1aa7c4]/20 transition-all">
+          <option [ngValue]="null">Sin asignar</option>
+          @for (l of lugaresEmbarque; track l.id) {
+            <option [ngValue]="l.id">{{ l.nombre }}{{ l.ciudad ? ' - ' + l.ciudad : '' }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="mt-4">
+        <label class="block text-sm font-semibold text-meurzet-primary mb-1">Lugar de Embarque 2</label>
+        <select [(ngModel)]="form.lugar_embarque_2_id"
           class="w-full p-3 border-2 border-slate-200 rounded-xl text-sm box-border outline-none bg-[#1aa7c4]/5 focus:border-[#1aa7c4] focus:ring-2 focus:ring-[#1aa7c4]/20 transition-all">
           <option [ngValue]="null">Sin asignar</option>
           @for (l of lugaresEmbarque; track l.id) {

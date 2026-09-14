@@ -67,11 +67,29 @@ export class PagoService {
   private async generarComisionSiAplica(pago: PagoMovimiento) {
     const { data: reserva } = await supabase
       .from('reservas')
-      .select('vendedor_id')
+      .select('vendedor_id, precio_base')
       .eq('id', pago.reserva_id)
       .single();
 
     if (!reserva?.vendedor_id) return;
+
+    const { data: pagosConfirmados } = await supabase
+      .from('pagos_movimientos')
+      .select('monto')
+      .eq('reserva_id', pago.reserva_id)
+      .eq('estado_pago', 'confirmado');
+
+    const totalPagado = (pagosConfirmados || []).reduce((sum, p) => sum + p.monto, 0);
+
+    if (totalPagado < reserva.precio_base) return;
+
+    const { data: comisionExistente } = await supabase
+      .from('comisiones')
+      .select('id')
+      .eq('reserva_id', pago.reserva_id)
+      .limit(1);
+
+    if (comisionExistente && comisionExistente.length > 0) return;
 
     const { data: config } = await supabase
       .from('comisiones_config')

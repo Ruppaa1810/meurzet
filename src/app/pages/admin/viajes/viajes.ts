@@ -50,6 +50,7 @@ export class Viajes implements OnInit {
     precio_base: 0,
     activo: true,
     lugar_embarque_id: null as number | null,
+    lugar_embarque_2_id: null as number | null,
   };
 
   constructor(
@@ -79,6 +80,17 @@ export class Viajes implements OnInit {
 
   lugarEmbarqueLabel(v: Viaje): string {
     const id = this.lugarEmbarqueId(v);
+    if (!id) return '-';
+    const l = this.lugaresEmbarque.find(l => l.id === id);
+    return l ? l.nombre : '-';
+  }
+
+  lugarEmbarque2Id(v: Viaje): number | null {
+    return (v as any).lugar_embarque_2_id ?? null;
+  }
+
+  lugarEmbarque2Label(v: Viaje): string {
+    const id = this.lugarEmbarque2Id(v);
     if (!id) return '-';
     const l = this.lugaresEmbarque.find(l => l.id === id);
     return l ? l.nombre : '-';
@@ -118,11 +130,12 @@ export class Viajes implements OnInit {
         precio_base: viaje.precio_base,
         activo: viaje.activo ?? true,
         lugar_embarque_id: (viaje as any).lugar_embarque_id ?? null,
+        lugar_embarque_2_id: (viaje as any).lugar_embarque_2_id ?? null,
       };
     } else {
       this.editando = false;
       this.editandoId = null;
-      this.form = { origen: '', destino: '', fecha_salida: '', fecha_llegada: '', unidad_id: null, precio_base: 0, activo: true, lugar_embarque_id: null };
+      this.form = { origen: '', destino: '', fecha_salida: '', fecha_llegada: '', unidad_id: null, precio_base: 0, activo: true, lugar_embarque_id: null, lugar_embarque_2_id: null };
     }
     this.modalAbierto = true;
   }
@@ -173,6 +186,7 @@ export class Viajes implements OnInit {
         precio_base: this.form.precio_base,
         activo: this.form.activo,
         lugar_embarque_id: this.form.lugar_embarque_id,
+        lugar_embarque_2_id: this.form.lugar_embarque_2_id,
       };
 
       if (this.editando && this.editandoId != null) {
