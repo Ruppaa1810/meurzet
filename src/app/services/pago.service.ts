@@ -50,12 +50,48 @@ export class PagoService {
   }
 
   async confirmarPago(id: number, metodo_pago: string, referencia: string | null) {
-    return await supabase
+    const result = await supabase
       .from('pagos_movimientos')
       .update({ estado_pago: 'confirmado', metodo_pago, referencia })
       .eq('id', id)
       .select()
       .single<PagoMovimiento>();
+
+    if (!result.error && result.data) {
+      this.generarComisionSiAplica(result.data).catch(() => {});
+    }
+
+    return result;
+  }
+
+  private async generarComisionSiAplica(pago: PagoMovimiento) {
+    const { data: reserva } = await supabase
+      .from('reservas')
+      .select('vendedor_id')
+      .eq('id', pago.reserva_id)
+      .single();
+
+    if (!reserva?.vendedor_id) return;
+
+    const { data: config } = await supabase
+      .from('comisiones_config')
+      .select('*')
+      .eq('vendedor_id', reserva.vendedor_id)
+      .eq('activo', true)
+      .single();
+
+    if (!config || config.porcentaje <= 0) return;
+
+    const monto_comision = Math.round(pago.monto * config.porcentaje / 100);
+
+    await supabase.from('comisiones').insert({
+      reserva_id: pago.reserva_id,
+      pago_id: pago.id,
+      vendedor_id: reserva.vendedor_id,
+      monto_base: pago.monto,
+      porcentaje: config.porcentaje,
+      monto_comision,
+    });
   }
 
   async actualizarEstadoPago(id: number, estado: EstadoPagoMovimiento) {

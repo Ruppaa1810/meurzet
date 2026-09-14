@@ -43,6 +43,7 @@ export interface Viaje {
   fecha_llegada: string;
   precio_base: number;
   activo: boolean | null;
+  lugar_embarque_id: number | null;
   created_at: string;
 }
 
@@ -99,5 +100,35 @@ export interface ConfigPagoOpcion {
   recargo: number;
   activo: boolean;
   porcentaje_minimo_seia: number | null;
+  created_at: string;
+}
+
+export interface ComisionConfig {
+  id: number;
+  vendedor_id: string;
+  porcentaje: number;
+  activo: boolean;
+  created_at: string;
+}
+
+export interface Comision {
+  id: number;
+  reserva_id: number;
+  pago_id: number;
+  vendedor_id: string;
+  monto_base: number;
+  porcentaje: number;
+  monto_comision: number;
+  estado: string;
+  pagado_at: string | null;
+  created_at: string;
+}
+
+export interface LugarEmbarque {
+  id: number;
+  nombre: string;
+  direccion: string | null;
+  ciudad: string | null;
+  activo: boolean;
   created_at: string;
 }

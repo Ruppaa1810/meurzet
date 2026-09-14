@@ -55,4 +55,27 @@ export class PerfilService {
   async actualizarAuthUser(userId: string, data: { email?: string; password?: string }) {
     return await this.adminApi.actualizarAuthUser(userId, data);
   }
+
+  async getConfigComision(vendedorId: string) {
+    return await supabase
+      .from('comisiones_config')
+      .select('*')
+      .eq('vendedor_id', vendedorId)
+      .single();
+  }
+
+  async getConfigsComision() {
+    return await supabase
+      .from('comisiones_config')
+      .select('*')
+      .order('created_at', { ascending: false });
+  }
+
+  async upsertConfigComision(vendedorId: string, porcentaje: number) {
+    return await supabase
+      .from('comisiones_config')
+      .upsert({ vendedor_id: vendedorId, porcentaje }, { onConflict: 'vendedor_id' })
+      .select()
+      .single();
+  }
 }

@@ -4,7 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { PerfilService } from '../../../services/perfil.service';
 import { ViajeService } from '../../../services/viaje.service';
 import { UnidadService } from '../../../services/unidad.service';
-import type { Viaje, Unidad, UserRole } from '../../../models/database.types';
+import { LugarEmbarqueService } from '../../../services/lugar-embarque.service';
+import type { Viaje, Unidad, UserRole, LugarEmbarque } from '../../../models/database.types';
 import { Paginacion } from '../../../utils/paginacion';
 import { PaginacionComponent } from '../../../components/paginacion';
 
@@ -18,6 +19,7 @@ import { PaginacionComponent } from '../../../components/paginacion';
 export class Viajes implements OnInit {
   viajes: Viaje[] = [];
   unidades: Unidad[] = [];
+  lugaresEmbarque: LugarEmbarque[] = [];
   loading = false;
   guardando = false;
   mensaje = '';
@@ -47,12 +49,14 @@ export class Viajes implements OnInit {
     unidad_id: null as number | null,
     precio_base: 0,
     activo: true,
+    lugar_embarque_id: null as number | null,
   };
 
   constructor(
     private perfilService: PerfilService,
     private viajeService: ViajeService,
     private unidadService: UnidadService,
+    private lugarService: LugarEmbarqueService,
     private cdr: ChangeDetectorRef,
   ) { }
 
@@ -69,18 +73,31 @@ export class Viajes implements OnInit {
     this.cargar();
   }
 
+  lugarEmbarqueId(v: Viaje): number | null {
+    return (v as any).lugar_embarque_id ?? null;
+  }
+
+  lugarEmbarqueLabel(v: Viaje): string {
+    const id = this.lugarEmbarqueId(v);
+    if (!id) return '-';
+    const l = this.lugaresEmbarque.find(l => l.id === id);
+    return l ? l.nombre : '-';
+  }
+
   async cargar() {
     this.loading = true;
     this.mensaje = '';
     this.paginacion.irAPagina(1);
     try {
-      const [viajesRes, unidadesRes] = await Promise.all([
+      const [viajesRes, unidadesRes, lugaresRes] = await Promise.all([
         this.viajeService.getViajesAdmin(),
         this.unidadService.getUnidades(),
+        this.lugarService.getLugares(),
       ]);
       if (viajesRes.error) { this.mensaje = viajesRes.error.message; }
       else { this.viajes = viajesRes.data ?? []; }
       if (!unidadesRes.error) { this.unidades = unidadesRes.data ?? []; }
+      if (!lugaresRes.error) { this.lugaresEmbarque = lugaresRes.data ?? []; }
     } catch (e: any) {
       this.mensaje = e?.message || 'Error al cargar viajes';
     }
@@ -100,11 +117,12 @@ export class Viajes implements OnInit {
         unidad_id: viaje.unidad_id,
         precio_base: viaje.precio_base,
         activo: viaje.activo ?? true,
+        lugar_embarque_id: (viaje as any).lugar_embarque_id ?? null,
       };
     } else {
       this.editando = false;
       this.editandoId = null;
-      this.form = { origen: '', destino: '', fecha_salida: '', fecha_llegada: '', unidad_id: null, precio_base: 0, activo: true };
+      this.form = { origen: '', destino: '', fecha_salida: '', fecha_llegada: '', unidad_id: null, precio_base: 0, activo: true, lugar_embarque_id: null };
     }
     this.modalAbierto = true;
   }
@@ -154,6 +172,7 @@ export class Viajes implements OnInit {
         unidad_id: this.form.unidad_id,
         precio_base: this.form.precio_base,
         activo: this.form.activo,
+        lugar_embarque_id: this.form.lugar_embarque_id,
       };
 
       if (this.editando && this.editandoId != null) {

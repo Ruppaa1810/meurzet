@@ -21,6 +21,8 @@ export const routes: Routes = [
       { path: 'viajes', loadComponent: () => import('./pages/admin/viajes/viajes').then(m => m.Viajes) },
       { path: 'auditoria', loadComponent: () => import('./pages/admin/auditoria/auditoria').then(m => m.Auditoria), canActivate: [AuthGuard], data: { roles: ['admin_mayorista'] } },
       { path: 'minoristas', loadComponent: () => import('./pages/admin/gestion-minoristas/gestion-minoristas').then(m => m.GestionMinoristas), canActivate: [AuthGuard], data: { roles: ['admin_mayorista', 'operador_admin'] } },
+      { path: 'comisiones', loadComponent: () => import('./pages/admin/comisiones/comisiones').then(m => m.Comisiones), canActivate: [AuthGuard], data: { roles: ['admin_mayorista'] } },
+      { path: 'lugares-embarque', loadComponent: () => import('./pages/admin/lugares-embarque/lugares-embarque').then(m => m.LugaresEmbarque), canActivate: [AuthGuard], data: { roles: ['admin_mayorista'] } },
     ]
   },
   {
@@ -35,6 +37,7 @@ export const routes: Routes = [
       { path: 'reserva', loadComponent: () => import('./pages/minorista/reserva/reserva').then(m => m.Reserva) },
       { path: 'confirmacion', loadComponent: () => import('./pages/minorista/confirmacion/confirmacion').then(m => m.Confirmacion) },
       { path: 'mis-reservas', loadComponent: () => import('./pages/minorista/mis-reservas/mis-reservas').then(m => m.MisReservas) },
+      { path: 'mis-comisiones', loadComponent: () => import('./pages/minorista/mis-comisiones/mis-comisiones').then(m => m.MisComisiones) },
       { path: 'perfil', loadComponent: () => import('./pages/minorista/perfil/perfil').then(m => m.Perfil) },
       { path: '', redirectTo: 'vender', pathMatch: 'full' }
     ]

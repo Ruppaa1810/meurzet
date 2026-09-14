@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PerfilService } from '../../../services/perfil.service';
 import { ReservaService } from '../../../services/reserva.service';
+import { ComisionService } from '../../../services/comision.service';
 import { traducirError } from '../../../utils/errors';
 import type { Perfil, UserRole } from '../../../models/database.types';
 
@@ -36,6 +37,7 @@ export class GestionMinoristas implements OnInit, OnDestroy {
   formNombre = '';
   formAgencia = '';
   formRol: UserRole = 'vendedor_minorista';
+  formPorcentaje = 0;
 
   mostrarModalToggle = false;
   toggleTarget: VendedorConReservas | null = null;
@@ -50,6 +52,7 @@ export class GestionMinoristas implements OnInit, OnDestroy {
   constructor(
     private perfilService: PerfilService,
     private reservaService: ReservaService,
+    private comisionService: ComisionService,
     private cdr: ChangeDetectorRef,
   ) {}
 
@@ -181,12 +184,13 @@ export class GestionMinoristas implements OnInit, OnDestroy {
     this.formNombre = '';
     this.formAgencia = '';
     this.formRol = 'vendedor_minorista';
+    this.formPorcentaje = 0;
     this.mensaje = '';
     this.mostrarModal = true;
     this.cdr.detectChanges();
   }
 
-  abrirEditar(v: VendedorConReservas) {
+  async abrirEditar(v: VendedorConReservas) {
     if (!this.puedeGestionar) return;
     this.editando = v;
     this.formEmail = '';
@@ -194,8 +198,14 @@ export class GestionMinoristas implements OnInit, OnDestroy {
     this.formNombre = v.nombre;
     this.formAgencia = v.agencia_nombre ?? '';
     this.formRol = v.rol;
+    this.formPorcentaje = 0;
     this.mensaje = '';
+
+    const { data: config } = await this.comisionService.getConfigByVendedor(v.id);
+    if (config) this.formPorcentaje = config.porcentaje;
+
     this.mostrarModal = true;
+    this.cdr.detectChanges();
   }
 
   cerrarModal() {
@@ -268,6 +278,9 @@ export class GestionMinoristas implements OnInit, OnDestroy {
       this.cerrarModal();
       await this.cargar();
       if (!this.mensaje) {
+        if (esEdicion && this.editando) {
+          await this.comisionService.upsertConfig(this.editando!.id, this.formPorcentaje);
+        }
         this.mostrarSuccess(esEdicion ? 'Usuario actualizado correctamente' : 'Usuario creado correctamente');
       }
     } catch (e: any) {

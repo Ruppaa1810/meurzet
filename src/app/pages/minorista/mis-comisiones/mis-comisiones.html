@@ -1,0 +1,85 @@
+<div class="min-h-screen bg-[#f4f4f3]">
+  <div class="max-w-[1200px] mx-auto px-3 md:px-8 py-4 md:py-10">
+
+    @if (loading) {
+    <div class="flex items-center justify-center h-[60vh]">
+      <div class="text-center">
+        <svg class="animate-spin w-10 h-10 text-[#af4f35] mx-auto mb-4" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <p class="text-slate-500 font-medium text-sm">Cargando comisiones...</p>
+      </div>
+    </div>
+    } @else {
+
+    <!-- Header -->
+    <div class="mb-6">
+      <h2 class="text-xl font-bold text-[#384752]">Mis Comisiones</h2>
+      <p class="text-xs text-slate-400 mt-0.5">Resumen de tus comisiones por ventas</p>
+    </div>
+
+    <!-- Resumen cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="bg-white rounded-2xl shadow-xl border-2 border-[#eec997] p-4">
+        <p class="text-xs text-slate-400 uppercase tracking-wider">Total Generado</p>
+        <p class="text-2xl font-bold text-[#384752] mt-1">{{ formatPrecio(resumen.totalGenerado) }}</p>
+      </div>
+      <div class="bg-white rounded-2xl shadow-xl border-2 border-amber-200/50 p-4">
+        <p class="text-xs text-slate-400 uppercase tracking-wider">Pendiente Cobro</p>
+        <p class="text-2xl font-bold text-amber-600 mt-1">{{ formatPrecio(resumen.totalPendiente) }}</p>
+      </div>
+      <div class="bg-white rounded-2xl shadow-xl border-2 border-green-200/50 p-4">
+        <p class="text-xs text-slate-400 uppercase tracking-wider">Cobrado</p>
+        <p class="text-2xl font-bold text-green-600 mt-1">{{ formatPrecio(resumen.totalPagado) }}</p>
+      </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="bg-white rounded-2xl shadow-xl border-2 border-[#eec997] overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-slate-50 text-left text-xs text-slate-400 uppercase tracking-wider border-b border-[#eec997]/50">
+              <th class="px-4 py-3">Reserva</th>
+              <th class="px-4 py-3 text-right">Monto pago</th>
+              <th class="px-4 py-3 text-right">%</th>
+              <th class="px-4 py-3 text-right">Comisión</th>
+              <th class="px-4 py-3">Estado</th>
+              <th class="px-4 py-3">Fecha</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (c of comisiones; track c.id) {
+            <tr class="border-b border-[#eec997]/20 hover:bg-[#f4f4f3]/50 transition-colors"
+              [class.bg-green-50/30]="c.estado === 'pagado'">
+              <td class="px-4 py-3 font-medium text-[#384752]">#{{ c.reserva_id }}</td>
+              <td class="px-4 py-3 text-right text-[#384752]">{{ formatPrecio(c.monto_base) }}</td>
+              <td class="px-4 py-3 text-right text-slate-500">{{ c.porcentaje }}%</td>
+              <td class="px-4 py-3 text-right font-semibold text-[#384752]">{{ formatPrecio(c.monto_comision) }}</td>
+              <td class="px-4 py-3">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                  [class]="c.estado === 'pagado' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'">
+                  {{ c.estado === 'pagado' ? 'Cobrada' : 'Pendiente' }}
+                </span>
+              </td>
+              <td class="px-4 py-3 text-xs text-slate-400">{{ formatFecha(c.created_at) }}</td>
+            </tr>
+            } @empty {
+            <tr>
+              <td colspan="6" class="px-4 py-12 text-center text-slate-400 text-sm">
+                <svg class="w-10 h-10 mx-auto mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                </svg>
+                Aún no tenés comisiones registradas
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    }
+  </div>
+</div>
