@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { PerfilService } from '../../../services/perfil.service';
 import { PagoService, type PagoConReserva } from '../../../services/pago.service';
+import { ReservaService } from '../../../services/reserva.service';
 import { AuditoriaService } from '../../../services/auditoria.service';
 import type { UserRole } from '../../../models/database.types';
 import { Paginacion } from '../../../utils/paginacion';
@@ -43,6 +44,7 @@ export class Validaciones implements OnInit, OnDestroy {
   constructor(
     private perfilService: PerfilService,
     private pagoService: PagoService,
+    private reservaService: ReservaService,
     private auditoriaService: AuditoriaService,
     private cdr: ChangeDetectorRef,
   ) {}
@@ -113,12 +115,16 @@ export class Validaciones implements OnInit, OnDestroy {
         const { error } = await this.pagoService.actualizarEstadoPago(pago.id, 'confirmado');
         if (error) { this.error = error.message; return; }
         await this.pagoService.recalcularEstadoFinanciero(reservaId, reserva?.viaje?.precio_base || 0);
-        await this.auditoriaService.log(reserva?.asiento_viaje_id || 0, `Pago aprobado: $${pago.monto} (${pago.metodo_pago})`);
+        if (reserva?.asiento_viaje_id) {
+          await this.reservaService.aprobarReserva(reservaId, reserva.asiento_viaje_id);
+        }
       } else {
         const { error } = await this.pagoService.actualizarEstadoPago(pago.id, 'rechazado');
         if (error) { this.error = error.message; return; }
         await this.pagoService.recalcularEstadoFinanciero(reservaId, reserva?.viaje?.precio_base || 0);
-        await this.auditoriaService.log(reserva?.asiento_viaje_id || 0, `Pago rechazado: $${pago.monto} - Motivo: ${this.motivoRechazo.trim()}`);
+        if (reserva?.asiento_viaje_id) {
+          await this.reservaService.rechazarReserva(reservaId, reserva.asiento_viaje_id, this.motivoRechazo.trim());
+        }
       }
 
       this.pagos = this.pagos.filter(p => p.id !== pago.id);

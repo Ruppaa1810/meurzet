@@ -2,13 +2,13 @@ import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ComisionService } from '../../../services/comision.service';
-import { PerfilService } from '../../../services/perfil.service';
-import type { Comision, ComisionConfig } from '../../../models/database.types';
 
-interface ComisionConPerfil extends Comision {
-  perfil?: { nombre: string; email: string | null } | null;
-  reserva?: { id: number; pasajero_datos: Record<string, unknown> } | null;
-  pago?: { monto: number; metodo_pago: string } | null;
+interface ConfigConPerfil {
+  id: number;
+  vendedor_id: string;
+  porcentaje: number;
+  activo: boolean;
+  perfiles?: { nombre: string; email: string | null } | null;
 }
 
 @Component({
@@ -19,29 +19,20 @@ interface ComisionConPerfil extends Comision {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Comisiones implements OnInit {
-  comisiones: ComisionConPerfil[] = [];
+  configs: ConfigConPerfil[] = [];
   loading = true;
   mensaje = '';
   successMensaje = '';
   private successTimeout: any = null;
 
-  filtroEstado: '' | 'pendiente' | 'pagado' = '';
-  seleccionadas: Set<number> = new Set();
-  procesando = false;
-
-  resumen = { totalGenerado: 0, totalPendiente: 0, totalPagado: 0 };
-
-  mostrarModalConfig = false;
-  configTarget: any = null;
-  configPorcentaje = 0;
-  guardandoConfig = false;
-
-  Math = Math;
+  mostrarModal = false;
+  configEditando: ConfigConPerfil | null = null;
+  formPorcentaje = 0;
+  guardando = false;
 
   constructor(
     private comisionService: ComisionService,
-    private perfilService: PerfilService,
-    public cdr: ChangeDetectorRef,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   async ngOnInit() {
@@ -51,63 +42,44 @@ export class Comisiones implements OnInit {
   async cargar() {
     this.loading = true;
     this.mensaje = '';
-    const { data, error } = await this.comisionService.getComisionesAll();
+    const { data, error } = await this.comisionService.getConfigsAll();
     if (error) { this.mensaje = error.message; this.loading = false; this.cdr.detectChanges(); return; }
-    this.comisiones = (data || []) as ComisionConPerfil[];
-    this.resumen = await this.comisionService.getResumenAll();
-    this.seleccionadas.clear();
+    this.configs = (data || []) as ConfigConPerfil[];
     this.loading = false;
     this.cdr.detectChanges();
   }
 
-  get comisionesFiltradas() {
-    if (!this.filtroEstado) return this.comisiones;
-    return this.comisiones.filter(c => c.estado === this.filtroEstado);
+  nombreVendedor(c: ConfigConPerfil): string {
+    return c.perfiles?.nombre || '-';
   }
 
-  toggleSeleccion(id: number) {
-    if (this.seleccionadas.has(id)) this.seleccionadas.delete(id);
-    else this.seleccionadas.add(id);
+  emailVendedor(c: ConfigConPerfil): string {
+    return c.perfiles?.email || '';
+  }
+
+  abrirEditar(c: ConfigConPerfil) {
+    this.configEditando = c;
+    this.formPorcentaje = c.porcentaje;
+    this.mensaje = '';
+    this.mostrarModal = true;
     this.cdr.detectChanges();
   }
 
-  toggleTodas() {
-    const filtradas = this.comisionesFiltradas.filter(c => c.estado === 'pendiente');
-    if (this.seleccionadas.size === filtradas.length) {
-      this.seleccionadas.clear();
-    } else {
-      filtradas.forEach(c => this.seleccionadas.add(c.id));
-    }
-    this.cdr.detectChanges();
+  cerrarModal() {
+    this.mostrarModal = false;
+    this.configEditando = null;
+    this.guardando = false;
   }
 
-  async marcarPagadas() {
-    if (this.seleccionadas.size === 0) return;
-    this.procesando = true;
-    const ids = Array.from(this.seleccionadas);
-    const { error } = await this.comisionService.marcarComoPagada(ids);
-    if (error) { this.mensaje = error.message; this.procesando = false; this.cdr.detectChanges(); return; }
-    this.mostrarSuccess(`${ids.length} comisión(es) marcada(s) como pagada(s)`);
+  async guardar() {
+    if (!this.configEditando) return;
+    this.guardando = true;
+    this.mensaje = '';
+    const { error } = await this.comisionService.upsertConfig(this.configEditando.vendedor_id, this.formPorcentaje);
+    if (error) { this.mensaje = error.message; this.guardando = false; this.cdr.detectChanges(); return; }
+    this.cerrarModal();
     await this.cargar();
-    this.procesando = false;
-    this.cdr.detectChanges();
-  }
-
-  nombreVendedor(c: ComisionConPerfil): string {
-    return c.perfil?.nombre || '-';
-  }
-
-  pasajeroLabel(c: ComisionConPerfil): string {
-    const d = (c.reserva?.pasajero_datos || {}) as Record<string, any>;
-    return [d['nombre'], d['apellido']].filter(Boolean).join(' ') || '-';
-  }
-
-  formatPrecio(v: number): string {
-    return `$ ${v.toLocaleString('es-AR')}`;
-  }
-
-  formatFecha(f: string): string {
-    return new Date(f).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' });
+    this.mostrarSuccess('Porcentaje actualizado correctamente');
   }
 
   dismissSuccess() {
