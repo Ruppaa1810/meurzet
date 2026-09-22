@@ -49,8 +49,7 @@ export class Viajes implements OnInit {
     unidad_id: null as number | null,
     precio_base: 0,
     activo: true,
-    lugar_embarque_id: null as number | null,
-    lugar_embarque_2_id: null as number | null,
+    lugares_embarque_ids: [] as number[],
   };
 
   constructor(
@@ -74,26 +73,15 @@ export class Viajes implements OnInit {
     this.cargar();
   }
 
-  lugarEmbarqueId(v: Viaje): number | null {
-    return (v as any).lugar_embarque_id ?? null;
+  lugaresEmbarqueLabels(v: Viaje): string[] {
+    return (v.lugares_embarque_ids ?? [])
+      .map(id => this.lugaresEmbarque.find(l => l.id === id)?.nombre)
+      .filter((n): n is string => !!n);
   }
 
-  lugarEmbarqueLabel(v: Viaje): string {
-    const id = this.lugarEmbarqueId(v);
-    if (!id) return '-';
-    const l = this.lugaresEmbarque.find(l => l.id === id);
-    return l ? l.nombre : '-';
-  }
-
-  lugarEmbarque2Id(v: Viaje): number | null {
-    return (v as any).lugar_embarque_2_id ?? null;
-  }
-
-  lugarEmbarque2Label(v: Viaje): string {
-    const id = this.lugarEmbarque2Id(v);
-    if (!id) return '-';
-    const l = this.lugaresEmbarque.find(l => l.id === id);
-    return l ? l.nombre : '-';
+  toggleLugar(id: number) {
+    const ids = this.form.lugares_embarque_ids;
+    this.form.lugares_embarque_ids = ids.includes(id) ? ids.filter(x => x !== id) : [...ids, id];
   }
 
   async cargar() {
@@ -129,13 +117,12 @@ export class Viajes implements OnInit {
         unidad_id: viaje.unidad_id,
         precio_base: viaje.precio_base,
         activo: viaje.activo ?? true,
-        lugar_embarque_id: (viaje as any).lugar_embarque_id ?? null,
-        lugar_embarque_2_id: (viaje as any).lugar_embarque_2_id ?? null,
+        lugares_embarque_ids: [...(viaje.lugares_embarque_ids ?? [])],
       };
     } else {
       this.editando = false;
       this.editandoId = null;
-      this.form = { origen: '', destino: '', fecha_salida: '', fecha_llegada: '', unidad_id: null, precio_base: 0, activo: true, lugar_embarque_id: null, lugar_embarque_2_id: null };
+      this.form = { origen: '', destino: '', fecha_salida: '', fecha_llegada: '', unidad_id: null, precio_base: 0, activo: true, lugares_embarque_ids: [] };
     }
     this.modalAbierto = true;
   }
@@ -185,8 +172,7 @@ export class Viajes implements OnInit {
         unidad_id: this.form.unidad_id,
         precio_base: this.form.precio_base,
         activo: this.form.activo,
-        lugar_embarque_id: this.form.lugar_embarque_id,
-        lugar_embarque_2_id: this.form.lugar_embarque_2_id,
+        lugares_embarque_ids: this.form.lugares_embarque_ids,
       };
 
       if (this.editando && this.editandoId != null) {
@@ -203,6 +189,11 @@ export class Viajes implements OnInit {
           p_unidad_id: payload.unidad_id,
         });
         if (error) { this.mensaje = error.message; return; }
+        // La RPC no recibe embarques: se guardan sobre el viaje recién creado
+        if (payload.lugares_embarque_ids.length) {
+          const { error: embErr } = await this.viajeService.updateViaje(viajeCreado.id, { lugares_embarque_ids: payload.lugares_embarque_ids });
+          if (embErr) { this.mensaje = embErr.message; return; }
+        }
       }
 
       this.modalAbierto = false;

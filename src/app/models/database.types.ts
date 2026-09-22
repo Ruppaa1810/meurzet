@@ -43,7 +43,7 @@ export interface Viaje {
   fecha_llegada: string;
   precio_base: number;
   activo: boolean | null;
-  lugar_embarque_id: number | null;
+  lugares_embarque_ids: number[];
   created_at: string;
 }
 
