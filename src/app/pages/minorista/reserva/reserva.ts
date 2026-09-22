@@ -204,9 +204,9 @@ export class Reserva implements OnInit {
           const saldoConRecargoPorAsiento = this.cuotasCount > 1 && this.cuotasRecargo > 0
             ? Math.round(saldoBasePorAsiento * (1 + this.cuotasRecargo / 100))
             : saldoBasePorAsiento;
-          const montoPorCuota = this.cuotasCount > 1
-            ? Math.round(saldoConRecargoPorAsiento / this.cuotasCount)
-            : 0;
+          // Con 1 sola cuota el saldo entero va en esa cuota; si se pagó el total no hay cuotas
+          const cuotasACrear = saldoConRecargoPorAsiento > 0 ? this.cuotasCount : 0;
+          const montoPorCuota = cuotasACrear ? Math.round(saldoConRecargoPorAsiento / cuotasACrear) : 0;
 
           // Crear pago de la seña
           const { error: señaError } = await this.pagoService.crearPago({
@@ -222,7 +222,7 @@ export class Reserva implements OnInit {
           if (señaError) { this.message = señaError.message; return; }
 
           // Crear pagos de cada cuota
-          for (let c = 1; c <= this.cuotasCount; c++) {
+          for (let c = 1; c <= cuotasACrear; c++) {
             const { error: cuotaError } = await this.pagoService.crearPago({
               reserva_id: data.id,
               monto: montoPorCuota,

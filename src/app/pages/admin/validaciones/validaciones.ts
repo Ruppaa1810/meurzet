@@ -9,6 +9,7 @@ import { AuditoriaService } from '../../../services/auditoria.service';
 import type { UserRole } from '../../../models/database.types';
 import { Paginacion } from '../../../utils/paginacion';
 import { embarqueLabel } from '../../../utils/embarques';
+import { totalVentaReserva } from '../../../utils/calculo-financiero';
 import { PaginacionComponent } from '../../../components/paginacion';
 
 @Component({
@@ -110,19 +111,28 @@ export class Validaciones implements OnInit, OnDestroy {
     const pago = this.pagoAccion;
     const reserva = pago.reserva;
     const reservaId = reserva?.id || pago.reserva_id;
+    const totalVenta = reserva
+      ? totalVentaReserva(reserva.viaje?.precio_base || 0, reserva.pasajero_datos, []).totalFinal
+      : 0;
 
     try {
       if (this.accion === 'aprobar') {
         const { error } = await this.pagoService.actualizarEstadoPago(pago.id, 'confirmado');
         if (error) { this.error = error.message; return; }
-        await this.pagoService.recalcularEstadoFinanciero(reservaId, reserva?.viaje?.precio_base || 0);
+        await this.pagoService.recalcularEstadoFinanciero(reservaId, totalVenta);
         if (reserva?.asiento_viaje_id) {
           await this.reservaService.aprobarReserva(reservaId, reserva.asiento_viaje_id);
         }
+        const comision = await this.pagoService.generarComisionSiCorresponde(reservaId);
+        if (comision?.error) this.error = `Pago aprobado, pero no se pudo generar la comisión: ${comision.error.message}`;
+      } else if (pago.tipo === 'cuota') {
+        // Un comprobante de cuota mal subido no cancela la reserva: la cuota vuelve a pendiente sin comprobante
+        const { error } = await this.pagoService.quitarComprobanteCuota(pago.id);
+        if (error) { this.error = error.message; return; }
       } else {
         const { error } = await this.pagoService.actualizarEstadoPago(pago.id, 'rechazado');
         if (error) { this.error = error.message; return; }
-        await this.pagoService.recalcularEstadoFinanciero(reservaId, reserva?.viaje?.precio_base || 0);
+        await this.pagoService.recalcularEstadoFinanciero(reservaId, totalVenta);
         if (reserva?.asiento_viaje_id) {
           await this.reservaService.rechazarReserva(reservaId, reserva.asiento_viaje_id, this.motivoRechazo.trim());
         }

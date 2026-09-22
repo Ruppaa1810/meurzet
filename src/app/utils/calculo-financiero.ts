@@ -32,6 +32,12 @@ export function montoPagadoConfirmado(pagos: PagoMovimiento[]): number {
   return pagos.filter(p => p.estado_pago === 'confirmado').reduce((s, p) => s + p.monto, 0);
 }
 
+/** Totales de una reserva (un asiento) según el plan de pago guardado en pasajero_datos. */
+export function totalVentaReserva(precioBase: number, pasajeroDatos: Record<string, unknown>, pagos: PagoMovimiento[]): CalculoFinanciero {
+  const { porcentajePago, cuotas, recargo } = parsearPagoPasajero(pasajeroDatos);
+  return calcularFinanciero(precioBase, porcentajePago, cuotas, recargo, montoPagadoConfirmado(pagos));
+}
+
 export function parsearPagoPasajero(pasajeroDatos: Record<string, unknown>): {
   porcentajePago: number;
   metodoPago: string;

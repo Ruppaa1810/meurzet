@@ -220,24 +220,6 @@
       </div>
       }
 
-      <!-- COMPROBANTE DIGITAL (antes de subir) -->
-      @if (!comprobanteSubido) {
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <button (click)="descargarComprobante()"
-          class="py-2.5 rounded-xl font-bold text-xs border-2 border-meurzet-accent/50 text-meurzet-accent
-                 hover:bg-meurzet-accent hover:text-white
-                 transition-all duration-300 cursor-pointer">
-          📄 Descargar comprobante
-        </button>
-        <button (click)="imprimirComprobante()"
-          class="py-2.5 rounded-xl font-bold text-xs border-2 border-meurzet-info/50 text-meurzet-info
-                 hover:bg-meurzet-info hover:text-white
-                 transition-all duration-300 cursor-pointer">
-          🖨️ Imprimir / PDF
-        </button>
-      </div>
-      }
-
       <!-- BOTÓN VOLVER -->
       <button routerLink="/minorista/vender" 
         class="w-full py-3 md:py-4 rounded-xl font-bold text-sm md:text-base text-white 

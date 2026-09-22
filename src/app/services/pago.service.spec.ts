@@ -4,7 +4,7 @@ import { PagoService } from './pago.service';
 import { supabase } from './supabase-client';
 
 function buildChain() {
-  const methods = ['select', 'eq', 'in', 'order', 'single', 'update', 'insert'];
+  const methods = ['select', 'eq', 'in', 'or', 'order', 'single', 'update', 'insert'];
   const chain: any = {};
   for (const m of methods) chain[m] = vi.fn().mockReturnValue(chain);
   return chain;

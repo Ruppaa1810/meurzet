@@ -83,6 +83,7 @@ export interface PagoMovimiento {
   tipo: string;
   cuota_numero: number | null;
   cuotas_totales: number | null;
+  comprobante_url?: string | null;
   created_at: string;
 }
 

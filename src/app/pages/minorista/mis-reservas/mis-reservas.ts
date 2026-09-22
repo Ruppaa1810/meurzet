@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 
 import { AuthService } from '../../../services/auth.service';
 import { PerfilService } from '../../../services/perfil.service';
@@ -8,7 +9,8 @@ import { ReservaService } from '../../../services/reserva.service';
 import { StorageService } from '../../../services/storage.service';
 import { PagoService } from '../../../services/pago.service';
 import { ComprobanteService, DatosComprobante } from '../../../services/comprobante.service';
-import type { Reserva, PagoMovimiento, EstadoFinanciero } from '../../../models/database.types';
+import { ComisionService } from '../../../services/comision.service';
+import type { Reserva, PagoMovimiento, EstadoFinanciero, Comision } from '../../../models/database.types';
 import { estadoFinancieroLabel, estadoFinancieroClass, estadoFinancieroDot } from '../../../utils/estado-financiero';
 import { calcularFinanciero, montoPagadoConfirmado, parsearPagoPasajero } from '../../../utils/calculo-financiero';
 import { embarqueLabel } from '../../../utils/embarques';
@@ -28,16 +30,37 @@ interface ReservaGroup {
   viajeLabel: string;
   reservas: ReservaView[];
   estado: string;
-  detalleAbierto: boolean;
   uploading: boolean;
   uploadMsg: string;
   uploadOk: boolean;
 }
 
+/** Una cuota del grupo: junta la cuota N de cada asiento. */
+interface CuotaGrupo {
+  numero: number;
+  total: number;
+  monto: number;
+  estado: 'pendiente' | 'en_validacion' | 'pagada';
+  idsAInformar: number[];
+}
+
+type Filtro = 'todas' | 'accion' | 'curso' | 'pagadas' | 'rechazadas';
+type Etapa = 'falta_comprobante' | 'en_validacion' | 'pagando' | 'cuota_en_validacion' | 'saldo' | 'pagada' | 'rechazada';
+
+const ETAPAS: Record<Etapa, { label: string; clase: string; accion: boolean }> = {
+  falta_comprobante:   { label: 'Falta comprobante', clase: 'bg-amber-50 text-amber-700 border-amber-200', accion: true },
+  en_validacion:       { label: 'En validación', clase: 'bg-blue-50 text-blue-700 border-blue-200', accion: false },
+  pagando:             { label: 'Pagando cuotas', clase: 'bg-amber-50 text-amber-700 border-amber-200', accion: true },
+  cuota_en_validacion: { label: 'Cuota en validación', clase: 'bg-blue-50 text-blue-700 border-blue-200', accion: false },
+  saldo:               { label: 'Saldo pendiente', clase: 'bg-amber-50 text-amber-700 border-amber-200', accion: false },
+  pagada:              { label: 'Pagada', clase: 'bg-green-50 text-green-700 border-green-200', accion: false },
+  rechazada:           { label: 'Rechazada', clase: 'bg-red-50 text-red-700 border-red-200', accion: false },
+};
+
 @Component({
   selector: 'app-mis-reservas',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './mis-reservas.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -48,58 +71,56 @@ export class MisReservas implements OnInit {
   grupos: ReservaGroup[] = [];
   loading = true;
 
-  filtroEstado = '';
-  filtroFecha = '';
-  fechaBuffer = '';
+  filtro: Filtro = 'todas';
+  busqueda = '';
 
-  estadosFiltro = [
-    { valor: '', label: 'Todos' },
-    { valor: 'pendiente_comprobante', label: 'Pendiente' },
-    { valor: 'aprobado', label: 'Aprobado' },
-    { valor: 'rechazado', label: 'Rechazado' },
+  readonly filtros: { valor: Filtro; label: string }[] = [
+    { valor: 'todas', label: 'Todas' },
+    { valor: 'accion', label: 'Requieren acción' },
+    { valor: 'curso', label: 'En curso' },
+    { valor: 'pagadas', label: 'Pagadas' },
+    { valor: 'rechazadas', label: 'Rechazadas' },
   ];
 
+  private coincideFiltro(g: ReservaGroup, f: Filtro): boolean {
+    const e = this.etapa(g);
+    switch (f) {
+      case 'accion': return ETAPAS[e].accion;
+      case 'curso': return e !== 'pagada' && e !== 'rechazada';
+      case 'pagadas': return e === 'pagada';
+      case 'rechazadas': return e === 'rechazada';
+      default: return true;
+    }
+  }
+
   get gruposFiltrados(): ReservaGroup[] {
-    return this.grupos.filter(g => {
-      if (this.filtroEstado && g.estado !== this.filtroEstado) return false;
-      if (this.filtroFecha) {
-        const f = new Date(g.reservas[0]?.created_at || '');
-        const diaSel = new Date(this.filtroFecha + 'T00:00:00');
-        if (f.toDateString() !== diaSel.toDateString()) return false;
-      }
-      return true;
-    });
+    const q = this.busqueda.trim().toLowerCase();
+    return this.grupos
+      .filter(g => this.coincideFiltro(g, this.filtro))
+      .filter(g => !q || [g.viajeLabel, ...g.reservas.flatMap(r => [r.pasajeroNombre, this.pasajeroDatos(r)['documento']])]
+        .join(' ').toLowerCase().includes(q))
+      // Lo que requiere acción primero; el resto mantiene el orden por fecha
+      .sort((a, b) => Number(ETAPAS[this.etapa(b)].accion) - Number(ETAPAS[this.etapa(a)].accion));
   }
 
-  hayFiltrosActivos(): boolean {
-    return !!this.filtroEstado || !!this.filtroFecha;
+  cantidadPorFiltro(f: Filtro): number {
+    return this.grupos.filter(g => this.coincideFiltro(g, f)).length;
   }
 
-  limpiarFiltros() {
-    this.filtroEstado = '';
-    this.filtroFecha = '';
-    this.fechaBuffer = '';
-    this.cdr.detectChanges();
-  }
-
-  setFiltroEstado(valor: string) {
-    this.filtroEstado = valor;
-    this.cdr.detectChanges();
-  }
-
-  aplicarFecha() {
-    this.filtroFecha = this.fechaBuffer;
+  setFiltro(f: Filtro) {
+    this.filtro = f;
     this.cdr.detectChanges();
   }
 
   selectedGroup: ReservaGroup | null = null;
 
-  mostrarModalPago = false;
-  pagoGrupo: ReservaGroup | null = null;
-  pagoMonto = 0;
-  pagoMetodo = 'transferencia';
-  pagoReferencia = '';
-  pagoGuardando = false;
+  comisionesPorReserva = new Map<number, Comision>();
+  porcentajeComision = 0;
+
+  grupoCuota: ReservaGroup | null = null;
+  cuotaSeleccionada: CuotaGrupo | null = null;
+  cuotaSubiendo = false;
+  cuotaError = '';
 
   constructor(
     private authService: AuthService,
@@ -108,6 +129,7 @@ export class MisReservas implements OnInit {
     private storageService: StorageService,
     private pagoService: PagoService,
     private comprobanteService: ComprobanteService,
+    private comisionService: ComisionService,
     private cdr: ChangeDetectorRef,
   ) {}
 
@@ -116,8 +138,14 @@ export class MisReservas implements OnInit {
       const { data: perfil } = await this.perfilService.getCurrentProfile();
       if (!perfil?.id) return;
 
-      const { data: raw } = await this.reservaService.getReservasPorVendedorConViaje(perfil.id);
+      const [{ data: raw }, { data: comisiones }, { data: config }] = await Promise.all([
+        this.reservaService.getReservasPorVendedorConViaje(perfil.id),
+        this.comisionService.getComisionesByVendedor(perfil.id),
+        this.comisionService.getConfigByVendedor(perfil.id),
+      ]);
       if (!raw) return;
+      this.comisionesPorReserva = new Map((comisiones ?? []).map(c => [c.reserva_id, c]));
+      this.porcentajeComision = config?.activo ? config.porcentaje : 0;
 
       const reservaIds = raw.map(r => r.id);
       const { data: todosPagos } = await this.pagoService.getPagosPorReservas(reservaIds);
@@ -161,7 +189,6 @@ export class MisReservas implements OnInit {
           viajeLabel: r.viajeLabel,
           reservas: [],
           estado: '',
-          detalleAbierto: false,
           uploading: false,
           uploadMsg: '',
           uploadOk: false,
@@ -203,8 +230,6 @@ export class MisReservas implements OnInit {
   get montoTotalPagado(): number {
     return this.reservas.reduce((sum, r) => sum + montoPagadoConfirmado(r.pagos), 0);
   }
-
-  toggleDetalle(g: ReservaGroup) { g.detalleAbierto = !g.detalleAbierto; this.cdr.detectChanges(); }
 
   abrirDetalle(g: ReservaGroup) {
     this.selectedGroup = g;
@@ -276,18 +301,6 @@ export class MisReservas implements OnInit {
     return this.calcGrupo(g).porcentajePagado;
   }
 
-  cuotasAcordadas(g: ReservaGroup): number {
-    return parsearPagoPasajero(g.reservas[0]?.pasajero_datos as Record<string, unknown>).cuotas;
-  }
-
-  cuotasPagadas(g: ReservaGroup): number {
-    return this.todosPagos(g).filter(p => p.tipo === 'cuota' && p.estado_pago === 'confirmado').length;
-  }
-
-  cuotasPendientesCount(g: ReservaGroup): number {
-    return this.todosPagos(g).filter(p => p.tipo === 'cuota' && p.estado_pago === 'pendiente').length;
-  }
-
   todosPagos(g: ReservaGroup): PagoMovimiento[] {
     return g.reservas.flatMap(r => r.pagos);
   }
@@ -304,68 +317,133 @@ export class MisReservas implements OnInit {
     return this.pagosSena(g).every(p => p.estado_pago === 'confirmado');
   }
 
-  cuotasPendientesList(g: ReservaGroup): PagoMovimiento[] {
-    return this.pagosCuotas(g).filter(p => p.estado_pago === 'pendiente');
+  cuotasGrupo(g: ReservaGroup): CuotaGrupo[] {
+    const porNumero = new Map<number, PagoMovimiento[]>();
+    for (const p of this.pagosCuotas(g)) {
+      const n = p.cuota_numero ?? 1;
+      porNumero.set(n, [...(porNumero.get(n) ?? []), p]);
+    }
+    return [...porNumero.entries()].sort(([a], [b]) => a - b).map(([numero, pagos]) => {
+      const pendientes = pagos.filter(p => p.estado_pago === 'pendiente');
+      const aInformar = pendientes.filter(p => !p.comprobante_url);
+      return {
+        numero,
+        total: pagos[0].cuotas_totales ?? porNumero.size,
+        monto: pagos.reduce((s, p) => s + p.monto, 0),
+        estado: aInformar.length ? 'pendiente' : pendientes.length ? 'en_validacion' : 'pagada',
+        idsAInformar: aInformar.map(p => p.id),
+      };
+    });
   }
 
-  cuotasPendientesModal: PagoMovimiento[] = [];
-  pagoCuotaSeleccionada: PagoMovimiento | null = null;
+  proximaCuota(g: ReservaGroup): CuotaGrupo | undefined {
+    return this.cuotasGrupo(g).find(c => c.estado !== 'pagada');
+  }
 
-  abrirModalPago(g: ReservaGroup) {
-    this.pagoGrupo = g;
-    this.cuotasPendientesModal = this.cuotasPendientesList(g);
-    this.pagoCuotaSeleccionada = null;
-    this.pagoMonto = 0;
-    this.pagoMetodo = 'transferencia';
-    this.pagoReferencia = '';
-    this.mostrarModalPago = true;
+  etapa(g: ReservaGroup): Etapa {
+    if (g.estado === 'rechazado') return 'rechazada';
+    if (this.hayPendienteComprobante(g)) return 'falta_comprobante';
+    if (g.reservas.some(r => r.estado === 'pendiente_validacion')) return 'en_validacion';
+    if (this.calcGrupo(g).montoPendiente <= 0) return 'pagada';
+    const proxima = this.proximaCuota(g);
+    if (proxima?.estado === 'pendiente') return 'pagando';
+    if (proxima?.estado === 'en_validacion') return 'cuota_en_validacion';
+    return 'saldo';
+  }
+
+  etapaInfo(g: ReservaGroup) {
+    return ETAPAS[this.etapa(g)];
+  }
+
+  /** Qué tiene que hacer o esperar el vendedor, en una línea. */
+  etapaDetalle(g: ReservaGroup): string {
+    const c = this.proximaCuota(g);
+    switch (this.etapa(g)) {
+      case 'falta_comprobante': return 'Subí el comprobante de la seña que te pasó el cliente';
+      case 'en_validacion': return 'El admin está revisando el comprobante de la seña';
+      case 'pagando': return `Cuota ${c!.numero}/${c!.total} de ${this.formatPrecio(c!.monto)}: informala cuando el cliente pague`;
+      case 'cuota_en_validacion': return `El admin está revisando el comprobante de la cuota ${c!.numero}/${c!.total}`;
+      case 'saldo': return `El cliente debe ${this.formatPrecio(this.saldoPendienteGroup(g))}`;
+      case 'pagada': return 'El cliente pagó todo';
+      case 'rechazada': return this.motivoRechazo(g) || 'La reserva fue rechazada';
+    }
+  }
+
+  /** El responsable financiero es quien paga: es el contacto que le importa al vendedor. */
+  cliente(g: ReservaGroup): { nombre: string; telefono: string } {
+    const r = g.reservas.find(r => this.pasajeroDatos(r)['es_responsable_financiero']) ?? g.reservas[0];
+    return { nombre: r.pasajeroNombre, telefono: this.pasajeroDatos(r)['telefono'] || '' };
+  }
+
+  comisionGrupo(g: ReservaGroup): { estado: 'proxima' | 'a_cobrar' | 'cobrada'; monto: number } | null {
+    const generadas = g.reservas.map(r => this.comisionesPorReserva.get(r.id)).filter((c): c is Comision => !!c);
+    if (generadas.length) {
+      return {
+        estado: generadas.every(c => c.estado === 'pagado') ? 'cobrada' : 'a_cobrar',
+        monto: generadas.reduce((s, c) => s + c.monto_comision, 0),
+      };
+    }
+    if (this.etapa(g) === 'rechazada' || this.porcentajeComision <= 0) return null;
+    return { estado: 'proxima', monto: Math.round(this.calcGrupo(g).totalFinal * this.porcentajeComision / 100) };
+  }
+
+  get resumen() {
+    const activos = this.grupos.filter(g => this.etapa(g) !== 'rechazada');
+    const comisiones = activos.map(g => this.comisionGrupo(g)).filter(c => !!c);
+    const sumar = (estado: string) => comisiones.filter(c => c.estado === estado).reduce((s, c) => s + c.monto, 0);
+    return {
+      accion: this.cantidadPorFiltro('accion'),
+      saldoClientes: activos.reduce((s, g) => s + this.saldoPendienteGroup(g), 0),
+      comisionesACobrar: sumar('a_cobrar'),
+      comisionesProximas: sumar('proxima'),
+    };
+  }
+
+  abrirInformarCuota(g: ReservaGroup) {
+    this.grupoCuota = g;
+    this.cuotaSeleccionada = this.proximaCuota(g) ?? null;
+    this.cuotaError = '';
     this.cdr.detectChanges();
   }
 
-  seleccionarCuotaModal(p: PagoMovimiento) {
-    this.pagoCuotaSeleccionada = p;
-    this.pagoMonto = p.monto;
+  cerrarInformarCuota() {
+    this.grupoCuota = null;
+    this.cuotaSeleccionada = null;
+    this.cuotaSubiendo = false;
+    this.cuotaError = '';
+    this.cdr.detectChanges();
   }
 
-  cerrarModalPago() {
-    this.mostrarModalPago = false;
-    this.pagoGrupo = null;
-    this.cuotasPendientesModal = [];
-    this.pagoCuotaSeleccionada = null;
-    this.pagoMonto = 0;
-    this.pagoMetodo = 'transferencia';
-    this.pagoReferencia = '';
-    this.pagoGuardando = false;
-  }
+  async informarCuota(event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    const g = this.grupoCuota;
+    const cuota = this.cuotaSeleccionada;
+    if (!file || !g || !cuota) return;
 
-  async registrarPago() {
-    if (!this.pagoCuotaSeleccionada || !this.pagoGrupo) return;
-
-    this.pagoGuardando = true;
-
+    this.cuotaSubiendo = true;
+    this.cuotaError = '';
+    this.cdr.detectChanges();
     try {
-      const { error } = await this.pagoService.confirmarPago(
-        this.pagoCuotaSeleccionada.id,
-        this.pagoMetodo,
-        this.pagoReferencia || null,
-      );
-      if (error) throw error;
+      const userId = (await this.authService.getSession()).data.session?.user?.id;
+      if (!userId) { this.cuotaError = 'Sesión expirada'; return; }
 
-      const reservaIndividual = this.pagoGrupo.reservas.find(r => r.id === this.pagoCuotaSeleccionada!.reserva_id);
-      const precioFinal = reservaIndividual ? this.calcReserva(reservaIndividual).totalFinal : this.totalFinalGrupo(this.pagoGrupo) / this.pagoGrupo.reservas.length;
-      await this.pagoService.recalcularEstadoFinanciero(this.pagoCuotaSeleccionada.reserva_id, precioFinal);
+      const path = `${userId}/${Date.now()}_cuota${cuota.numero}_${file.name}`;
+      const { error: uploadError } = await this.storageService.subirComprobante(path, file);
+      if (uploadError) { this.cuotaError = 'Error al subir: ' + uploadError.message; return; }
+      const { data: signed, error: signedError } = await this.storageService.getComprobanteUrl(path);
+      if (signedError || !signed?.signedUrl) { this.cuotaError = 'Error al generar el enlace del comprobante'; return; }
 
-      for (const r of this.pagoGrupo.reservas) {
-        const { data } = await this.pagoService.getPagosPorReserva(r.id);
-        if (data) r.pagos = data;
+      const { error } = await this.pagoService.informarPagoCuotas(cuota.idsAInformar, signed.signedUrl);
+      if (error) { this.cuotaError = error.message; return; }
+
+      for (const p of this.pagosCuotas(g)) {
+        if (cuota.idsAInformar.includes(p.id)) p.comprobante_url = signed.signedUrl;
       }
-
-      this.cerrarModalPago();
-      this.cdr.detectChanges();
-    } catch {
-      this.cerrarModalPago();
+      this.cerrarInformarCuota();
+    } catch (e: any) {
+      this.cuotaError = e?.message || 'Error inesperado';
     } finally {
-      this.pagoGuardando = false;
+      this.cuotaSubiendo = false;
       this.cdr.detectChanges();
     }
   }

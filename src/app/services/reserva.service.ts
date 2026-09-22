@@ -30,7 +30,7 @@ export class ReservaService {
   async getReservasPorVendedorConViaje(vendedorId: string) {
     return await supabase
       .from('reservas')
-      .select('*, viaje:viaje_id(origen, destino, precio_base)')
+      .select('*, viaje:viaje_id(origen, destino, precio_base, fecha_salida, fecha_llegada)')
       .eq('vendedor_id', vendedorId)
       .order('created_at', { ascending: false });
   }

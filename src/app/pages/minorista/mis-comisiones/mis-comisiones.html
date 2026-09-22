@@ -16,33 +16,38 @@
     <!-- Header -->
     <div class="mb-6">
       <h2 class="text-xl font-bold text-[#384752]">Mis Comisiones</h2>
-      <p class="text-xs text-slate-400 mt-0.5">Resumen de tus comisiones por ventas</p>
+      <p class="text-xs text-slate-400 mt-0.5">
+        Cobrás el {{ porcentaje }}% del total de cada venta. La comisión se genera cuando el cliente paga la última cuota.
+      </p>
     </div>
 
     <!-- Resumen cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-      <div class="bg-white rounded-2xl shadow-xl border-2 border-[#eec997] p-4">
-        <p class="text-xs text-slate-400 uppercase tracking-wider">Total Generado</p>
-        <p class="text-2xl font-bold text-[#384752] mt-1">{{ formatPrecio(resumen.totalGenerado) }}</p>
-      </div>
       <div class="bg-white rounded-2xl shadow-xl border-2 border-amber-200/50 p-4">
-        <p class="text-xs text-slate-400 uppercase tracking-wider">Pendiente Cobro</p>
+        <p class="text-xs text-slate-400 uppercase tracking-wider">A cobrar</p>
         <p class="text-2xl font-bold text-amber-600 mt-1">{{ formatPrecio(resumen.totalPendiente) }}</p>
+        <p class="text-[11px] text-slate-400">Generadas, pendientes de pago por la agencia</p>
       </div>
       <div class="bg-white rounded-2xl shadow-xl border-2 border-green-200/50 p-4">
         <p class="text-xs text-slate-400 uppercase tracking-wider">Cobrado</p>
         <p class="text-2xl font-bold text-green-600 mt-1">{{ formatPrecio(resumen.totalPagado) }}</p>
       </div>
+      <div class="bg-white rounded-2xl shadow-xl border-2 border-[#eec997] p-4">
+        <p class="text-xs text-slate-400 uppercase tracking-wider">Próximas</p>
+        <p class="text-2xl font-bold text-[#384752] mt-1">{{ formatPrecio(totalProximas) }}</p>
+        <p class="text-[11px] text-slate-400">Cuando tus clientes terminen de pagar</p>
+      </div>
     </div>
 
-    <!-- Tabla -->
-    <div class="bg-white rounded-2xl shadow-xl border-2 border-[#eec997] overflow-hidden">
+    <!-- Generadas -->
+    <h3 class="text-sm font-bold text-[#384752] mb-2">Comisiones generadas</h3>
+    <div class="bg-white rounded-2xl shadow-xl border-2 border-[#eec997] overflow-hidden mb-6">
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
             <tr class="bg-slate-50 text-left text-xs text-slate-400 uppercase tracking-wider border-b border-[#eec997]/50">
-              <th class="px-4 py-3">Reserva</th>
-              <th class="px-4 py-3 text-right">Monto pago</th>
+              <th class="px-4 py-3">Cliente / Viaje</th>
+              <th class="px-4 py-3 text-right">Total venta</th>
               <th class="px-4 py-3 text-right">%</th>
               <th class="px-4 py-3 text-right">Comisión</th>
               <th class="px-4 py-3">Estado</th>
@@ -53,14 +58,17 @@
             @for (c of comisiones; track c.id) {
             <tr class="border-b border-[#eec997]/20 hover:bg-[#f4f4f3]/50 transition-colors"
               [class.bg-green-50/30]="c.estado === 'pagado'">
-              <td class="px-4 py-3 font-medium text-[#384752]">#{{ c.reserva_id }}</td>
+              <td class="px-4 py-3">
+                <p class="font-medium text-[#384752]">{{ nombrePasajero(c.reserva?.pasajero_datos) }}</p>
+                <p class="text-[11px] text-slate-400">{{ viajeLabel(c.reserva?.viaje ?? null) }}</p>
+              </td>
               <td class="px-4 py-3 text-right text-[#384752]">{{ formatPrecio(c.monto_base) }}</td>
               <td class="px-4 py-3 text-right text-slate-500">{{ c.porcentaje }}%</td>
               <td class="px-4 py-3 text-right font-semibold text-[#384752]">{{ formatPrecio(c.monto_comision) }}</td>
               <td class="px-4 py-3">
                 <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold"
                   [class]="c.estado === 'pagado' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'">
-                  {{ c.estado === 'pagado' ? 'Cobrada' : 'Pendiente' }}
+                  {{ c.estado === 'pagado' ? 'Cobrada' : 'A cobrar' }}
                 </span>
               </td>
               <td class="px-4 py-3 text-xs text-slate-400">{{ formatFecha(c.created_at) }}</td>
@@ -71,8 +79,40 @@
                 <svg class="w-10 h-10 mx-auto mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                 </svg>
-                Aún no tenés comisiones registradas
+                Todavía no se generó ninguna comisión
               </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Próximas -->
+    <h3 class="text-sm font-bold text-[#384752] mb-2">Próximas comisiones</h3>
+    <div class="bg-white rounded-2xl shadow-xl border-2 border-[#eec997] overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-slate-50 text-left text-xs text-slate-400 uppercase tracking-wider border-b border-[#eec997]/50">
+              <th class="px-4 py-3">Cliente / Viaje</th>
+              <th class="px-4 py-3 text-right">Falta cobrar al cliente</th>
+              <th class="px-4 py-3 text-right">Tu comisión</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of proximas; track p.reservaId) {
+            <tr class="border-b border-[#eec997]/20">
+              <td class="px-4 py-3">
+                <p class="font-medium text-[#384752]">{{ p.cliente }}</p>
+                <p class="text-[11px] text-slate-400">{{ viajeLabel(p.viaje) }}</p>
+              </td>
+              <td class="px-4 py-3 text-right text-[#af4f35] font-medium">{{ formatPrecio(p.faltaCobrar) }}</td>
+              <td class="px-4 py-3 text-right font-semibold text-slate-500">{{ formatPrecio(p.monto) }}</td>
+            </tr>
+            } @empty {
+            <tr>
+              <td colspan="3" class="px-4 py-8 text-center text-slate-400 text-sm">No tenés ventas en curso</td>
             </tr>
             }
           </tbody>

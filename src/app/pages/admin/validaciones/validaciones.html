@@ -99,8 +99,8 @@
 
             @if (puedeGestionar) {
               <div class="flex flex-wrap gap-3 pt-3 border-t border-[#af4f35]/30">
-                @if (p.reserva?.comprobante_url) {
-                  <button (click)="verComprobante(p.reserva!.comprobante_url!)"
+                @if (p.comprobante_url || p.reserva?.comprobante_url; as url) {
+                  <button (click)="verComprobante(url)"
                     class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border-2 border-[#1aa7c4]/30 text-[#1aa7c4] bg-white hover:bg-[#1aa7c4] hover:text-white hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

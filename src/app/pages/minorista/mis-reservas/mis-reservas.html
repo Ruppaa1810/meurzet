@@ -17,7 +17,7 @@
 
 <div class="min-h-screen bg-[#f4f4f3]">
 
-  <div class="max-w-[1600px] mx-auto px-3 md:px-8 py-4 md:py-10">
+  <div class="max-w-[1200px] mx-auto px-3 md:px-8 py-4 md:py-10">
 
     @if (loading) {
       <div class="flex items-center justify-center h-[60vh]">
@@ -37,305 +37,135 @@
           </svg>
         </div>
         <p class="text-slate-500 text-sm md:text-base font-semibold mb-2">Aún no tenés reservas</p>
-        <p class="text-slate-400 text-xs mb-6">No se encontraron reservas registradas</p>
-        <a routerLink="/minorista/inicio"
-          class="inline-flex items-center gap-2 px-4 md:px-6 py-2 md:py-2.5 rounded-xl text-white font-bold text-xs md:text-sm bg-gradient-to-r from-[#af4f35] to-[#e4912e] hover:from-[#1aa7c4] hover:to-[#384752] transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-          </svg>
-          Buscar Viajes
+        <p class="text-slate-400 text-xs mb-6">Cuando vendas un pasaje lo vas a ver acá</p>
+        <a routerLink="/minorista/vender"
+          class="inline-flex items-center gap-2 px-4 md:px-6 py-2 md:py-2.5 rounded-xl text-white font-bold text-xs md:text-sm bg-gradient-to-r from-[#af4f35] to-[#e4912e] hover:from-[#1aa7c4] hover:to-[#384752] transition-all duration-300 shadow-md">
+          Buscar viajes
         </a>
-      </div>
-    } @else if (gruposFiltrados.length === 0) {
-      <div class="flex flex-col items-center justify-center h-[40vh] text-center">
-        <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-slate-100 flex items-center justify-center">
-          <svg class="w-7 h-7 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-          </svg>
-        </div>
-        <p class="text-slate-500 text-sm font-semibold mb-1">No se encontraron resultados</p>
-        <p class="text-slate-400 text-xs mb-4">Probá cambiando los filtros aplicados</p>
-        <button (click)="limpiarFiltros()"
-          class="px-4 py-2 rounded-xl bg-[#af4f35] text-white text-xs font-semibold hover:bg-[#1aa7c4] transition-all cursor-pointer">
-          Limpiar filtros
-        </button>
       </div>
     } @else {
 
-      <!-- Header + filtros -->
+      <!-- RESUMEN -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+        <button (click)="setFiltro('accion')"
+          class="text-left bg-white rounded-2xl p-4 border-2 transition-all cursor-pointer hover:-translate-y-0.5"
+          [class]="resumen.accion ? 'border-amber-300' : 'border-[#eec997]'">
+          <p class="text-[10px] uppercase tracking-wider font-semibold text-slate-400">Requieren tu acción</p>
+          <p class="text-2xl font-black mt-1" [class]="resumen.accion ? 'text-amber-600' : 'text-[#384752]'">{{ resumen.accion }}</p>
+          <p class="text-[11px] text-slate-400">{{ resumen.accion ? 'Comprobantes o cuotas para informar' : 'Estás al día' }}</p>
+        </button>
+        <div class="bg-white rounded-2xl p-4 border-2 border-[#eec997]">
+          <p class="text-[10px] uppercase tracking-wider font-semibold text-slate-400">Te deben tus clientes</p>
+          <p class="text-2xl font-black text-[#af4f35] mt-1">{{ formatPrecio(resumen.saldoClientes) }}</p>
+          <p class="text-[11px] text-slate-400">Saldo de reservas en curso</p>
+        </div>
+        <a routerLink="/minorista/mis-comisiones" class="block bg-white rounded-2xl p-4 border-2 border-[#eec997] hover:border-[#1aa7c4] hover:-translate-y-0.5 transition-all no-underline">
+          <p class="text-[10px] uppercase tracking-wider font-semibold text-slate-400">Tus comisiones</p>
+          <p class="text-2xl font-black text-green-600 mt-1">{{ formatPrecio(resumen.comisionesACobrar) }} <span class="text-xs font-semibold text-slate-400">a cobrar</span></p>
+          <p class="text-[11px] text-slate-400">+ {{ formatPrecio(resumen.comisionesProximas) }} cuando tus clientes terminen de pagar</p>
+        </a>
+      </div>
+
       <div class="bg-white rounded-2xl shadow-xl border-2 border-[#eec997] overflow-hidden">
-        <div class="px-4 md:px-8 py-3 md:py-4 border-b border-[#eec997] bg-[#f4f4f3]">
-          <div class="flex items-center justify-between">
-            <div>
-              <h3 class="font-bold text-[#384752] text-base md:text-xl">Mis Reservas</h3>
-              <p class="text-[10px] md:text-xs text-slate-400 mt-0.5">
-                @if (hayFiltrosActivos()) {
-                  {{ gruposFiltrados.length }} de {{ grupos.length }} grupo{{ grupos.length > 1 ? 's' : '' }}
-                } @else {
-                  {{ grupos.length }} grupo{{ grupos.length > 1 ? 's' : '' }} de reservas
-                }
-              </p>
-            </div>
-          </div>
-
-          <!-- FILTROS -->
-          <div class="flex flex-wrap items-center gap-2 mt-3">
-            <div class="flex items-center gap-1 bg-white rounded-lg border border-[#eec997]/60 p-0.5">
-              @for (op of estadosFiltro; track op.valor) {
-              <button (click)="setFiltroEstado(op.valor)"
-                class="px-2.5 py-1 rounded-md text-[10px] md:text-[11px] font-medium transition-all cursor-pointer whitespace-nowrap"
-                [class]="filtroEstado === op.valor ? 'bg-[#af4f35] text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'">
-                {{ op.label }}
+        <!-- Filtros -->
+        <div class="px-4 md:px-6 py-3 border-b border-[#eec997] bg-[#f4f4f3] flex flex-col md:flex-row md:items-center gap-2 md:justify-between">
+          <div class="flex gap-1 overflow-x-auto">
+            @for (f of filtros; track f.valor) {
+              <button (click)="setFiltro(f.valor)"
+                class="px-3 py-1.5 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-all cursor-pointer"
+                [class]="filtro === f.valor ? 'bg-[#af4f35] text-white shadow-sm' : 'bg-white text-slate-500 hover:text-slate-700'">
+                {{ f.label }} <span class="opacity-70">{{ cantidadPorFiltro(f.valor) }}</span>
               </button>
-              }
-            </div>
-
-            <div class="flex items-center gap-1.5 bg-white rounded-lg border border-[#eec997]/60 px-2 py-1">
-              <svg class="w-3 h-3 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-              <input type="date" [ngModel]="fechaBuffer" (ngModelChange)="fechaBuffer = $event" (change)="aplicarFecha()"
-                class="w-[130px] text-[10px] md:text-[11px] text-slate-600 outline-none bg-transparent">
-            </div>
-
-            @if (hayFiltrosActivos()) {
-            <button (click)="limpiarFiltros()"
-              class="px-2 py-1 rounded-md text-[10px] md:text-[11px] text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all cursor-pointer flex items-center gap-1">
-              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-              Limpiar
-            </button>
             }
           </div>
+          <input type="search" [(ngModel)]="busqueda" placeholder="Buscar cliente, DNI o viaje"
+            class="w-full md:w-64 px-3 py-1.5 rounded-lg border border-[#eec997] text-xs outline-none focus:border-[#1aa7c4] bg-white">
         </div>
 
-        <!-- ===== VISTA MÓVIL ===== -->
-        <div class="block md:hidden divide-y divide-[#eec997]/50">
+        <!-- Lista -->
+        <div class="divide-y divide-[#eec997]/50">
           @for (g of gruposFiltrados; track g.grupoId) {
-          <div class="p-3 hover:bg-[#f4f4f3]/50 transition-colors cursor-pointer" (click)="abrirDetalle(g)">
+            <div class="p-4 md:px-6 grid grid-cols-1 md:grid-cols-[1fr_240px_170px] gap-3 md:items-center hover:bg-[#f4f4f3]/60 transition-colors cursor-pointer"
+              (click)="abrirDetalle(g)">
 
-            <!-- Estado + código -->
-            <div class="flex items-center justify-between mb-2">
-              <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full" [class]="estadoDotClass(g.estado)"></span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold" [class]="estadoBadgeClass(g.estado)">
-                  {{ estadoLabel(g.estado) }}
-                </span>
-              </div>
-              <span class="font-bold text-[10px] text-slate-400 font-mono">
-                {{ g.reservas.length > 1 ? 'GRUPO' : '#' + g.reservas[0].id }}
-              </span>
-            </div>
-
-            <!-- Viaje + asientos -->
-            <div class="mb-2">
-              <p class="text-sm font-semibold text-[#384752] truncate">{{ g.viajeLabel }}</p>
-              <p class="text-[11px] text-slate-400 mt-0.5">{{ asientosLabel(g) }} · {{ metodoPagoGroup(g) }}</p>
-            </div>
-
-            <!-- Pago resumen -->
-            <div class="bg-[#f4f4f3] rounded-xl p-3 mb-2 border border-[#eec997]/50">
-              <div class="flex justify-between text-[12px] mb-1">
-                <span class="text-slate-500">Pagado <strong class="text-green-600">{{ formatPrecio(montoPagadoGroup(g)) }}</strong></span>
-                <span class="text-slate-500">Pendiente <strong class="text-[#af4f35]">{{ formatPrecio(saldoPendienteGroup(g)) }}</strong></span>
-              </div>
-              <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                <div class="h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full transition-all"
-                  [style.width.%]="progresoPagoGroup(g)"></div>
-              </div>
-              <div class="flex justify-between text-[10px] mt-1">
-                <span class="text-slate-400">Total {{ formatPrecio(totalFinalGrupo(g)) }}</span>
-                <span class="font-medium text-green-600">{{ progresoPagoGroup(g) }}%</span>
-              </div>
-              <!-- Desglose: Seña + Cuotas -->
-              <div class="mt-2 pt-2 border-t border-[#eec997]/50 space-y-0.5">
-                <div class="flex items-center justify-between text-[11px]">
-                  <span class="text-slate-500">Seña ({{ pagoPromedio(g) }})</span>
-                  @if (pagosSena(g).length > 0 && senaConfirmada(g)) {
-                    <span class="text-green-600 font-semibold flex items-center gap-0.5">
-                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                      Pagada
-                    </span>
-                  } @else if (pagosSena(g).length > 0) {
-                    <span class="text-amber-600 font-semibold">Pendiente</span>
-                  } @else {
-                    <span class="text-slate-400">Sin registrar</span>
+              <!-- Cliente, viaje y estado -->
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <p class="font-bold text-[#384752] text-sm truncate">{{ cliente(g).nombre }}</p>
+                  @if (esGrupo(g)) {
+                    <span class="text-[10px] text-slate-400">+{{ g.reservas.length - 1 }} pasajero{{ g.reservas.length > 2 ? 's' : '' }}</span>
                   }
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold border" [class]="etapaInfo(g).clase">{{ etapaInfo(g).label }}</span>
                 </div>
-                @if (cuotasAcordadas(g) > 0) {
-                <div class="flex items-center justify-between text-[11px]">
-                  <span class="text-slate-500">Cuotas</span>
-                  <span class="font-semibold" [class]="cuotasPagadas(g) === cuotasAcordadas(g) ? 'text-green-600' : 'text-amber-600'">
-                    {{ cuotasPagadas(g) }} / {{ cuotasAcordadas(g) }} pagadas
-                  </span>
-                </div>
-                @if (cuotasPendientesCount(g) > 0) {
-                <div class="flex items-center justify-between text-[10px] text-slate-400">
-                  <span>Faltan {{ cuotasPendientesCount(g) }} cuota{{ cuotasPendientesCount(g) > 1 ? 's' : '' }}</span>
-                  <span>{{ formatPrecio(totalFinalGrupo(g) / cuotasAcordadas(g)) }} c/u</span>
-                </div>
+                <p class="text-xs text-slate-500 mt-0.5 truncate">
+                  {{ g.viajeLabel }}
+                  @if (fechaSalida(g)) { · {{ formatFechaHora(fechaSalida(g)) }} }
+                  · {{ asientosLabel(g) }}
+                  @if (cliente(g).telefono) { · Tel. {{ cliente(g).telefono }} }
+                </p>
+                <p class="text-[11px] mt-1" [class]="etapaInfo(g).accion ? 'text-amber-700 font-semibold' : etapa(g) === 'rechazada' ? 'text-red-600' : 'text-slate-400'">
+                  {{ etapaDetalle(g) }}
+                </p>
+              </div>
+
+              <!-- Pago y comisión -->
+              <div>
+                @if (etapa(g) !== 'rechazada') {
+                  <div class="flex justify-between text-[11px] text-slate-500">
+                    <span>Pagado <strong class="text-green-600">{{ formatPrecio(montoPagadoGroup(g)) }}</strong></span>
+                    <span>de {{ formatPrecio(totalFinalGrupo(g)) }}</span>
+                  </div>
+                  <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden mt-1">
+                    <div class="h-full bg-green-500 rounded-full" [style.width.%]="progresoPagoGroup(g)"></div>
+                  </div>
                 }
+                @if (comisionGrupo(g); as com) {
+                  <p class="text-[11px] mt-1.5"
+                    [class]="com.estado === 'proxima' ? 'text-slate-400' : 'text-green-700 font-semibold'">
+                    @switch (com.estado) {
+                      @case ('proxima') { Tu comisión: {{ formatPrecio(com.monto) }} · se libera con la última cuota }
+                      @case ('a_cobrar') { Comisión {{ formatPrecio(com.monto) }} · a cobrar }
+                      @case ('cobrada') { Comisión {{ formatPrecio(com.monto) }} · cobrada ✓ }
+                    }
+                  </p>
+                }
+              </div>
+
+              <!-- Acción principal -->
+              <div class="md:text-right" (click)="$event.stopPropagation()">
+                @switch (etapa(g)) {
+                  @case ('falta_comprobante') {
+                    <label class="inline-block px-3 py-2 rounded-xl text-xs font-bold text-white bg-[#af4f35] hover:bg-[#1aa7c4] transition-all cursor-pointer">
+                      {{ g.uploading ? 'Subiendo...' : 'Subir comprobante' }}
+                      <input type="file" accept=".pdf,image/*" class="hidden" [disabled]="g.uploading"
+                        (change)="subirComprobanteGroup(g, $event); $any($event.target).value = ''">
+                    </label>
+                    @if (g.uploadMsg) { <p class="text-[10px] text-red-500 mt-1">{{ g.uploadMsg }}</p> }
+                  }
+                  @case ('pagando') {
+                    <button (click)="abrirInformarCuota(g)"
+                      class="px-3 py-2 rounded-xl text-xs font-bold text-white bg-[#af4f35] hover:bg-[#1aa7c4] transition-all cursor-pointer">
+                      Informar pago de cuota
+                    </button>
+                  }
+                  @case ('pagada') {
+                    <button (click)="verComprobanteGroup(g)"
+                      class="px-3 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all cursor-pointer">
+                      Ver comprobante
+                    </button>
+                  }
+                  @default {
+                    <button (click)="abrirDetalle(g)" class="text-xs text-[#1aa7c4] font-semibold cursor-pointer hover:underline">Ver detalle</button>
+                  }
                 }
               </div>
             </div>
-
-            <!-- Acciones inline -->
-            <div class="flex flex-wrap gap-1.5">
-              @if (hayPendienteComprobante(g) && !g.uploadOk) {
-              <input type="file" accept=".pdf,image/*"
-                (change)="subirComprobanteGroup(g, $event); $event.target.value = ''"
-                #uploadInputMob
-                class="w-full text-[10px] file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-[#af4f35] file:text-white file:cursor-pointer hover:file:bg-[#1aa7c4] transition-all cursor-pointer">
-              @if (g.uploading) { <p class="text-[10px] text-[#e4912e] mt-1 animate-pulse">Subiendo...</p> }
-              @if (g.uploadMsg) { <p class="text-[10px] text-red-500 mt-1">{{ g.uploadMsg }}</p> }
-              }
-              @if (g.uploadOk) {
-              <span class="text-[10px] text-green-700 font-semibold flex items-center gap-1 px-2 py-1 bg-green-50 rounded-lg">
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                Comprobante subido
-              </span>
-              }
-              @if (cuotasPendientesList(g).length > 0) {
-              <button (click)="abrirModalPago(g); $event.stopPropagation()"
-                class="px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-[#af4f35] text-white hover:bg-[#1aa7c4] transition-all cursor-pointer">
-                Registrar pago
-              </button>
-              }
-              @if (g.estado === 'aprobado') {
-              <button (click)="verComprobanteGroup(g); $event.stopPropagation()"
-                class="px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-[#f4f4f3] text-[#384752] hover:bg-slate-200 transition-all cursor-pointer">
-                Comprobante
-              </button>
-              <button (click)="verSaldoPendienteGroup(g); $event.stopPropagation()"
-                class="px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-[#f4f4f3] text-[#384752] hover:bg-slate-200 transition-all cursor-pointer">
-                Saldo pendiente
-              </button>
-              }
+          } @empty {
+            <div class="p-10 text-center">
+              <p class="text-slate-500 text-sm font-semibold">No hay reservas en esta vista</p>
+              <button (click)="setFiltro('todas'); busqueda = ''" class="mt-2 text-xs text-[#1aa7c4] font-semibold cursor-pointer hover:underline">Ver todas</button>
             </div>
-
-            <!-- Detalle expandible (sección de pasajeros si grupo) -->
-            @if (g.reservas.length > 1) {
-            <div class="mt-2 pt-2 border-t border-[#eec997]/30">
-              <button (click)="toggleDetalle(g); $event.stopPropagation()"
-                class="text-[10px] text-slate-400 hover:text-[#384752] flex items-center gap-1 cursor-pointer">
-                <svg class="w-3 h-3 transition-transform duration-200" [class.rotate-90]="g.detalleAbierto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <path d="M9 18l6-6-6-6"/>
-                </svg>
-                {{ g.detalleAbierto ? 'Ocultar' : 'Ver' }} pasajeros ({{ g.reservas.length }})
-              </button>
-              @if (g.detalleAbierto) {
-              <div class="mt-2 space-y-1 animate-fade-slide-in">
-                @for (r of g.reservas; track r.id) {
-                <div class="flex justify-between text-[11px] py-0.5">
-                  <span class="text-slate-600">{{ r.pasajeroNombre }}</span>
-                  <span class="font-medium text-[#384752]">{{ formatPrecio(r.monto) }}</span>
-                </div>
-                }
-              </div>
-              }
-            </div>
-            }
-
-            @if (g.estado === 'rechazado' && motivoRechazo(g)) {
-            <div class="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg text-[10px] text-red-600">
-              <strong>Motivo:</strong> {{ motivoRechazo(g) }}
-            </div>
-            }
-
-          </div>
           }
-        </div>
-
-        <!-- ===== VISTA DESKTOP (tabla) ===== -->
-        <div class="hidden md:block overflow-x-auto">
-          <table class="w-full text-xs md:text-sm">
-            <thead>
-              <tr class="text-left text-slate-400 text-[10px] uppercase tracking-wide border-b border-[#eec997] bg-white">
-                <th class="px-4 py-3 w-8"></th>
-                <th class="px-4 py-3">Estado</th>
-                <th class="px-4 py-3">Viaje</th>
-                <th class="px-4 py-3">Asientos</th>
-                <th class="px-4 py-3 text-right">Total</th>
-                <th class="px-4 py-3 text-right">Pagado</th>
-                <th class="px-4 py-3 text-right">Pendiente</th>
-                <th class="px-4 py-3 text-center">Detalle pago</th>
-                <th class="px-4 py-3 text-center">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (g of gruposFiltrados; track g.grupoId) {
-              <tr class="border-b border-[#eec997]/30 hover:bg-[#f4f4f3]/60 transition-colors cursor-pointer" (click)="abrirDetalle(g)">
-                <td class="px-4 py-3">
-                  <span class="w-2 h-2 rounded-full inline-block" [class]="estadoDotClass(g.estado)"></span>
-                </td>
-                <td class="px-4 py-3">
-                  <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold inline-flex items-center gap-1"
-                    [class]="estadoBadgeClass(g.estado)">
-                    {{ estadoLabel(g.estado) }}
-                  </span>
-                </td>
-                <td class="px-4 py-3">
-                  <div class="text-[#384752] font-medium">{{ g.viajeLabel }}</div>
-                  <div class="text-[10px] text-slate-400">{{ g.reservas.length > 1 ? 'GRUPO' : '#' + g.reservas[0].id }}</div>
-                </td>
-                <td class="px-4 py-3 text-slate-600">{{ asientosLabel(g) }}</td>
-                <td class="px-4 py-3 text-right font-semibold text-[#384752]">{{ formatPrecio(totalFinalGrupo(g)) }}</td>
-                <td class="px-4 py-3 text-right font-semibold text-green-600">{{ formatPrecio(montoPagadoGroup(g)) }}</td>
-                <td class="px-4 py-3 text-right font-semibold text-[#af4f35]">{{ formatPrecio(saldoPendienteGroup(g)) }}</td>
-                <td class="px-4 py-3 text-center">
-                  <div class="text-[11px] space-y-0.5">
-                    <div class="flex items-center justify-center gap-1">
-                      @if (pagosSena(g).length > 0 && senaConfirmada(g)) {
-                        <span class="text-green-600 font-medium flex items-center gap-0.5">
-                          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                          Seña OK
-                        </span>
-                      } @else if (pagosSena(g).length > 0) {
-                        <span class="text-amber-600 font-medium">Seña pend.</span>
-                      } @else {
-                        <span class="text-slate-400">Sin seña</span>
-                      }
-                    </div>
-                    @if (cuotasAcordadas(g) > 0) {
-                    <div class="text-[10px]" [class]="cuotasPagadas(g) === cuotasAcordadas(g) ? 'text-green-600' : 'text-amber-600'">
-                      Cuotas {{ cuotasPagadas(g) }}/{{ cuotasAcordadas(g) }}
-                    </div>
-                    }
-                  </div>
-                </td>
-                <td class="px-4 py-3">
-                  <div class="flex items-center justify-center gap-1">
-                    @if (hayPendienteComprobante(g) && !g.uploadOk) {
-                    <input type="file" accept=".pdf,image/*"
-                      (change)="subirComprobanteGroup(g, $event); $event.target.value = ''"
-                      #uploadInputDesk
-                      class="text-[10px] file:mr-1 file:py-0.5 file:px-1.5 file:rounded file:border-0 file:text-[9px] file:font-semibold file:bg-[#af4f35] file:text-white file:cursor-pointer hover:file:bg-[#1aa7c4] transition-all cursor-pointer">
-                    }
-                    @if (g.uploadOk) {
-                    <span class="text-[10px] text-green-700 font-semibold flex items-center gap-0.5">
-                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                      OK
-                    </span>
-                    }
-                    @if (cuotasPendientesList(g).length > 0) {
-                    <button (click)="abrirModalPago(g); $event.stopPropagation()"
-                      class="px-2 py-1 rounded-lg text-[10px] font-semibold bg-[#af4f35] text-white hover:bg-[#1aa7c4] transition-all cursor-pointer whitespace-nowrap">
-                      Registrar pago
-                    </button>
-                    }
-                    @if (g.estado === 'aprobado') {
-                    <button (click)="verComprobanteGroup(g); $event.stopPropagation()"
-                      class="px-2 py-1 rounded-lg text-[10px] font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all cursor-pointer whitespace-nowrap">
-                      Comprobante
-                    </button>
-                    <button (click)="verSaldoPendienteGroup(g); $event.stopPropagation()"
-                      class="px-2 py-1 rounded-lg text-[10px] font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all cursor-pointer whitespace-nowrap">
-                      Saldo
-                    </button>
-                    }
-                  </div>
-                </td>
-              </tr>
-              }
-            </tbody>
-          </table>
         </div>
       </div>
 
@@ -357,15 +187,11 @@
     <!-- Header -->
     <div class="px-5 py-4 border-b border-[#eec997] bg-[#f4f4f3] flex items-center justify-between shrink-0">
       <div>
-        <div class="flex items-center gap-2 mb-1">
-          <span class="w-2.5 h-2.5 rounded-full" [class]="estadoDotClass(selectedGroup.estado)"></span>
-          <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold" [class]="estadoBadgeClass(selectedGroup.estado)">
-            {{ estadoLabel(selectedGroup.estado) }}
-          </span>
-        </div>
-        <h3 class="font-bold text-[#384752] text-lg">
-          {{ esGrupo(selectedGroup) ? 'Grupo de ' + selectedGroup.reservas.length + ' asientos' : 'Reserva #' + selectedGroup.reservas[0].id }}
-        </h3>
+        <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold border" [class]="etapaInfo(selectedGroup).clase">
+          {{ etapaInfo(selectedGroup).label }}
+        </span>
+        <h3 class="font-bold text-[#384752] text-lg mt-1">{{ cliente(selectedGroup).nombre }}</h3>
+        <p class="text-[11px] text-slate-500">{{ etapaDetalle(selectedGroup) }}</p>
       </div>
       <button (click)="cerrarDetalle()"
         class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all cursor-pointer">
@@ -471,19 +297,26 @@
               <span class="text-slate-400">Sin registrar</span>
             }
           </div>
-          @if (cuotasAcordadas(selectedGroup) > 0) {
+          @if (calcGrupo(selectedGroup).saldoConRecargo !== calcGrupo(selectedGroup).saldoBase) {
           <div class="flex justify-between text-sm">
-            <span class="text-slate-500">Saldo a financiar</span>
-            <span class="font-semibold text-[#384752]">{{ formatPrecio(calcGrupo(selectedGroup).saldoConRecargo) }}</span>
+            <span class="text-slate-500">Recargo por cuotas</span>
+            <span class="font-semibold text-[#384752]">+{{ formatPrecio(calcGrupo(selectedGroup).saldoConRecargo - calcGrupo(selectedGroup).saldoBase) }}</span>
           </div>
+          }
+          @for (c of cuotasGrupo(selectedGroup); track c.numero) {
           <div class="flex justify-between text-sm">
-            <span class="text-slate-500">Recargo</span>
-            <span class="font-semibold text-[#384752]">{{ calcGrupo(selectedGroup).saldoBase === calcGrupo(selectedGroup).saldoConRecargo ? 'Sin recargo' : '+' + formatPrecio(calcGrupo(selectedGroup).saldoConRecargo - calcGrupo(selectedGroup).saldoBase) }}</span>
+            <span class="text-slate-500">Cuota {{ c.numero }}/{{ c.total }}</span>
+            <span class="font-semibold"
+              [class]="c.estado === 'pagada' ? 'text-green-600' : c.estado === 'en_validacion' ? 'text-blue-600' : 'text-amber-600'">
+              {{ formatPrecio(c.monto) }} · {{ c.estado === 'pagada' ? 'pagada ✓' : c.estado === 'en_validacion' ? 'en validación' : 'pendiente' }}
+            </span>
           </div>
+          }
+          @if (comisionGrupo(selectedGroup); as com) {
           <div class="flex justify-between text-sm">
-            <span class="text-slate-500">Cuotas</span>
-            <span class="font-semibold" [class]="cuotasPagadas(selectedGroup) === cuotasAcordadas(selectedGroup) ? 'text-green-600' : 'text-amber-600'">
-              {{ cuotasPagadas(selectedGroup) }} / {{ cuotasAcordadas(selectedGroup) }} pagadas ({{ formatPrecio(calcGrupo(selectedGroup).montoPorCuota) }} c/u)
+            <span class="text-slate-500">Tu comisión ({{ porcentajeComision }}%)</span>
+            <span class="font-semibold" [class]="com.estado === 'proxima' ? 'text-slate-400' : 'text-green-600'">
+              {{ formatPrecio(com.monto) }} · {{ com.estado === 'proxima' ? 'al pagar la última cuota' : com.estado === 'a_cobrar' ? 'a cobrar' : 'cobrada ✓' }}
             </span>
           </div>
           }
@@ -602,11 +435,11 @@
           Comprobante subido
         </span>
         }
-        @if (cuotasPendientesList(selectedGroup).length > 0) {
-        <button (click)="abrirModalPago(selectedGroup); cerrarDetalle()"
+        @if (etapa(selectedGroup) === 'pagando') {
+        <button (click)="abrirInformarCuota(selectedGroup); cerrarDetalle()"
           class="px-4 py-2 rounded-xl text-xs font-semibold bg-[#af4f35] text-white hover:bg-[#1aa7c4] transition-all cursor-pointer flex items-center gap-1.5">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-          Registrar pago
+          Informar pago de cuota
         </button>
         }
         @if (selectedGroup.estado === 'aprobado') {
@@ -628,97 +461,43 @@
 </div>
 }
 
-<!-- Modal Registrar Pago -->
-@if (mostrarModalPago && pagoGrupo) {
-  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]" (click)="cerrarModalPago()">
+<!-- Modal Informar pago de cuota -->
+@if (grupoCuota) {
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]" (click)="cerrarInformarCuota()">
     <div class="bg-white rounded-2xl p-6 w-[420px] max-w-[90vw] shadow-2xl border-2 border-[#eec997]"
       (click)="$event.stopPropagation()">
-      <div class="text-center mb-4">
-        <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-blue-100 flex items-center justify-center">
-          <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-          </svg>
-        </div>
-        <h3 class="text-lg font-bold text-[#384752]">Registrar pago</h3>
-        <p class="text-xs text-slate-500 mt-1">
-          {{ pagoGrupo.reservas.length > 1 ? 'Grupo de ' + pagoGrupo.reservas.length + ' asientos' : 'Reserva #' + pagoGrupo.reservas[0].id }}
-          · {{ pagoGrupo.viajeLabel }}
-        </p>
-        <div class="bg-[#f4f4f3] rounded-xl p-3 text-left space-y-1 mt-3 border border-[#eec997]">
-          <div class="flex justify-between text-xs">
-            <span class="text-slate-500">Total final</span>
-            <span class="font-semibold text-[#384752]">{{ formatPrecio(totalFinalGrupo(pagoGrupo)) }}</span>
-          </div>
-          <div class="flex justify-between text-xs">
-            <span class="text-slate-500">Pagado</span>
-            <span class="font-semibold text-green-600">{{ formatPrecio(montoPagadoGroup(pagoGrupo)) }}</span>
-          </div>
-          <div class="flex justify-between text-xs border-t border-[#eec997] pt-1">
-            <span class="text-slate-500">Saldo pendiente</span>
-            <span class="font-semibold text-[#af4f35]">{{ formatPrecio(saldoPendienteGroup(pagoGrupo)) }}</span>
-          </div>
-          @if (cuotasAcordadas(pagoGrupo) > 0) {
-            <div class="flex justify-between text-[10px] text-slate-400">
-              <span>Cuotas</span>
-              <span>{{ cuotasPagadas(pagoGrupo) }}/{{ cuotasAcordadas(pagoGrupo) }} pagadas</span>
-            </div>
-          }
-        </div>
-      </div>
+      <h3 class="text-lg font-bold text-[#384752] text-center">Informar pago de cuota</h3>
+      <p class="text-xs text-slate-500 text-center mt-1">{{ cliente(grupoCuota).nombre }} · {{ grupoCuota.viajeLabel }}</p>
 
-      @if (cuotasPendientesModal.length > 0) {
-      <div class="mb-4">
-        <label class="block text-xs font-semibold text-slate-600 mb-2">Seleccioná la cuota a pagar</label>
-        <div class="space-y-1.5">
-          @for (cp of cuotasPendientesModal; track cp.id) {
-          <button (click)="seleccionarCuotaModal(cp)"
-            class="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border-2 text-sm font-medium transition-all duration-200 cursor-pointer"
-            [class]="pagoCuotaSeleccionada?.id === cp.id ? 'border-meurzet-accent bg-[#fff5f2] text-meurzet-accent shadow-md' : 'border-slate-200 bg-white text-slate-600 hover:border-meurzet-accent'">
-            <span>Cuota {{ cp.cuota_numero }}/{{ cp.cuotas_totales }}</span>
-            <span class="font-bold">{{ formatPrecio(cp.monto) }}</span>
+      <div class="space-y-1.5 my-4">
+        @for (c of cuotasGrupo(grupoCuota); track c.numero) {
+          <button (click)="cuotaSeleccionada = c" [disabled]="c.estado !== 'pendiente'"
+            class="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border-2 text-sm font-medium transition-all cursor-pointer disabled:cursor-default"
+            [class]="cuotaSeleccionada?.numero === c.numero ? 'border-[#af4f35] bg-[#fff5f2] text-[#af4f35]'
+              : c.estado === 'pendiente' ? 'border-slate-200 bg-white text-slate-600 hover:border-[#af4f35]'
+              : 'border-slate-100 bg-slate-50 text-slate-400'">
+            <span>Cuota {{ c.numero }}/{{ c.total }}</span>
+            <span class="font-bold">
+              {{ formatPrecio(c.monto) }}
+              @if (c.estado === 'pagada') { · pagada ✓ } @else if (c.estado === 'en_validacion') { · en validación }
+            </span>
           </button>
-          }
-        </div>
+        }
       </div>
-      }
 
-      @if (pagoCuotaSeleccionada) {
-      <div class="space-y-3 mb-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Monto</label>
-          <input type="number" [ngModel]="pagoMonto" readonly disabled
-            class="w-full px-4 py-2.5 border-2 border-[#af4f35]/20 rounded-xl text-sm outline-none bg-slate-50 text-slate-500 font-bold cursor-not-allowed">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Método de pago</label>
-          <select [(ngModel)]="pagoMetodo"
-            class="w-full px-4 py-2.5 border-2 border-[#af4f35]/20 rounded-xl text-sm outline-none focus:border-[#1aa7c4] focus:ring-2 focus:ring-[#1aa7c4]/20 transition-all bg-white">
-            <option value="efectivo">Efectivo</option>
-            <option value="transferencia">Transferencia</option>
-            <option value="tarjeta_credito">Tarjeta de crédito</option>
-            <option value="otro">Otro</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">
-            Referencia <span class="text-slate-400 font-normal">(opcional)</span>
-          </label>
-          <input type="text" [(ngModel)]="pagoReferencia" placeholder="N° de operación, alias, etc."
-            class="w-full px-4 py-2.5 border-2 border-[#af4f35]/20 rounded-xl text-sm outline-none focus:border-[#1aa7c4] focus:ring-2 focus:ring-[#1aa7c4]/20 transition-all">
-        </div>
-      </div>
-      }
+      <p class="text-[11px] text-slate-500 mb-2">Subí el comprobante que te pasó el cliente. El admin lo revisa y confirma la cuota.</p>
+      <label class="block w-full text-center px-4 py-3 rounded-xl text-sm font-bold text-white transition-all"
+        [class]="cuotaSeleccionada && !cuotaSubiendo ? 'bg-gradient-to-r from-[#af4f35] to-[#e4912e] hover:from-[#1aa7c4] hover:to-[#384752] cursor-pointer' : 'bg-slate-300 cursor-not-allowed'">
+        {{ cuotaSubiendo ? 'Subiendo...' : 'Elegir comprobante y enviar' }}
+        <input type="file" accept=".pdf,image/*" class="hidden" [disabled]="!cuotaSeleccionada || cuotaSubiendo"
+          (change)="informarCuota($event); $any($event.target).value = ''">
+      </label>
+      @if (cuotaError) { <p class="text-xs text-red-500 mt-2 text-center">{{ cuotaError }}</p> }
 
-      <div class="flex gap-3 justify-end">
-        <button (click)="cerrarModalPago()" [disabled]="pagoGuardando"
-          class="px-5 py-2.5 rounded-xl border-2 border-slate-200 bg-white text-slate-600 text-sm font-semibold hover:bg-slate-50 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer">
-          Cancelar
-        </button>
-        <button (click)="registrarPago()" [disabled]="pagoGuardando || !pagoCuotaSeleccionada"
-          class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#af4f35] to-[#e4912e] hover:from-[#1aa7c4] hover:to-[#384752] text-white text-sm font-semibold transition-all duration-200 cursor-pointer disabled:opacity-50 hover:-translate-y-0.5 hover:shadow-lg">
-          {{ pagoGuardando ? 'Registrando...' : 'Confirmar pago' }}
-        </button>
-      </div>
+      <button (click)="cerrarInformarCuota()" [disabled]="cuotaSubiendo"
+        class="w-full mt-3 py-2 text-sm text-slate-500 font-semibold cursor-pointer hover:text-slate-700">
+        Cancelar
+      </button>
     </div>
   </div>
 }
