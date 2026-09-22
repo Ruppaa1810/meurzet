@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import type { Viaje, MetodoPago } from '../models/database.types';
 import type { AsientoReserva, PasajeroData } from './reserva-state.service';
 import { ConfigGeneralService } from './config-general.service';
+import { embarqueLabel } from '../utils/embarques';
 
 function metodoPagoLabel(mp: string): string {
   const map: Record<MetodoPago, string> = {
@@ -39,6 +40,10 @@ export class ComprobanteService {
       this.contacto = await this.configGeneral.getContacto();
     }
     return this.contacto;
+  }
+
+  private conEmbarque(datos: DatosComprobante): boolean {
+    return datos.pasajeros.some(p => p?.lugar_embarque);
   }
 
   generarHTML(datos: DatosComprobante): string {
@@ -91,7 +96,7 @@ export class ComprobanteService {
         <th>Pasajero</th>
         <th>Documento</th>
         <th>Email</th>
-        <th>Piso</th>
+        <th>Piso</th>${this.conEmbarque(datos) ? '<th>Embarque</th>' : ''}
       </tr>
     </thead>
     <tbody>
@@ -102,6 +107,7 @@ export class ComprobanteService {
           <td>${datos.pasajeros[i]?.documento || ''}</td>
           <td>${datos.pasajeros[i]?.email || ''}</td>
           <td>${a.piso === 1 ? 'Baja' : 'Alta'}</td>
+          ${this.conEmbarque(datos) ? `<td>${embarqueLabel(datos.pasajeros[i]?.lugar_embarque)}</td>` : ''}
         </tr>
       `).join('')}
     </tbody>
@@ -205,7 +211,7 @@ export class ComprobanteService {
       <th>Asiento</th>
       <th>Pasajero</th>
       <th>Documento</th>
-      <th>Piso</th>
+      <th>Piso</th>${this.conEmbarque(datos) ? '<th>Embarque</th>' : ''}
     </tr></thead>
     <tbody>
       ${datos.asientos.map((a, i) => `
@@ -214,6 +220,7 @@ export class ComprobanteService {
           <td>${datos.pasajeros[i]?.nombre || ''} ${datos.pasajeros[i]?.apellido || ''}</td>
           <td>${datos.pasajeros[i]?.documento || ''}</td>
           <td>${a.piso === 1 ? 'Baja' : 'Alta'}</td>
+          ${this.conEmbarque(datos) ? `<td>${embarqueLabel(datos.pasajeros[i]?.lugar_embarque)}</td>` : ''}
         </tr>
       `).join('')}
     </tbody>

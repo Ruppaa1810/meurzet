@@ -7,7 +7,9 @@ import { AuthService } from '../../../services/auth.service';
 import { ViajeService } from '../../../services/viaje.service';
 import { AsientoService } from '../../../services/asiento.service';
 import { ReservaStateService } from '../../../services/reserva-state.service';
-import type { Viaje, MapaAsientoViaje } from '../../../models/database.types';
+import { LugarEmbarqueService } from '../../../services/lugar-embarque.service';
+import type { Viaje, MapaAsientoViaje, LugarEmbarque } from '../../../models/database.types';
+import { lugaresDelViaje } from '../../../utils/embarques';
 
 interface SeatView extends MapaAsientoViaje {
   selected: boolean;
@@ -23,6 +25,7 @@ interface SeatView extends MapaAsientoViaje {
 })
 export class Seleccion implements OnInit, OnDestroy {
   viaje: Viaje | null = null;
+  lugaresEmbarque: LugarEmbarque[] = [];
   asientos: SeatView[] = [];
   loading = true;
   bloqueando = false;
@@ -37,6 +40,7 @@ export class Seleccion implements OnInit, OnDestroy {
     private viajeService: ViajeService,
     private asientoService: AsientoService,
     private reservaState: ReservaStateService,
+    private lugarService: LugarEmbarqueService,
     private cdr: ChangeDetectorRef,
   ) {}
 
@@ -48,12 +52,14 @@ export class Seleccion implements OnInit, OnDestroy {
       this.viajeId = Number(this.route.snapshot.paramMap.get('viajeId'));
       if (!this.viajeId) return;
 
-      const [viajeRes, asientosRes] = await Promise.all([
+      const [viajeRes, asientosRes, lugaresRes] = await Promise.all([
         this.viajeService.getViajePorId(this.viajeId),
         this.asientoService.getAsientosPorViaje(this.viajeId),
+        this.lugarService.getLugares(),
       ]);
 
       if (viajeRes.data) this.viaje = viajeRes.data;
+      this.lugaresEmbarque = lugaresDelViaje(this.viaje, lugaresRes.data ?? []);
       if (asientosRes.data) {
         this.asientos = asientosRes.data.map(a => ({ ...a, selected: false }));
       }
@@ -227,7 +233,7 @@ export class Seleccion implements OnInit, OnDestroy {
   async continuarReserva() {
     const sel = this.selectedList;
     if (sel.length === 0 || !this.viaje) return;
-    await this.reservaState.iniciar(this.viaje, sel);
+    await this.reservaState.iniciar(this.viaje, sel, this.lugaresEmbarque);
     this.router.navigate(['/minorista/reserva']);
   }
 

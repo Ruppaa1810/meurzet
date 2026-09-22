@@ -56,6 +56,9 @@
                   <p class="text-[9px] md:text-[10px] text-slate-400">Email: {{ reservaState.pasajeros[i]?.email }}</p>
                   <p class="text-[9px] md:text-[10px] text-slate-400">Tel: {{ reservaState.pasajeros[i]?.telefono }}</p>
                   <p class="text-[9px] md:text-[10px] text-slate-400">Planta {{ asiento.piso === 1 ? 'Baja' : 'Alta' }}</p>
+                  @if (reservaState.pasajeros[i]?.lugar_embarque; as emb) {
+                    <p class="text-[9px] md:text-[10px] font-semibold text-meurzet-primary">Embarque: {{ embarqueLabel(emb) }}</p>
+                  }
                 </div>
               </div>
             }
@@ -297,7 +300,12 @@
           @for (a of reservaState.asientos; track a.asientoId; let i = $index) {
           <tr class="border-b border-meurzet-light/50">
             <td class="p-2 font-mono font-bold">#{{ a.nroAsiento }}</td>
-            <td class="p-2">{{ reservaState.pasajeros[i]?.nombre }} {{ reservaState.pasajeros[i]?.apellido }}</td>
+            <td class="p-2">
+              {{ reservaState.pasajeros[i]?.nombre }} {{ reservaState.pasajeros[i]?.apellido }}
+              @if (reservaState.pasajeros[i]?.lugar_embarque; as emb) {
+                <span class="block text-[10px] text-slate-400">Embarque: {{ embarqueLabel(emb) }}</span>
+              }
+            </td>
             <td class="p-2 text-slate-500">{{ reservaState.pasajeros[i]?.documento }}</td>
             <td class="p-2 text-slate-500">{{ a.piso === 1 ? 'Baja' : 'Alta' }}</td>
           </tr>

@@ -139,6 +139,13 @@ TRIP PANEL
   color: rgba(255,255,255,.9);
 }
 
+.trip-panel-sub {
+  font-size: 11px;
+  margin-bottom: 4px;
+
+  color: rgba(255,255,255,.55);
+}
+
 .trip-panel-divider {
   height: 1px;
   background: rgba(255,255,255,.08);

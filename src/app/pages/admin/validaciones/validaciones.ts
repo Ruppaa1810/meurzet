@@ -8,6 +8,7 @@ import { ReservaService } from '../../../services/reserva.service';
 import { AuditoriaService } from '../../../services/auditoria.service';
 import type { UserRole } from '../../../models/database.types';
 import { Paginacion } from '../../../utils/paginacion';
+import { embarqueLabel } from '../../../utils/embarques';
 import { PaginacionComponent } from '../../../components/paginacion';
 
 @Component({
@@ -162,6 +163,11 @@ export class Validaciones implements OnInit, OnDestroy {
   pasajeroNombre(r: NonNullable<PagoConReserva['reserva']>): string {
     const d = (r.pasajero_datos || {}) as Record<string, any>;
     return [d['nombre'], d['apellido']].filter(Boolean).join(' ') || '-';
+  }
+
+  embarquePasajero(r: NonNullable<PagoConReserva['reserva']>): string {
+    const d = (r.pasajero_datos || {}) as Record<string, any>;
+    return embarqueLabel(d['lugar_embarque']);
   }
 
   esResponsable(r: NonNullable<PagoConReserva['reserva']>): boolean {

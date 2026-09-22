@@ -82,6 +82,12 @@
               <div class="city text-lg md:text-[24px] font-black text-[#384752] whitespace-nowrap">{{ viaje.destino }}</div>
             </div>
 
+            @if (embarquesLabel(viaje); as embarques) {
+              <div class="-mt-2 md:-mt-4 text-[11px] md:text-xs text-slate-500">
+                <span class="font-extrabold uppercase text-slate-400">Embarques:</span> {{ embarques }}
+              </div>
+            }
+
             <div class="trip-info grid grid-cols-2 gap-3 md:gap-5">
               <div class="trip-block bg-[#f4f4f3]/70 border border-[#af4f35]/10 rounded-xl p-2 md:p-3.5">
                 <span class="block text-[9px] md:text-[11px] font-extrabold text-slate-400 uppercase mb-1">Salida</span>

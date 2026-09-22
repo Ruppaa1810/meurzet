@@ -90,6 +90,9 @@
                       <span class="text-[10px] font-semibold text-[#1aa7c4] ml-1">· Responsable financiero</span>
                     }
                   </p>
+                  @if (embarquePasajero(p.reserva); as emb) {
+                    <p class="text-xs text-slate-400 mt-0.5">Embarque: {{ emb }}</p>
+                  }
                 }
               </div>
             </div>

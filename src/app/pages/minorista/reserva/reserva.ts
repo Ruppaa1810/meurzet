@@ -8,6 +8,7 @@ import { ReservaService } from '../../../services/reserva.service';
 import { PagoService } from '../../../services/pago.service';
 import { ReservaStateService } from '../../../services/reserva-state.service';
 import { ConfigPagosService, type OpcionCuota } from '../../../services/config-pagos.service';
+import { embarqueLabel } from '../../../utils/embarques';
 
 @Component({
   selector: 'app-reserva',
@@ -24,6 +25,7 @@ export class Reserva implements OnInit {
   cuotasRecargo: number = 0;
   opcionesCuotas: OpcionCuota[] = [];
   modoCuotaPersonalizado = false;
+  embarqueLabel = embarqueLabel;
 
   constructor(
     private router: Router,
@@ -57,6 +59,13 @@ export class Reserva implements OnInit {
     for (let i = 0; i < this.reservaState.pasajeros.length; i++) {
       this.reservaState.pasajeros[i].es_responsable_financiero = i === idx;
     }
+  }
+
+  elegirEmbarque(idx: number, lugarId: number) {
+    const l = this.reservaState.lugaresEmbarque.find(l => l.id === lugarId);
+    this.reservaState.pasajeros[idx].lugar_embarque = l
+      ? { id: l.id, nombre: l.nombre, direccion: l.direccion, ciudad: l.ciudad }
+      : null;
   }
 
   volver() {
@@ -132,6 +141,10 @@ export class Reserva implements OnInit {
     for (let i = 0; i < pasajeros.length; i++) {
       if (!pasajeros[i].nombre || !pasajeros[i].apellido || !pasajeros[i].documento) {
         this.message = `Completá nombre, apellido y documento del pasajero ${i + 1}`;
+        return;
+      }
+      if (this.reservaState.lugaresEmbarque.length && !pasajeros[i].lugar_embarque) {
+        this.message = `Elegí el lugar de embarque del pasajero ${i + 1}`;
         return;
       }
     }

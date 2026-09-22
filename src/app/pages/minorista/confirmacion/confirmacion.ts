@@ -9,6 +9,7 @@ import { ReservaStateService } from '../../../services/reserva-state.service';
 import { ComprobanteService, DatosComprobante } from '../../../services/comprobante.service';
 import { ConfigGeneralService, BancoConfig } from '../../../services/config-general.service';
 import { estadoFinancieroLabel, estadoFinancieroClass, estadoFinancieroDot, derivarEstadoFinanciero } from '../../../utils/estado-financiero';
+import { embarqueLabel } from '../../../utils/embarques';
 
 @Component({
   selector: 'app-confirmacion',
@@ -22,6 +23,7 @@ export class Confirmacion implements OnInit {
   comprobanteSubido = false;
   mensaje = '';
   mostrarPreview = false;
+  embarqueLabel = embarqueLabel;
 
   constructor(
     public reservaState: ReservaStateService,
@@ -233,7 +235,7 @@ export class Confirmacion implements OnInit {
       return `
         <tr>
           <td style="padding:6px 10px;border-bottom:1px solid #e2e8f0;font-size:11px;">#${a.nroAsiento} · ${a.piso === 1 ? 'Baja' : 'Alta'}</td>
-          <td style="padding:6px 10px;border-bottom:1px solid #e2e8f0;font-size:11px;">${p?.nombre || ''} ${p?.apellido || ''}</td>
+          <td style="padding:6px 10px;border-bottom:1px solid #e2e8f0;font-size:11px;">${p?.nombre || ''} ${p?.apellido || ''}${p?.lugar_embarque ? `<br><span style="font-size:10px;color:#64748b;">Embarque: ${embarqueLabel(p.lugar_embarque)}</span>` : ''}</td>
           <td style="padding:6px 10px;border-bottom:1px solid #e2e8f0;font-size:11px;color:#64748b;">${p?.documento || ''}</td>
         </tr>`;
     }).join('');

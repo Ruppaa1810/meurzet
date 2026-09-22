@@ -53,6 +53,18 @@
             <strong class="avail-tag">{{ asientosLibres }} asientos</strong>
           </div>
         </div>
+        @if (lugaresEmbarque.length) {
+          <div class="trip-panel-divider"></div>
+          <div class="trip-panel-block full">
+            <span>Embarques</span>
+            @for (l of lugaresEmbarque; track l.id) {
+              <strong>{{ l.nombre }}</strong>
+              @if (l.direccion || l.ciudad) {
+                <small class="trip-panel-sub">{{ l.direccion }}{{ l.direccion && l.ciudad ? ', ' : '' }}{{ l.ciudad }}</small>
+              }
+            }
+          </div>
+        }
         <div class="trip-panel-divider"></div>
         <div class="trip-panel-block full">
           <span>Precio base</span>

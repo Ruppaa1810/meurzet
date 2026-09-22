@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import type { Viaje, MapaAsientoViaje, EstadoFinanciero } from '../models/database.types';
+import type { Viaje, MapaAsientoViaje, EstadoFinanciero, LugarEmbarque } from '../models/database.types';
+import type { EmbarquePasajero } from '../utils/embarques';
 import { ConfigGeneralService } from './config-general.service';
 
 export interface AsientoReserva {
@@ -16,6 +17,7 @@ export interface PasajeroData {
   email: string;
   telefono: string;
   es_responsable_financiero?: boolean;
+  lugar_embarque?: EmbarquePasajero | null;
 }
 
 export type TipoPagoMode = 'total' | 'parcial' | 'personalizado';
@@ -23,6 +25,7 @@ export type TipoPagoMode = 'total' | 'parcial' | 'personalizado';
 @Injectable({ providedIn: 'root' })
 export class ReservaStateService {
   viaje: Viaje | null = null;
+  lugaresEmbarque: LugarEmbarque[] = [];
   asientos: AsientoReserva[] = [];
   pasajeros: PasajeroData[] = [];
   tipoPagoMode: TipoPagoMode = 'parcial';
@@ -74,18 +77,22 @@ export class ReservaStateService {
     }
   }
 
-  async iniciar(viaje: Viaje, asientos: MapaAsientoViaje[]) {
+  async iniciar(viaje: Viaje, asientos: MapaAsientoViaje[], lugaresEmbarque: LugarEmbarque[] = []) {
     await this.cargarConfig();
     this.viaje = viaje;
+    this.lugaresEmbarque = lugaresEmbarque;
     this.asientos = asientos.map(a => ({
       asientoId: a.id,
       nroAsiento: a.nro_asiento,
       piso: a.piso,
       categoria: a.categoria,
     }));
+    // Con un solo embarque no hay nada que elegir
+    const unico = lugaresEmbarque.length === 1 ? lugaresEmbarque[0] : null;
     this.pasajeros = asientos.map((_, idx) => ({
       nombre: '', apellido: '', documento: '', email: '', telefono: '',
       es_responsable_financiero: idx === 0,
+      lugar_embarque: unico && { id: unico.id, nombre: unico.nombre, direccion: unico.direccion, ciudad: unico.ciudad },
     }));
     this.precio = viaje.precio_base;
     this.tipoPagoMode = 'parcial';
@@ -100,6 +107,7 @@ export class ReservaStateService {
 
   limpiar() {
     this.viaje = null;
+    this.lugaresEmbarque = [];
     this.asientos = [];
     this.pasajeros = [];
     this.precio = 0;

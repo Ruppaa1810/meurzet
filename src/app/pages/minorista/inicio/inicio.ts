@@ -5,7 +5,9 @@ import { RouterLink } from '@angular/router';
 
 import { AsientoService } from '../../../services/asiento.service';
 import { ViajeService } from '../../../services/viaje.service';
-import type { Viaje } from '../../../models/database.types';
+import { LugarEmbarqueService } from '../../../services/lugar-embarque.service';
+import type { Viaje, LugarEmbarque } from '../../../models/database.types';
+import { lugaresDelViaje } from '../../../utils/embarques';
 
 @Component({
   selector: 'app-inicio',
@@ -20,6 +22,7 @@ export class Inicio implements OnInit {
   loading = true;
   asientosLibres: Record<number, number> = {};
   categoriasPorViaje: Record<number, string> = {};
+  lugaresEmbarque: LugarEmbarque[] = [];
 
   filtroOrigen = '';
   filtroDestino = '';
@@ -29,12 +32,17 @@ export class Inicio implements OnInit {
   constructor(
     private viajeService: ViajeService,
     private asientoService: AsientoService,
+    private lugarService: LugarEmbarqueService,
     private cdr: ChangeDetectorRef,
   ) {}
 
   async ngOnInit() {
     try {
-      const { data, error } = await this.viajeService.getViajes();
+      const [{ data, error }, lugaresRes] = await Promise.all([
+        this.viajeService.getViajes(),
+        this.lugarService.getLugares(),
+      ]);
+      this.lugaresEmbarque = lugaresRes.data ?? [];
       if (!error && data) {
         this.todosViajes = data;
         this.viajesFiltrados = data;
@@ -79,6 +87,10 @@ export class Inicio implements OnInit {
 
   formatPrecio(precio: number): string {
     return `$ ${precio.toLocaleString('es-AR')}`;
+  }
+
+  embarquesLabel(viaje: Viaje): string {
+    return lugaresDelViaje(viaje, this.lugaresEmbarque).map(l => l.nombre).join(' · ');
   }
 
   servicioLabel(viaje: Viaje): string {

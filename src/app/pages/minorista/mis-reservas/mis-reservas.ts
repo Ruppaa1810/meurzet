@@ -11,6 +11,7 @@ import { ComprobanteService, DatosComprobante } from '../../../services/comproba
 import type { Reserva, PagoMovimiento, EstadoFinanciero } from '../../../models/database.types';
 import { estadoFinancieroLabel, estadoFinancieroClass, estadoFinancieroDot } from '../../../utils/estado-financiero';
 import { calcularFinanciero, montoPagadoConfirmado, parsearPagoPasajero } from '../../../utils/calculo-financiero';
+import { embarqueLabel } from '../../../utils/embarques';
 
 interface ReservaView extends Reserva {
   viajeLabel: string;
@@ -42,6 +43,7 @@ interface ReservaGroup {
 })
 export class MisReservas implements OnInit {
   Math = Math;
+  embarqueLabel = embarqueLabel;
   reservas: ReservaView[] = [];
   grupos: ReservaGroup[] = [];
   loading = true;
@@ -376,7 +378,7 @@ export class MisReservas implements OnInit {
       codigo: `GRUPO-${g.grupoId.substring(0, 8).toUpperCase()}`,
       viaje: { origen: '', destino: '', fecha_salida: '', fecha_llegada: '', ...r0, precio_base: c.totalFinal } as any,
       asientos: g.reservas.map(r => ({ asientoId: r.asiento_viaje_id || 0, nroAsiento: r.asiento_viaje_id || 0, piso: 1, categoria: '' })),
-      pasajeros: g.reservas.map(r => ({ nombre: r.pasajeroNombre, apellido: '', documento: '', email: '', telefono: '' })),
+      pasajeros: g.reservas.map(r => ({ nombre: r.pasajeroNombre, apellido: '', documento: '', email: '', telefono: '', lugar_embarque: this.pasajeroDatos(r)['lugar_embarque'] })),
       total: c.totalFinal,
       montoPagado: c.totalFinal - c.montoPendiente,
       montoPendiente: c.montoPendiente,
@@ -397,7 +399,7 @@ export class MisReservas implements OnInit {
       codigo: `GRUPO-${g.grupoId.substring(0, 8).toUpperCase()}`,
       viaje: { origen: '', destino: '', fecha_salida: '', fecha_llegada: '', ...r0, precio_base: this.totalBaseGroup(g) } as any,
       asientos: g.reservas.map(r => ({ asientoId: r.asiento_viaje_id || 0, nroAsiento: r.asiento_viaje_id || 0, piso: 1, categoria: '' })),
-      pasajeros: g.reservas.map(r => ({ nombre: r.pasajeroNombre, apellido: '', documento: '', email: '', telefono: '' })),
+      pasajeros: g.reservas.map(r => ({ nombre: r.pasajeroNombre, apellido: '', documento: '', email: '', telefono: '', lugar_embarque: this.pasajeroDatos(r)['lugar_embarque'] })),
       total: this.totalBaseGroup(g),
       montoPagado: c.totalFinal - c.montoPendiente,
       montoPendiente: c.montoPendiente,
@@ -481,7 +483,7 @@ export class MisReservas implements OnInit {
       codigo: `MEU-${String(r.id).padStart(6, '0')}`,
       viaje: { origen: '', destino: '', fecha_salida: '', fecha_llegada: '', ...r, precio_base: r.monto } as any,
       asientos: [{ asientoId: r.asiento_viaje_id || 0, nroAsiento: 0, piso: 1, categoria: '' }],
-      pasajeros: [{ nombre: r.pasajeroNombre, apellido: '', documento: '', email: '', telefono: '' }],
+      pasajeros: [{ nombre: r.pasajeroNombre, apellido: '', documento: '', email: '', telefono: '', lugar_embarque: this.pasajeroDatos(r)['lugar_embarque'] }],
       total: c.totalFinal,
       montoPagado: c.totalFinal - c.montoPendiente,
       montoPendiente: c.montoPendiente,
@@ -501,7 +503,7 @@ export class MisReservas implements OnInit {
       codigo: `MEU-${String(r.id).padStart(6, '0')}`,
       viaje: { origen: '', destino: '', fecha_salida: '', fecha_llegada: '', ...r, precio_base: r.monto } as any,
       asientos: [{ asientoId: r.asiento_viaje_id || 0, nroAsiento: 0, piso: 1, categoria: '' }],
-      pasajeros: [{ nombre: r.pasajeroNombre, apellido: '', documento: '', email: '', telefono: '' }],
+      pasajeros: [{ nombre: r.pasajeroNombre, apellido: '', documento: '', email: '', telefono: '', lugar_embarque: this.pasajeroDatos(r)['lugar_embarque'] }],
       total: r.monto,
       montoPagado: c.totalFinal - c.montoPendiente,
       montoPendiente: c.montoPendiente,
