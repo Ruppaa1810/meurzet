@@ -20,12 +20,23 @@ export class ConfigGeneralService {
       .select('clave, valor');
     if (data) {
       for (const row of data) {
-        this.cache[row.clave] = typeof row.valor === 'string'
-          ? JSON.parse(row.valor)
-          : row.valor;
+        this.cache[row.clave] = ConfigGeneralService.decodificar(row.valor);
       }
     }
     this.loaded = true;
+  }
+
+  /**
+   * `valor` es JSONB: Supabase ya lo devuelve decodificado ("11 2345-6789").
+   * Versiones anteriores lo guardaban con JSON.stringify encima ("\"11 2345-6789\""), así que se aceptan ambos.
+   */
+  private static decodificar(valor: unknown): unknown {
+    if (typeof valor !== 'string') return valor;
+    try {
+      return JSON.parse(valor);
+    } catch {
+      return valor;
+    }
   }
 
   async getContacto(): Promise<string> {
@@ -55,7 +66,7 @@ export class ConfigGeneralService {
   async setContacto(contacto: string): Promise<void> {
     await supabase
       .from('configuracion_general')
-      .upsert({ clave: 'contacto', valor: JSON.stringify(contacto), updated_at: new Date().toISOString() });
+      .upsert({ clave: 'contacto', valor: contacto, updated_at: new Date().toISOString() });
     this.cache['contacto'] = contacto;
   }
 
