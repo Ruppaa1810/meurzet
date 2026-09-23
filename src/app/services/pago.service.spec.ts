@@ -10,6 +10,66 @@ function buildChain() {
   return chain;
 }
 
+/** Query encadenable que al hacer await devuelve `result`, sin importar qué métodos se llamen antes. */
+function query(result: unknown) {
+  const q: any = { then: (ok: any, err: any) => Promise.resolve(result).then(ok, err) };
+  for (const m of ['select', 'eq', 'in', 'or', 'order', 'limit', 'single', 'maybeSingle', 'update', 'insert']) {
+    q[m] = vi.fn().mockReturnValue(q);
+  }
+  return q;
+}
+
+describe('PagoService.generarComisionSiCorresponde', () => {
+  let service: PagoService;
+  // Venta de $100.000: seña 30% + 3 cuotas con 10% de recargo = $107.000
+  const reserva = { vendedor_id: 'v1', pasajero_datos: { porcentaje_pago: 30, cuotas: 3, recargo: 10 }, viaje: { precio_base: 100000 } };
+  const pagosCompletos = [{ id: 9, monto: 25667 }, { id: 8, monto: 25667 }, { id: 7, monto: 25666 }, { id: 6, monto: 30000 }]
+    .map(p => ({ ...p, estado_pago: 'confirmado' }));
+
+  function mockTablas(t: { pagos: unknown[]; comisionExistente?: unknown[]; config?: unknown }) {
+    const tablas: Record<string, any> = {
+      reservas: query({ data: reserva, error: null }),
+      pagos_movimientos: query({ data: t.pagos, error: null }),
+      comisiones: query({ data: t.comisionExistente ?? [], error: null }),
+      comisiones_config: query({ data: t.config === undefined ? { porcentaje: 10 } : t.config, error: null }),
+    };
+    vi.spyOn(supabase, 'from').mockImplementation(((tabla: string) => tablas[tabla]) as any);
+    return tablas;
+  }
+
+  beforeEach(() => {
+    vi.restoreAllMocks();
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(PagoService);
+  });
+
+  it('genera la comisión sobre el total de la venta cuando se pagó todo', async () => {
+    const t = mockTablas({ pagos: pagosCompletos });
+    await service.generarComisionSiCorresponde(1);
+    expect(t['comisiones'].insert).toHaveBeenCalledWith({
+      reserva_id: 1, pago_id: 9, vendedor_id: 'v1', monto_base: 107000, porcentaje: 10, monto_comision: 10700,
+    });
+  });
+
+  it('no genera nada si todavía falta cobrar', async () => {
+    const t = mockTablas({ pagos: pagosCompletos.slice(1) });
+    await service.generarComisionSiCorresponde(1);
+    expect(t['comisiones'].insert).not.toHaveBeenCalled();
+  });
+
+  it('no duplica la comisión si ya existe', async () => {
+    const t = mockTablas({ pagos: pagosCompletos, comisionExistente: [{ id: 3 }] });
+    await service.generarComisionSiCorresponde(1);
+    expect(t['comisiones'].insert).not.toHaveBeenCalled();
+  });
+
+  it('no genera si el vendedor no tiene comisión configurada', async () => {
+    const t = mockTablas({ pagos: pagosCompletos, config: null });
+    await service.generarComisionSiCorresponde(1);
+    expect(t['comisiones'].insert).not.toHaveBeenCalled();
+  });
+});
+
 describe('PagoService', () => {
   let service: PagoService;
 
@@ -28,6 +88,7 @@ describe('PagoService', () => {
     vi.spyOn(supabase, 'from').mockReturnValue(chain as any);
     const count = await service.countPagosPendientes();
     expect(chain.eq).toHaveBeenCalledWith('estado_pago', 'pendiente');
+    expect(chain.or).toHaveBeenCalledWith('tipo.neq.cuota,comprobante_url.not.is.null');
     expect(count).toBe(3);
   });
 

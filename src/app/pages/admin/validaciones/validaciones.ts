@@ -126,8 +126,8 @@ export class Validaciones implements OnInit, OnDestroy {
         const comision = await this.pagoService.generarComisionSiCorresponde(reservaId);
         if (comision?.error) this.error = `Pago aprobado, pero no se pudo generar la comisión: ${comision.error.message}`;
       } else if (pago.tipo === 'cuota') {
-        // Un comprobante de cuota mal subido no cancela la reserva: la cuota vuelve a pendiente sin comprobante
-        const { error } = await this.pagoService.quitarComprobanteCuota(pago.id);
+        // Un comprobante de cuota mal subido no cancela la reserva: la cuota vuelve a pendiente y el vendedor ve el motivo
+        const { error } = await this.pagoService.rechazarComprobanteCuota(pago.id, this.motivoRechazo.trim());
         if (error) { this.error = error.message; return; }
       } else {
         const { error } = await this.pagoService.actualizarEstadoPago(pago.id, 'rechazado');

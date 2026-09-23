@@ -42,15 +42,18 @@ interface CuotaGrupo {
   monto: number;
   estado: 'pendiente' | 'en_validacion' | 'pagada';
   idsAInformar: number[];
+  /** Motivo por el que el admin rechazó el último comprobante de esta cuota. */
+  motivoRechazo: string;
 }
 
 type Filtro = 'todas' | 'accion' | 'curso' | 'pagadas' | 'rechazadas';
-type Etapa = 'falta_comprobante' | 'en_validacion' | 'pagando' | 'cuota_en_validacion' | 'saldo' | 'pagada' | 'rechazada';
+type Etapa = 'falta_comprobante' | 'en_validacion' | 'pagando' | 'cuota_rechazada' | 'cuota_en_validacion' | 'saldo' | 'pagada' | 'rechazada';
 
 const ETAPAS: Record<Etapa, { label: string; clase: string; accion: boolean }> = {
   falta_comprobante:   { label: 'Falta comprobante', clase: 'bg-amber-50 text-amber-700 border-amber-200', accion: true },
   en_validacion:       { label: 'En validación', clase: 'bg-blue-50 text-blue-700 border-blue-200', accion: false },
   pagando:             { label: 'Pagando cuotas', clase: 'bg-amber-50 text-amber-700 border-amber-200', accion: true },
+  cuota_rechazada:     { label: 'Comprobante rechazado', clase: 'bg-red-50 text-red-700 border-red-200', accion: true },
   cuota_en_validacion: { label: 'Cuota en validación', clase: 'bg-blue-50 text-blue-700 border-blue-200', accion: false },
   saldo:               { label: 'Saldo pendiente', clase: 'bg-amber-50 text-amber-700 border-amber-200', accion: false },
   pagada:              { label: 'Pagada', clase: 'bg-green-50 text-green-700 border-green-200', accion: false },
@@ -332,6 +335,7 @@ export class MisReservas implements OnInit {
         monto: pagos.reduce((s, p) => s + p.monto, 0),
         estado: aInformar.length ? 'pendiente' : pendientes.length ? 'en_validacion' : 'pagada',
         idsAInformar: aInformar.map(p => p.id),
+        motivoRechazo: aInformar.find(p => p.motivo_rechazo)?.motivo_rechazo ?? '',
       };
     });
   }
@@ -346,7 +350,7 @@ export class MisReservas implements OnInit {
     if (g.reservas.some(r => r.estado === 'pendiente_validacion')) return 'en_validacion';
     if (this.calcGrupo(g).montoPendiente <= 0) return 'pagada';
     const proxima = this.proximaCuota(g);
-    if (proxima?.estado === 'pendiente') return 'pagando';
+    if (proxima?.estado === 'pendiente') return proxima.motivoRechazo ? 'cuota_rechazada' : 'pagando';
     if (proxima?.estado === 'en_validacion') return 'cuota_en_validacion';
     return 'saldo';
   }
@@ -362,6 +366,7 @@ export class MisReservas implements OnInit {
       case 'falta_comprobante': return 'Subí el comprobante de la seña que te pasó el cliente';
       case 'en_validacion': return 'El admin está revisando el comprobante de la seña';
       case 'pagando': return `Cuota ${c!.numero}/${c!.total} de ${this.formatPrecio(c!.monto)}: informala cuando el cliente pague`;
+      case 'cuota_rechazada': return `Se rechazó el comprobante de la cuota ${c!.numero}/${c!.total}: "${c!.motivoRechazo}". Subí uno nuevo`;
       case 'cuota_en_validacion': return `El admin está revisando el comprobante de la cuota ${c!.numero}/${c!.total}`;
       case 'saldo': return `El cliente debe ${this.formatPrecio(this.saldoPendienteGroup(g))}`;
       case 'pagada': return 'El cliente pagó todo';
@@ -437,7 +442,10 @@ export class MisReservas implements OnInit {
       if (error) { this.cuotaError = error.message; return; }
 
       for (const p of this.pagosCuotas(g)) {
-        if (cuota.idsAInformar.includes(p.id)) p.comprobante_url = signed.signedUrl;
+        if (cuota.idsAInformar.includes(p.id)) {
+          p.comprobante_url = signed.signedUrl;
+          p.motivo_rechazo = null;
+        }
       }
       this.cerrarInformarCuota();
     } catch (e: any) {

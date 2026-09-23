@@ -59,10 +59,10 @@ export class PagoService {
     return await supabase.rpc('informar_pago_cuotas', { p_pago_ids: pagoIds, p_comprobante_url: comprobanteUrl });
   }
 
-  async quitarComprobanteCuota(id: number) {
+  async rechazarComprobanteCuota(id: number, motivo: string) {
     return await supabase
       .from('pagos_movimientos')
-      .update({ comprobante_url: null })
+      .update({ comprobante_url: null, motivo_rechazo: motivo })
       .eq('id', id);
   }
 

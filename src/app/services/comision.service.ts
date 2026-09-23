@@ -50,7 +50,7 @@ export class ComisionService {
   async getComisionesAll(estado?: string) {
     let query = supabase
       .from('comisiones')
-      .select('*, perfiles:vendedor_id(nombre, email), reservas:reserva_id(id, pasajero_datos), pagos_movimientos:pago_id(monto, metodo_pago)')
+      .select('*, perfiles:vendedor_id(nombre, email), reservas:reserva_id(id, pasajero_datos, viaje:viaje_id(origen, destino, fecha_salida)), pagos_movimientos:pago_id(monto, metodo_pago)')
       .order('created_at', { ascending: false });
     if (estado) query = query.eq('estado', estado);
     return await query;

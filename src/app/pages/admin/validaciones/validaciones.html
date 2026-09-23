@@ -177,7 +177,13 @@
           <p class="text-sm text-slate-500 mt-1">
             Rechazar <strong>${{ pagoAccion.monto.toLocaleString('es-AR') }}</strong> por {{ metodoPagoLabel(pagoAccion.metodo_pago) }}
           </p>
-          <p class="text-sm text-slate-500 mt-1">Indicá el motivo del rechazo</p>
+          <p class="text-sm text-slate-500 mt-1">
+            @if (pagoAccion.tipo === 'cuota') {
+              La reserva sigue activa: el vendedor verá el motivo y podrá subir otro comprobante
+            } @else {
+              Indicá el motivo del rechazo
+            }
+          </p>
         </div>
 
         <div class="mb-5">

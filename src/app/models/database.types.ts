@@ -84,6 +84,7 @@ export interface PagoMovimiento {
   cuota_numero: number | null;
   cuotas_totales: number | null;
   comprobante_url?: string | null;
+  motivo_rechazo?: string | null;
   created_at: string;
 }
 

@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ComisionService } from '../../../services/comision.service';
+import type { Comision } from '../../../models/database.types';
 
 interface ConfigConPerfil {
   id: number;
@@ -10,6 +11,11 @@ interface ConfigConPerfil {
   activo: boolean;
   perfiles?: { nombre: string; email: string | null } | null;
 }
+
+type ComisionAPagar = Comision & {
+  perfiles: { nombre: string } | null;
+  reservas: { pasajero_datos: Record<string, any>; viaje: { origen: string; destino: string; fecha_salida: string } | null } | null;
+};
 
 @Component({
   selector: 'app-comisiones',
@@ -20,6 +26,9 @@ interface ConfigConPerfil {
 })
 export class Comisiones implements OnInit {
   configs: ConfigConPerfil[] = [];
+  aPagar: ComisionAPagar[] = [];
+  seleccionadas = new Set<number>();
+  pagando = false;
   loading = true;
   mensaje = '';
   successMensaje = '';
@@ -42,11 +51,60 @@ export class Comisiones implements OnInit {
   async cargar() {
     this.loading = true;
     this.mensaje = '';
-    const { data, error } = await this.comisionService.getConfigsAll();
-    if (error) { this.mensaje = error.message; this.loading = false; this.cdr.detectChanges(); return; }
+    const [{ data, error }, pendientes] = await Promise.all([
+      this.comisionService.getConfigsAll(),
+      this.comisionService.getComisionesAll('pendiente'),
+    ]);
+    if (error || pendientes.error) {
+      this.mensaje = (error || pendientes.error)!.message;
+      this.loading = false;
+      this.cdr.detectChanges();
+      return;
+    }
     this.configs = (data || []) as ConfigConPerfil[];
+    this.aPagar = (pendientes.data || []) as ComisionAPagar[];
+    this.seleccionadas.clear();
     this.loading = false;
     this.cdr.detectChanges();
+  }
+
+  toggleSeleccion(id: number) {
+    if (!this.seleccionadas.delete(id)) this.seleccionadas.add(id);
+  }
+
+  toggleTodas() {
+    if (this.seleccionadas.size === this.aPagar.length) this.seleccionadas.clear();
+    else this.aPagar.forEach(c => this.seleccionadas.add(c.id));
+  }
+
+  get totalSeleccionado(): number {
+    return this.aPagar.filter(c => this.seleccionadas.has(c.id)).reduce((s, c) => s + c.monto_comision, 0);
+  }
+
+  async marcarPagadas() {
+    if (!this.seleccionadas.size) return;
+    this.pagando = true;
+    this.mensaje = '';
+    const cantidad = this.seleccionadas.size;
+    const { error } = await this.comisionService.marcarComoPagada([...this.seleccionadas]);
+    this.pagando = false;
+    if (error) { this.mensaje = error.message; this.cdr.detectChanges(); return; }
+    await this.cargar();
+    this.mostrarSuccess(`${cantidad} comisi${cantidad === 1 ? 'ón marcada' : 'ones marcadas'} como pagada${cantidad === 1 ? '' : 's'}`);
+  }
+
+  clienteLabel(c: ComisionAPagar): string {
+    const d = c.reservas?.pasajero_datos;
+    return [d?.['nombre'], d?.['apellido']].filter(Boolean).join(' ') || `Reserva #${c.reserva_id}`;
+  }
+
+  viajeLabel(c: ComisionAPagar): string {
+    const v = c.reservas?.viaje;
+    return v ? `${v.origen} → ${v.destino} · ${new Date(v.fecha_salida).toLocaleDateString('es-AR')}` : '';
+  }
+
+  formatPrecio(v: number): string {
+    return `$ ${v.toLocaleString('es-AR')}`;
   }
 
   nombreVendedor(c: ConfigConPerfil): string {
