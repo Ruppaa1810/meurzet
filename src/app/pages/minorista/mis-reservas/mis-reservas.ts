@@ -456,46 +456,44 @@ export class MisReservas implements OnInit {
     }
   }
 
-  verComprobanteGroup(g: ReservaGroup) {
+  /** Comprobante con el estado de cuenta actual del grupo: mismo código que vio el cliente al reservar. */
+  datosComprobante(g: ReservaGroup): DatosComprobante {
     const r0 = g.reservas[0];
+    const viaje = (r0 as any).viaje;
     const c = this.calcGrupo(g);
-    const { metodoPago } = parsearPagoPasajero(r0.pasajero_datos as Record<string, unknown>);
-    const comprobante: DatosComprobante = {
-      codigo: `GRUPO-${g.grupoId.substring(0, 8).toUpperCase()}`,
-      viaje: { origen: '', destino: '', fecha_salida: '', fecha_llegada: '', ...r0, precio_base: c.totalFinal } as any,
-      asientos: g.reservas.map(r => ({ asientoId: r.asiento_viaje_id || 0, nroAsiento: r.asiento_viaje_id || 0, piso: 1, categoria: '' })),
-      pasajeros: g.reservas.map(r => ({ nombre: r.pasajeroNombre, apellido: '', documento: '', email: '', telefono: '', lugar_embarque: this.pasajeroDatos(r)['lugar_embarque'] })),
+    const etapa = this.etapa(g);
+    const cuotas = this.cuotasGrupo(g);
+    return {
+      tipo: 'reserva',
+      codigo: `MEU-${String(Math.min(...g.reservas.map(r => r.id))).padStart(6, '0')}`,
+      estado: etapa === 'pagada' ? { label: 'Reserva pagada en su totalidad', tono: 'ok' }
+        : etapa === 'rechazada' ? { label: 'Reserva rechazada', tono: 'warn' }
+        : etapa === 'falta_comprobante' || etapa === 'en_validacion' ? { label: 'Reserva registrada · seña en validación', tono: 'info' }
+        : { label: `Reserva confirmada · ${cuotas.filter(q => q.estado === 'pagada').length} de ${cuotas.length} cuotas pagadas`, tono: 'info' },
+      viaje: { origen: viaje?.origen ?? '', destino: viaje?.destino ?? '', fecha_salida: viaje?.fecha_salida, fecha_llegada: viaje?.fecha_llegada },
+      asientos: g.reservas.map(r => {
+        const a = (r as any).asiento;
+        return { asientoId: r.asiento_viaje_id ?? 0, nroAsiento: a?.nro_asiento ?? 0, piso: a?.piso ?? 1, categoria: a?.categoria ?? '' };
+      }),
+      pasajeros: g.reservas.map(r => this.pasajeroDatos(r) as any),
+      precioUnitario: r0.monto,
+      senia: this.pagosSena(g).reduce((s, p) => s + p.monto, 0) || c.montoAPagar,
+      seniaPagada: this.pagosSena(g).length > 0 && this.senaConfirmada(g),
+      recargo: parsearPagoPasajero(r0.pasajero_datos as Record<string, unknown>).recargo,
       total: c.totalFinal,
-      montoPagado: c.totalFinal - c.montoPendiente,
-      montoPendiente: c.montoPendiente,
-      pagoLabel: this.estadoLabel(r0.estado || ''),
-      metodoPago,
-      cuotasCount: c.montoPorCuota > 0 ? Math.round(c.saldoConRecargo / c.montoPorCuota) : 0,
-      montoPorCuota: c.montoPorCuota,
-      fecha: new Date().toLocaleString('es-AR'),
+      pagado: this.montoPagadoGroup(g),
+      pendiente: c.montoPendiente,
+      cuotas: cuotas.map(q => ({ numero: q.numero, total: q.total, monto: q.monto, pagada: q.estado === 'pagada' })),
+      metodoPago: parsearPagoPasajero(r0.pasajero_datos as Record<string, unknown>).metodoPago,
     };
-    this.comprobanteService.abrirParaImprimir(comprobante);
   }
 
-  async verSaldoPendienteGroup(g: ReservaGroup) {
-    const r0 = g.reservas[0];
-    const c = this.calcGrupo(g);
-    const { metodoPago } = parsearPagoPasajero(r0.pasajero_datos as Record<string, unknown>);
-    const comprobante: DatosComprobante = {
-      codigo: `GRUPO-${g.grupoId.substring(0, 8).toUpperCase()}`,
-      viaje: { origen: '', destino: '', fecha_salida: '', fecha_llegada: '', ...r0, precio_base: this.totalBaseGroup(g) } as any,
-      asientos: g.reservas.map(r => ({ asientoId: r.asiento_viaje_id || 0, nroAsiento: r.asiento_viaje_id || 0, piso: 1, categoria: '' })),
-      pasajeros: g.reservas.map(r => ({ nombre: r.pasajeroNombre, apellido: '', documento: '', email: '', telefono: '', lugar_embarque: this.pasajeroDatos(r)['lugar_embarque'] })),
-      total: this.totalBaseGroup(g),
-      montoPagado: c.totalFinal - c.montoPendiente,
-      montoPendiente: c.montoPendiente,
-      pagoLabel: this.estadoLabel(r0.estado || ''),
-      metodoPago,
-      cuotasCount: c.montoPorCuota > 0 ? Math.round(c.saldoConRecargo / c.montoPorCuota) : 0,
-      montoPorCuota: c.montoPorCuota,
-      fecha: new Date().toLocaleString('es-AR'),
-    };
-    await this.comprobanteService.abrirSaldoParaImprimir(comprobante);
+  imprimirComprobante(g: ReservaGroup) {
+    this.comprobanteService.imprimir(this.datosComprobante(g));
+  }
+
+  descargarComprobante(g: ReservaGroup) {
+    this.comprobanteService.descargarImagen(this.datosComprobante(g));
   }
 
   async subirComprobanteGroup(g: ReservaGroup, event: Event, fileInput?: HTMLInputElement) {
@@ -560,46 +558,6 @@ export class MisReservas implements OnInit {
   pagoPromedio(g: ReservaGroup): string {
     const { porcentajePago } = parsearPagoPasajero(g.reservas[0]?.pasajero_datos as Record<string, unknown>);
     return `${porcentajePago}%`;
-  }
-
-  verComprobante(r: ReservaView) {
-    const c = this.calcReserva(r);
-    const { metodoPago } = parsearPagoPasajero(r.pasajero_datos as Record<string, unknown>);
-    const comprobante: DatosComprobante = {
-      codigo: `MEU-${String(r.id).padStart(6, '0')}`,
-      viaje: { origen: '', destino: '', fecha_salida: '', fecha_llegada: '', ...r, precio_base: r.monto } as any,
-      asientos: [{ asientoId: r.asiento_viaje_id || 0, nroAsiento: 0, piso: 1, categoria: '' }],
-      pasajeros: [{ nombre: r.pasajeroNombre, apellido: '', documento: '', email: '', telefono: '', lugar_embarque: this.pasajeroDatos(r)['lugar_embarque'] }],
-      total: c.totalFinal,
-      montoPagado: c.totalFinal - c.montoPendiente,
-      montoPendiente: c.montoPendiente,
-      pagoLabel: this.efLabel(r),
-      metodoPago,
-      cuotasCount: c.montoPorCuota > 0 ? Math.round(c.saldoConRecargo / c.montoPorCuota) : 0,
-      montoPorCuota: c.montoPorCuota,
-      fecha: new Date().toLocaleString('es-AR'),
-    };
-    this.comprobanteService.abrirParaImprimir(comprobante);
-  }
-
-  async verSaldoPendiente(r: ReservaView) {
-    const c = this.calcReserva(r);
-    const { metodoPago } = parsearPagoPasajero(r.pasajero_datos as Record<string, unknown>);
-    const comprobante: DatosComprobante = {
-      codigo: `MEU-${String(r.id).padStart(6, '0')}`,
-      viaje: { origen: '', destino: '', fecha_salida: '', fecha_llegada: '', ...r, precio_base: r.monto } as any,
-      asientos: [{ asientoId: r.asiento_viaje_id || 0, nroAsiento: 0, piso: 1, categoria: '' }],
-      pasajeros: [{ nombre: r.pasajeroNombre, apellido: '', documento: '', email: '', telefono: '', lugar_embarque: this.pasajeroDatos(r)['lugar_embarque'] }],
-      total: r.monto,
-      montoPagado: c.totalFinal - c.montoPendiente,
-      montoPendiente: c.montoPendiente,
-      pagoLabel: this.efLabel(r),
-      metodoPago,
-      cuotasCount: c.montoPorCuota > 0 ? Math.round(c.saldoConRecargo / c.montoPorCuota) : 0,
-      montoPorCuota: c.montoPorCuota,
-      fecha: new Date().toLocaleString('es-AR'),
-    };
-    await this.comprobanteService.abrirSaldoParaImprimir(comprobante);
   }
 
   metodoPagoLabel(r: ReservaView): string {
