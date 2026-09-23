@@ -15,6 +15,8 @@ export interface CuotaComprobante {
   total: number;
   monto: number;
   pagada: boolean;
+  /** El vendedor subió el comprobante y falta que la agencia lo apruebe. */
+  enValidacion?: boolean;
 }
 
 export interface DatosComprobante {
@@ -27,6 +29,7 @@ export interface DatosComprobante {
   precioUnitario: number;
   senia: number;
   seniaPagada: boolean;
+  seniaEnValidacion?: boolean;
   recargo: number;
   total: number;
   pagado: number;
@@ -99,7 +102,10 @@ const CSS = `
 .cmp-box div { display: flex; justify-content: space-between; margin-bottom: 6px; }
 .cmp-box .big { font-size: 17px; font-weight: 800; }
 .cmp-bar { height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; margin: 10px 0 4px; }
+.cmp-box .cmp-bar { display: flex; justify-content: flex-start; margin: 10px 0 4px; }
 .cmp-bar i { display: block; height: 100%; background: #16a34a; }
+.cmp-bar i.val { background: #93c5fd; }
+.cmp .val { color: #1d4ed8; font-weight: 600; }
 .cmp-bank { display: flex; flex-wrap: wrap; gap: 8px 28px; }
 .cmp-bank small { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .8px; color: #94a3b8; }
 .cmp-bank .alias { font-size: 16px; font-weight: 800; color: #af4f35; }
@@ -135,13 +141,19 @@ export class ComprobanteService {
 
     const resumen = d.tipo === 'resumen';
     // En el resumen todavía no se pagó nada: se indica qué se paga ahora y qué después
-    const estadoPago = (pagada: boolean, ahora = false) => resumen
+    const estadoPago = (pagada: boolean, enValidacion = false, ahora = false) => resumen
       ? (ahora ? '<span class="pend">Pagar ahora</span>' : '<span class="muted">Después</span>')
-      : pagada ? '<span class="ok">✓ Pagada</span>' : '<span class="pend">Pendiente</span>';
+      : pagada ? '<span class="ok">✓ Pagada</span>'
+      : enValidacion ? '<span class="val">En validación</span>'
+      : '<span class="pend">Pendiente</span>';
     const plan = [
-      `<tr><td>Seña</td><td class="r">${$(d.senia)}</td><td class="r">${estadoPago(d.seniaPagada, true)}</td></tr>`,
-      ...d.cuotas.map(c => `<tr><td>${c.total === 1 ? 'Saldo' : `Cuota ${c.numero} de ${c.total}`}</td><td class="r">${$(c.monto)}</td><td class="r">${estadoPago(c.pagada)}</td></tr>`),
+      `<tr><td>Seña</td><td class="r">${$(d.senia)}</td><td class="r">${estadoPago(d.seniaPagada, d.seniaEnValidacion, true)}</td></tr>`,
+      ...d.cuotas.map(c => `<tr><td>${c.total === 1 ? 'Saldo' : `Cuota ${c.numero} de ${c.total}`}</td><td class="r">${$(c.monto)}</td><td class="r">${estadoPago(c.pagada, c.enValidacion)}</td></tr>`),
     ].join('');
+    // Pagos que el cliente ya hizo pero la agencia todavía no confirmó
+    const informado = (d.seniaEnValidacion && !d.seniaPagada ? d.senia : 0)
+      + d.cuotas.filter(c => c.enValidacion && !c.pagada).reduce((s, c) => s + c.monto, 0);
+    const resta = Math.max(0, d.pendiente - informado);
     const recuadro = resumen
       ? `<div><span>Total</span><b>${$(d.total)}</b></div>
         <div style="margin:12px 0 0"><span>Seña a pagar ahora</span></div>
@@ -149,8 +161,10 @@ export class ComprobanteService {
         ${d.cuotas.length ? `<div class="muted" style="margin:0">Resto: ${d.cuotas.length === 1 ? `${$(d.cuotas[0].monto)} en un pago` : `${d.cuotas.length} cuotas de ${$(d.cuotas[0].monto)}`}</div>` : ''}`
       : `<div><span>Total</span><b>${$(d.total)}</b></div>
         <div><span>Pagado</span><b class="ok">${$(d.pagado)}</b></div>
-        <div class="cmp-bar"><i style="width:${progreso}%"></i></div>
-        <div style="margin:10px 0 0"><span>${d.pendiente > 0 ? 'Saldo pendiente' : 'Saldo'}</span><b class="big ${d.pendiente > 0 ? 'pend' : 'ok'}">${d.pendiente > 0 ? $(d.pendiente) : 'Pagado ✓'}</b></div>`;
+        ${informado ? `<div><span>En validación</span><b class="val">${$(informado)}</b></div>` : ''}
+        <div class="cmp-bar"><i style="width:${progreso}%"></i>${informado ? `<i class="val" style="width:${Math.min(100 - progreso, Math.round(informado / d.total * 100))}%"></i>` : ''}</div>
+        <div style="margin:10px 0 0"><span>${resta > 0 ? 'Resta pagar' : 'Saldo'}</span><b class="big ${resta > 0 ? 'pend' : 'ok'}">${resta > 0 ? $(resta) : informado ? 'Todo informado' : 'Pagado ✓'}</b></div>
+        ${informado ? '<div class="muted" style="margin:4px 0 0">Lo informado se suma como pagado cuando la agencia lo confirma.</div>' : ''}`;
 
     return `<style>${CSS}</style>
 <div class="cmp">

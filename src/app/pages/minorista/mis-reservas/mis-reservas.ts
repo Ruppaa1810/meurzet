@@ -479,11 +479,12 @@ export class MisReservas implements OnInit {
       precioUnitario: r0.monto,
       senia: this.pagosSena(g).reduce((s, p) => s + p.monto, 0) || c.montoAPagar,
       seniaPagada: this.pagosSena(g).length > 0 && this.senaConfirmada(g),
+      seniaEnValidacion: etapa === 'en_validacion',
       recargo: parsearPagoPasajero(r0.pasajero_datos as Record<string, unknown>).recargo,
       total: c.totalFinal,
       pagado: this.montoPagadoGroup(g),
       pendiente: c.montoPendiente,
-      cuotas: cuotas.map(q => ({ numero: q.numero, total: q.total, monto: q.monto, pagada: q.estado === 'pagada' })),
+      cuotas: cuotas.map(q => ({ numero: q.numero, total: q.total, monto: q.monto, pagada: q.estado === 'pagada', enValidacion: q.estado === 'en_validacion' })),
       metodoPago: parsearPagoPasajero(r0.pasajero_datos as Record<string, unknown>).metodoPago,
     };
   }

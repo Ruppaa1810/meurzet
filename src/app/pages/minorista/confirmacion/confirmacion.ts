@@ -135,6 +135,7 @@ export class Confirmacion implements OnInit {
       precioUnitario: this.reservaState.precio,
       senia: this.montoAPagar,
       seniaPagada: false,
+      seniaEnValidacion: tipo === 'reserva',
       recargo: this.recargoPorcentaje,
       total: this.totalFinal,
       pagado: 0,

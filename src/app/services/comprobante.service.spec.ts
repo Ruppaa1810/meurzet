@@ -50,6 +50,17 @@ describe('ComprobanteService.generarHTML', () => {
     expect(html).not.toContain('✓ Pagada');
   });
 
+  it('seña informada: aparece "En validación", no como pendiente ni como pagada', async () => {
+    const html = await svc.generarHTML(datos({
+      seniaPagada: false, seniaEnValidacion: true, pagado: 0, pendiente: 107000,
+      cuotas: datos().cuotas.map(c => ({ ...c, pagada: false })),
+    }));
+    expect(html).toMatch(/<td>Seña<\/td><td class="r">\$ 30\.000<\/td><td class="r"><span class="val">En validación/);
+    expect(html).toContain('Resta pagar');
+    expect(html).toContain('$ 77.000'); // 107.000 - 30.000 informados
+    expect(html).toContain('se suma como pagado cuando la agencia lo confirma');
+  });
+
   it('pagado completo: sin datos bancarios', async () => {
     const html = await svc.generarHTML(datos({ pagado: 107000, pendiente: 0, cuotas: datos().cuotas.map(c => ({ ...c, pagada: true })) }));
     expect(html).not.toContain('Cómo pagar');
