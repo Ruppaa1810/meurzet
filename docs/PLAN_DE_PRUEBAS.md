@@ -27,7 +27,7 @@ Columna **Estado**: ✅ probado y funciona · ⬜ pendiente · ❌ falla.
 | A14 | Auditoría | Abrir Auditoría | Se ven las aprobaciones y rechazos con el nombre de quien los hizo | ✅ |
 | A15 | Panel de control | Abrir Panel de Control | Total vendido, cobrado y bloqueados coinciden con lo hecho | ✅ |
 | A16 | Eliminar viaje con ventas | Viajes → Eliminar un viaje con reservas | No se borra y explica que tiene reservas | ✅ |
-| A17 | Eliminar unidad con viajes | Flota → Eliminar una unidad usada en un viaje | No se borra y explica que tiene viajes | ⬜ |
+| A17 | Eliminar unidad con viajes | Flota → Eliminar una unidad usada en un viaje | No se borra y explica que tiene viajes | ✅ |
 | A18 | Crear usuario vendedor | Minoristas → Nuevo Usuario (rol vendedor, con % de comisión) | Aparece en la lista y puede iniciar sesión | ⬜ (hacerlo una persona) |
 | A19 | Desactivar usuario | Minoristas → desactivar el usuario de A18 | No puede iniciar sesión | ⬜ |
 
