@@ -51,7 +51,8 @@ export class Admin implements OnInit {
   }
 
   get agenciaNombre(): string {
-    return this.perfil?.agencia_nombre || 'admin@meurzet.com';
+    // Debajo del nombre: la agencia o, si no tiene, el email del usuario
+    return this.perfil?.agencia_nombre || this.perfil?.email || (this.esAdmin ? 'Administrador' : 'Operador');
   }
 
   toggleSidebar() {
