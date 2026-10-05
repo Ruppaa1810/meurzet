@@ -205,7 +205,7 @@
 <div class="fixed inset-0 z-50 transition-all duration-300 opacity-100 pointer-events-auto">
   <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" (click)="cerrarModalToggle()"></div>
   <div class="relative h-full flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl p-8 w-full max-w-[380px] border-2 border-[#af4f35]/30 shadow-[0_20px_60px_-8px_rgba(175,79,53,0.4)] transition-all duration-300 scale-100 text-center"
+    <div class="bg-white rounded-2xl p-5 md:p-8 max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain w-full max-w-[380px] border-2 border-[#af4f35]/30 shadow-[0_20px_60px_-8px_rgba(175,79,53,0.4)] transition-all duration-300 scale-100 text-center"
       (click)="$event.stopPropagation()">
       <div class="w-14 h-14 mx-auto mb-4 rounded-full flex items-center justify-center"
         [class]="toggleTarget.activo ? 'bg-red-50' : 'bg-green-50'">
@@ -257,7 +257,7 @@
 <div class="fixed inset-0 z-50 transition-all duration-300 opacity-100 pointer-events-auto">
   <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" (click)="cerrarModal()"></div>
   <div class="relative h-full flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl p-8 w-full max-w-[420px] border-2 border-[#af4f35]/30 shadow-[0_20px_60px_-8px_rgba(175,79,53,0.4)] transition-all duration-300 scale-100"
+    <div class="bg-white rounded-2xl p-5 md:p-8 max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain w-full max-w-[420px] border-2 border-[#af4f35]/30 shadow-[0_20px_60px_-8px_rgba(175,79,53,0.4)] transition-all duration-300 scale-100"
       (click)="$event.stopPropagation()">
       <h3 class="text-xl font-bold text-meurzet-primary m-0 mb-6">
         {{ editando ? 'Editar ' + (editando.rol === 'operador_admin' ? 'Operador' : 'Vendedor') : (esAdmin ? 'Nuevo Usuario' : 'Nuevo Vendedor') }}

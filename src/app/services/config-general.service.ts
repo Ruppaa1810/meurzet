@@ -63,18 +63,20 @@ export class ConfigGeneralService {
     return (data as any)?.porcentaje_minimo_seia ?? 30;
   }
 
-  async setContacto(contacto: string): Promise<void> {
-    await supabase
+  async setContacto(contacto: string) {
+    const res = await supabase
       .from('configuracion_general')
       .upsert({ clave: 'contacto', valor: contacto, updated_at: new Date().toISOString() });
-    this.cache['contacto'] = contacto;
+    if (!res.error) this.cache['contacto'] = contacto;
+    return res;
   }
 
-  async setBanco(banco: BancoConfig): Promise<void> {
-    await supabase
+  async setBanco(banco: BancoConfig) {
+    const res = await supabase
       .from('configuracion_general')
       .upsert({ clave: 'banco', valor: banco, updated_at: new Date().toISOString() });
-    this.cache['banco'] = banco;
+    if (!res.error) this.cache['banco'] = banco;
+    return res;
   }
 
   invalidate(): void {

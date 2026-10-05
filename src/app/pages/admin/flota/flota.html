@@ -122,7 +122,7 @@
 <div class="fixed inset-0 z-50 transition-all duration-300 opacity-100 pointer-events-auto">
   <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" (click)="cerrarModalEliminar()"></div>
   <div class="relative h-full flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl p-8 w-full max-w-[400px] shadow-2xl shadow-[#af4f35]/30 transition-all duration-300 scale-100"
+    <div class="bg-white rounded-2xl p-5 md:p-8 max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain w-full max-w-[400px] shadow-2xl shadow-[#af4f35]/30 transition-all duration-300 scale-100"
       (click)="$event.stopPropagation()">
       <h3 class="text-xl font-bold text-meurzet-primary m-0 mb-2">¿Eliminar unidad?</h3>
       <p class="text-sm text-slate-500 mb-4">Se eliminará la unidad <span class="font-semibold text-[#384752]">{{ unidades.find(u => u.id === eliminarId)?.patente || '' }}</span></p>
@@ -148,7 +148,7 @@
 <div class="fixed inset-0 z-50 transition-all duration-300 opacity-100 pointer-events-auto">
   <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" (click)="cerrarModalAsientos()"></div>
   <div class="relative h-full flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl p-8 w-full max-w-[600px] border-2 border-[#af4f35]/30 shadow-[0_20px_60px_-8px_rgba(175,79,53,0.4)] transition-all duration-300 scale-100"
+    <div class="bg-white rounded-2xl p-5 md:p-8 max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain w-full max-w-[600px] border-2 border-[#af4f35]/30 shadow-[0_20px_60px_-8px_rgba(175,79,53,0.4)] transition-all duration-300 scale-100"
       (click)="$event.stopPropagation()">
       <div class="flex items-center justify-between mb-6">
         <h3 class="text-xl font-bold text-meurzet-primary m-0">
@@ -221,7 +221,7 @@
 <div class="fixed inset-0 z-50 transition-all duration-300 opacity-100 pointer-events-auto">
   <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" (click)="cerrarModal()"></div>
   <div class="relative h-full flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl p-8 w-full max-w-[400px] border-2 border-[#af4f35]/30 shadow-2xl shadow-[#af4f35]/30 transition-all duration-300 scale-100"
+    <div class="bg-white rounded-2xl p-5 md:p-8 max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain w-full max-w-[400px] border-2 border-[#af4f35]/30 shadow-2xl shadow-[#af4f35]/30 transition-all duration-300 scale-100"
       (click)="$event.stopPropagation()">
       <h3 class="text-xl font-bold text-meurzet-primary m-0 mb-6">
         {{ editando ? 'Editar' : 'Nueva' }} Unidad

@@ -32,6 +32,7 @@ export class Admin implements OnInit {
     if (this.router.url.includes('minoristas')) return 'Gestión de Minorista';
     if (this.router.url.includes('comisiones')) return 'Comisiones';
     if (this.router.url.includes('lugares-embarque')) return 'Lugares de Embarque';
+    if (this.router.url.includes('configuracion')) return 'Datos de pago y contacto';
     return 'Administración';
   }
 
