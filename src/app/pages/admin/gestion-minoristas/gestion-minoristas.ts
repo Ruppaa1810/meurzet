@@ -240,10 +240,16 @@ export class GestionMinoristas implements OnInit, OnDestroy {
     try {
       if (esEdicion) {
         if (this.formEmail.trim() || this.formPassword.trim()) {
-          const email = this.formEmail.trim();
+          // Si escriben el mismo email que ya tiene, no se manda: el servidor lo rechaza como "ya registrado"
+          const escrito = this.formEmail.trim();
+          const email = escrito && escrito.toLowerCase() !== (this.editando!.email ?? '').toLowerCase() ? escrito : '';
+          if (this.formPassword && this.formPassword.length < 6) {
+            this.mensaje = 'La contraseña debe tener al menos 6 caracteres.'; this.guardando = false; this.cdr.detectChanges(); return;
+          }
           if (email && !email.includes('@')) {
             this.mensaje = 'El formato del email no es válido.'; this.guardando = false; this.cdr.detectChanges(); return;
           }
+          if (email || this.formPassword) {
           const { error: authErr } = await this.perfilService.actualizarAuthUser(
             this.editando!.id,
             {
@@ -252,6 +258,7 @@ export class GestionMinoristas implements OnInit, OnDestroy {
             },
           );
           if (authErr) { this.mensaje = traducirError(authErr.message); this.guardando = false; this.cdr.detectChanges(); return; }
+          }
         }
 
         const updateData: any = { nombre: this.formNombre.trim() };
