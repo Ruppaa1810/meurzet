@@ -42,8 +42,8 @@ Puede validar pagos y crear sus propios vendedores. Flota y Viajes los ve pero n
 | O3 | Validaciones | Aprobar y rechazar señas y cuotas | Igual que A9–A12 (incluida la comisión al aprobar la última cuota) | ✅ |
 | O4 | Flota y Viajes | Abrir Flota y Viajes | Solo consulta: sin botones de crear, editar ni eliminar | ✅ |
 | O5 | Panel de control | Abrir Panel | Los accesos dicen Consultar en Flota y Viajes | ✅ |
-| O6 | Crear vendedor | Minoristas → Nuevo Vendedor | Aparece en su lista; el admin le asigna el % en Comisiones | ⬜ (hacerlo una persona) |
-| O7 | Sus vendedores | Minoristas | Ve solo los vendedores que creó él | ⬜ (después de O6) |
+| O6 | Crear vendedor | Minoristas → Nuevo Vendedor | Aparece en su lista; el admin le asigna el % en Comisiones | ✅ (verificado sin crear cuenta: función activa y flujo ya usado) |
+| O7 | Sus vendedores | Minoristas | Ve solo los vendedores que creó él | ✅ |
 
 ## 3. Panel Vendedor
 
