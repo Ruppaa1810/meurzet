@@ -9,6 +9,8 @@ import type { Viaje, Unidad, UserRole, LugarEmbarque } from '../../../models/dat
 import { Paginacion } from '../../../utils/paginacion';
 import { PaginacionComponent } from '../../../components/paginacion';
 
+const MENSAJE_EN_USO = 'No se puede eliminar: el viaje ya tiene reservas. Si no va a salir, editalo y destildá "Viaje activo" para que no se venda más.';
+
 @Component({
   selector: 'app-admin-viajes',
   standalone: true,
@@ -106,6 +108,7 @@ export class Viajes implements OnInit {
   }
 
   abrirModal(viaje?: Viaje) {
+    this.mensaje = '';
     if (viaje) {
       this.editando = true;
       this.editandoId = viaje.id;
@@ -245,7 +248,12 @@ export class Viajes implements OnInit {
 
     try {
       const { error } = await this.viajeService.deleteViaje(this.eliminarId);
-      if (error) { this.mensaje = error.message; this.cerrarModalEliminar(); return; }
+      if (error) {
+        // 23503: la base lo impide porque hay datos que dependen del registro
+        this.mensaje = error.code === '23503' ? MENSAJE_EN_USO : error.message;
+        this.cerrarModalEliminar();
+        return;
+      }
       this.cerrarModalEliminar();
       await this.cargar();
       if (!this.mensaje) {

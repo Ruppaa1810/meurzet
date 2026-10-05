@@ -7,6 +7,8 @@ import type { Unidad, UserRole } from '../../../models/database.types';
 import { Paginacion } from '../../../utils/paginacion';
 import { PaginacionComponent } from '../../../components/paginacion';
 
+const MENSAJE_EN_USO = 'No se puede eliminar: la unidad tiene viajes cargados. Para darla de baja, primero eliminá esos viajes.';
+
 @Component({
   selector: 'app-admin-flota',
   standalone: true,
@@ -104,6 +106,7 @@ export class Flota implements OnInit {
   }
 
   abrirModal(unidad?: Unidad) {
+    this.mensaje = '';
     if (unidad) {
       this.editando = true;
       this.editandoId = unidad.id;
@@ -132,6 +135,7 @@ export class Flota implements OnInit {
   }
 
   configurarAsientos(unidad: Unidad) {
+    this.mensaje = '';
     const existentes: SeatConfig[] = (unidad.layout_config?.['asientos'] as SeatConfig[]) ?? [];
     if (existentes.length > 0) {
       this.asientosEditables = existentes.map(s => ({ ...s }));
@@ -252,7 +256,12 @@ export class Flota implements OnInit {
 
     try {
       const { error } = await this.unidadService.deleteUnidad(this.eliminarId);
-      if (error) { this.mensaje = error.message; this.cerrarModalEliminar(); return; }
+      if (error) {
+        // 23503: la base lo impide porque hay datos que dependen del registro
+        this.mensaje = error.code === '23503' ? MENSAJE_EN_USO : error.message;
+        this.cerrarModalEliminar();
+        return;
+      }
       this.cerrarModalEliminar();
       await this.cargar();
       if (!this.mensaje) {

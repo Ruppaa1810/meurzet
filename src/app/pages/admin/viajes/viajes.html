@@ -240,6 +240,10 @@
         <label for="activo-check" class="text-sm font-semibold text-meurzet-primary">Viaje activo</label>
       </div>
 
+      @if (mensaje) {
+        <p role="alert" class="mt-4 p-3 rounded-xl bg-red-50 text-red-700 text-sm border border-red-200">{{ mensaje }}</p>
+      }
+
       <div class="flex gap-3 mt-6">
         <button (click)="cerrarModal()"
           class="flex-1 py-3 rounded-xl font-semibold bg-slate-100 text-slate-500 border-none cursor-pointer hover:bg-slate-200 hover:-translate-y-0.5 transition-all duration-200">
