@@ -232,6 +232,11 @@ export class GestionMinoristas implements OnInit, OnDestroy {
     this.guardando = true;
 
     const esEdicion = !!this.editando;
+    // cerrarModal() limpia el formulario: se toman los datos antes
+    const editId = this.editando?.id ?? null;
+    const rol = this.formRol;
+    const porcentaje = this.formPorcentaje || 0;
+    let idCreado: string | null = null;
     try {
       if (esEdicion) {
         if (this.formEmail.trim() || this.formPassword.trim()) {
@@ -264,7 +269,7 @@ export class GestionMinoristas implements OnInit, OnDestroy {
         if (!this.formEmail.trim().includes('@')) {
           this.mensaje = 'El formato del email no es válido.'; this.guardando = false; this.cdr.detectChanges(); return;
         }
-        const { error } = await this.perfilService.crearVendedorMinorista(
+        const { data: creado, error } = await this.perfilService.crearVendedorMinorista(
           this.formEmail.trim(),
           this.formPassword,
           this.formNombre.trim(),
@@ -273,13 +278,16 @@ export class GestionMinoristas implements OnInit, OnDestroy {
           this.userId ?? undefined,
         );
         if (error) { this.mensaje = traducirError(error.message); this.guardando = false; this.cdr.detectChanges(); return; }
+        idCreado = (creado as { id?: string } | null)?.id ?? null;
       }
 
       this.cerrarModal();
       await this.cargar();
       if (!this.mensaje) {
-        if (esEdicion && this.editando) {
-          await this.comisionService.upsertConfig(this.editando!.id, this.formPorcentaje);
+        // Solo el admin define comisiones; un operador no tiene ese campo en el formulario
+        const vendedorId = esEdicion ? editId : idCreado;
+        if (this.esAdmin && vendedorId && rol === 'vendedor_minorista') {
+          await this.comisionService.upsertConfig(vendedorId, porcentaje);
         }
         this.mostrarSuccess(esEdicion ? 'Usuario actualizado correctamente' : 'Usuario creado correctamente');
       }

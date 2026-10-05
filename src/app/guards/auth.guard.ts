@@ -27,7 +27,8 @@ export class AuthGuard implements CanActivate {
 
     const allowedRoles = route.data['roles'] as UserRole[] | undefined;
     if (allowedRoles && !allowedRoles.includes(perfil.rol)) {
-      this.router.navigate(['/'], { replaceUrl: true });
+      // Ya tiene sesión: se lo devuelve a su panel en vez de mostrarle el login
+      this.router.navigate([perfil.rol === 'vendedor_minorista' ? '/minorista' : '/admin'], { replaceUrl: true });
       return false;
     }
 

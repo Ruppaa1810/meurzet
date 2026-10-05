@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ComisionService } from '../../../services/comision.service';
+import { PerfilService } from '../../../services/perfil.service';
 import type { Comision } from '../../../models/database.types';
 
 interface ConfigConPerfil {
@@ -41,6 +42,7 @@ export class Comisiones implements OnInit {
 
   constructor(
     private comisionService: ComisionService,
+    private perfilService: PerfilService,
     private cdr: ChangeDetectorRef,
   ) {}
 
@@ -51,9 +53,10 @@ export class Comisiones implements OnInit {
   async cargar() {
     this.loading = true;
     this.mensaje = '';
-    const [{ data, error }, pendientes] = await Promise.all([
+    const [{ data, error }, pendientes, vendedores] = await Promise.all([
       this.comisionService.getConfigsAll(),
       this.comisionService.getComisionesAll('pendiente'),
+      this.perfilService.getVendedoresMinoristas(),
     ]);
     if (error || pendientes.error) {
       this.mensaje = (error || pendientes.error)!.message;
@@ -61,7 +64,11 @@ export class Comisiones implements OnInit {
       this.cdr.detectChanges();
       return;
     }
-    this.configs = (data || []) as ConfigConPerfil[];
+    // Todos los vendedores, tengan o no comisión cargada: los que no tienen aparecen con 0% para poder asignarla
+    const porVendedor = new Map(((data || []) as ConfigConPerfil[]).map(c => [c.vendedor_id, c]));
+    this.configs = (vendedores.data || [])
+      .filter(v => v.rol === 'vendedor_minorista')
+      .map(v => porVendedor.get(v.id) ?? { id: 0, vendedor_id: v.id, porcentaje: 0, activo: true, perfiles: { nombre: v.nombre, email: v.email } });
     this.aPagar = (pendientes.data || []) as ComisionAPagar[];
     this.seleccionadas.clear();
     this.loading = false;

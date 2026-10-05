@@ -40,7 +40,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (c of configs; track c.id) {
+          @for (c of configs; track c.vendedor_id) {
           <tr class="border-b border-[#eec997]/20 hover:bg-[#f4f4f3]/50 transition-colors">
             <td class="px-4 py-3 font-medium text-[#384752]">{{ nombreVendedor(c) }}</td>
             <td class="px-4 py-3 text-slate-500 text-xs">{{ emailVendedor(c) }}</td>

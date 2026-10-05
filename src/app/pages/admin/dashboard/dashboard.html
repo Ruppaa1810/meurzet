@@ -189,8 +189,8 @@
               </svg>
             </div>
             <div class="flex-1">
-              <div class="font-bold text-[#384752] text-xs sm:text-sm">Gestionar Flota</div>
-              <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5">Editar unidades</p>
+              <div class="font-bold text-[#384752] text-xs sm:text-sm">{{ esAdmin ? 'Gestionar Flota' : 'Flota' }}</div>
+              <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5">{{ esAdmin ? 'Editar unidades' : 'Consultar unidades' }}</p>
               <div class="flex items-center justify-between mt-2">
                 <span class="text-[10px] sm:text-xs text-[#e4912e] font-semibold inline-flex items-center gap-1">Ver flota →</span>
               </div>
@@ -206,10 +206,10 @@
               </svg>
             </div>
             <div class="flex-1">
-              <div class="font-bold text-[#384752] text-xs sm:text-sm">Nuevo Viaje</div>
-              <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5">Crear rutas</p>
+              <div class="font-bold text-[#384752] text-xs sm:text-sm">{{ esAdmin ? 'Nuevo Viaje' : 'Viajes' }}</div>
+              <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5">{{ esAdmin ? 'Crear rutas' : 'Consultar viajes' }}</p>
               <div class="flex items-center justify-between mt-2">
-                <span class="text-[10px] sm:text-xs text-emerald-600 font-semibold inline-flex items-center gap-1">Crear ruta →</span>
+                <span class="text-[10px] sm:text-xs text-emerald-600 font-semibold inline-flex items-center gap-1">{{ esAdmin ? 'Crear ruta →' : 'Ver viajes →' }}</span>
               </div>
             </div>
           </div>
