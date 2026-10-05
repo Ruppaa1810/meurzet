@@ -133,6 +133,11 @@ export class Reserva implements OnInit {
 
     if (!viaje) return;
 
+    if (new Date(viaje.fecha_salida).getTime() <= Date.now()) {
+      this.message = 'Este viaje ya salió: no se puede reservar';
+      return;
+    }
+
     if (this.montoError) {
       this.message = this.montoError;
       return;
@@ -174,6 +179,7 @@ export class Reserva implements OnInit {
         const pasajeroConPago = {
           ...pasajeros[i],
           grupo_id: grupoId,
+          precio_unitario: this.reservaState.precio,
           porcentaje_pago: porcentajePago,
           metodo_pago: this.metodoPago,
           cuotas: this.cuotasCount > 1 ? this.cuotasCount : null,
@@ -191,7 +197,10 @@ export class Reserva implements OnInit {
         });
 
         if (error) {
-          this.message = error.message;
+          // 23505: el índice reservas_un_asiento_activo impidió vender un asiento ya reservado
+          this.message = error.code === '23505'
+            ? `El asiento ${asientos[i].nroAsiento} acaba de ser reservado por otro vendedor. Volvé a elegir asientos.`
+            : error.message;
           return;
         }
 

@@ -283,7 +283,7 @@
                         [class]="act.estado === 'aprobado' ? 'bg-green-500' :
                                  act.estado === 'rechazado' ? 'bg-red-500' :
                                  'bg-amber-500'"></span>
-                      {{ act.estado }}
+                      {{ labelEstado(act.estado) }}
                     </span>
                   </td>
                   <td class="px-4 sm:px-6 py-3 sm:py-3.5 text-right text-slate-400 text-[10px] sm:text-xs group-hover:text-[#1aa7c4] transition-colors">
@@ -313,7 +313,7 @@
                 [class]="act.estado === 'aprobado' ? 'bg-green-50 text-green-700' :
                          act.estado === 'rechazado' ? 'bg-red-50 text-red-700' :
                          'bg-amber-50 text-amber-700'">
-                {{ act.estado }}
+                {{ labelEstado(act.estado) }}
               </span>
             </div>
           </div>

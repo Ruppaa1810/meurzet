@@ -32,10 +32,19 @@ export function montoPagadoConfirmado(pagos: PagoMovimiento[]): number {
   return pagos.filter(p => p.estado_pago === 'confirmado').reduce((s, p) => s + p.monto, 0);
 }
 
-/** Totales de una reserva (un asiento) según el plan de pago guardado en pasajero_datos. */
-export function totalVentaReserva(precioBase: number, pasajeroDatos: Record<string, unknown>, pagos: PagoMovimiento[]): CalculoFinanciero {
+/**
+ * Precio al que se vendió el asiento. Se guarda en la reserva al vender: si después cambia el precio
+ * del viaje, las reservas ya hechas no se modifican. El precio del viaje queda solo como respaldo.
+ */
+export function precioUnitario(pasajeroDatos: Record<string, unknown> | null | undefined, precioViaje: number): number {
+  const p = pasajeroDatos?.['precio_unitario'];
+  return typeof p === 'number' ? p : Number(p) || precioViaje;
+}
+
+/** Totales de una reserva (un asiento) según el precio y el plan de pago guardados en pasajero_datos. */
+export function totalVentaReserva(precioViaje: number, pasajeroDatos: Record<string, unknown>, pagos: PagoMovimiento[]): CalculoFinanciero {
   const { porcentajePago, cuotas, recargo } = parsearPagoPasajero(pasajeroDatos);
-  return calcularFinanciero(precioBase, porcentajePago, cuotas, recargo, montoPagadoConfirmado(pagos));
+  return calcularFinanciero(precioUnitario(pasajeroDatos, precioViaje), porcentajePago, cuotas, recargo, montoPagadoConfirmado(pagos));
 }
 
 export function parsearPagoPasajero(pasajeroDatos: Record<string, unknown>): {

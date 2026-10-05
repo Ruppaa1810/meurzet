@@ -4,11 +4,13 @@ import type { Viaje } from '../models/database.types';
 
 @Injectable({ providedIn: 'root' })
 export class ViajeService {
+  /** Viajes a la venta: activos y que todavía no salieron. */
   async getViajes() {
     return await supabase
       .from('viajes')
       .select('*')
       .eq('activo', true)
+      .gt('fecha_salida', new Date().toISOString())
       .order('fecha_salida', { ascending: true });
   }
 

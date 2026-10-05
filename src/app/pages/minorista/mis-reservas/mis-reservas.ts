@@ -12,7 +12,7 @@ import { ComprobanteService, DatosComprobante } from '../../../services/comproba
 import { ComisionService } from '../../../services/comision.service';
 import type { Reserva, PagoMovimiento, EstadoFinanciero, Comision } from '../../../models/database.types';
 import { estadoFinancieroLabel, estadoFinancieroClass, estadoFinancieroDot } from '../../../utils/estado-financiero';
-import { calcularFinanciero, montoPagadoConfirmado, parsearPagoPasajero } from '../../../utils/calculo-financiero';
+import { calcularFinanciero, montoPagadoConfirmado, parsearPagoPasajero, precioUnitario } from '../../../utils/calculo-financiero';
 import { embarqueLabel } from '../../../utils/embarques';
 
 interface ReservaView extends Reserva {
@@ -167,7 +167,7 @@ export class MisReservas implements OnInit {
           ...r,
           viajeLabel: viaje ? `${viaje.origen} → ${viaje.destino}` : `Viaje #${r.viaje_id}`,
           pasajeroNombre: nom,
-          monto: viaje?.precio_base || 0,
+          monto: precioUnitario(r.pasajero_datos as Record<string, unknown>, viaje?.precio_base || 0),
           uploading: false,
           uploadMsg: '',
           uploadOk: false,

@@ -3,6 +3,7 @@ import { supabase } from './supabase-client';
 import { AuditoriaService } from './auditoria.service';
 import { NotificacionesService } from './notificaciones.service';
 import type { Reserva } from '../models/database.types';
+import { totalVentaReserva } from '../utils/calculo-financiero';
 
 @Injectable({ providedIn: 'root' })
 export class ReservaService {
@@ -126,12 +127,14 @@ export class ReservaService {
       .maybeSingle();
   }
 
+  /** Total de las ventas aprobadas, con el precio al que se vendieron y el recargo por cuotas. */
   async getTotalVendido(): Promise<number> {
     const { data } = await supabase
       .from('reservas')
-      .select('viaje:viaje_id(precio_base)')
+      .select('pasajero_datos, viaje:viaje_id(precio_base)')
       .eq('estado', 'aprobado');
-    return (data || []).reduce((sum: number, r: any) => sum + (r.viaje?.precio_base || 0), 0);
+    return (data || []).reduce((sum: number, r: any) =>
+      sum + totalVentaReserva(r.viaje?.precio_base || 0, r.pasajero_datos || {}, []).totalFinal, 0);
   }
 
   async actualizarComprobante(ids: number[], url: string) {

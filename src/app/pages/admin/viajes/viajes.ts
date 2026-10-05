@@ -136,6 +136,12 @@ export class Viajes implements OnInit {
     setTimeout(() => this.successMensaje = '', 5000);
   }
 
+  /** Sin plano, el viaje se crearía sin asientos para vender. */
+  tienePlano(u: Unidad): boolean {
+    const asientos = (u.layout_config as { asientos?: unknown[] } | null)?.asientos;
+    return Array.isArray(asientos) && asientos.length > 0;
+  }
+
   unidadLabel(viaje: Viaje): string {
     const u = this.unidades.find(u => u.id === viaje.unidad_id);
     return u ? `${u.patente} (${u.asientos_totales} as.)` : 'Sin asignar';
@@ -144,6 +150,18 @@ export class Viajes implements OnInit {
   async guardar() {
     if (!this.esAdmin) return;
     if (!this.form.origen.trim() || !this.form.destino.trim() || !this.form.fecha_salida || !this.form.fecha_llegada) return;
+
+    const unidad = this.unidades.find(u => u.id === this.form.unidad_id);
+    if (!this.editando && (!unidad || !this.tienePlano(unidad))) {
+      this.mensaje = 'Elegí una unidad con plano de asientos: sin plano el viaje no tendría asientos para vender';
+      this.cdr.detectChanges();
+      return;
+    }
+    if (!(this.form.precio_base > 0)) {
+      this.mensaje = 'El precio tiene que ser mayor a cero';
+      this.cdr.detectChanges();
+      return;
+    }
 
     const salida = new Date(this.form.fecha_salida);
     const llegada = new Date(this.form.fecha_llegada);

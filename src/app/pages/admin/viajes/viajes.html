@@ -51,7 +51,7 @@
                 <span class="text-xs text-slate-400 leading-tight">{{ v.fecha_llegada | date:'HH:mm' }} hs</span>
               </div>
             </td>
-            <td class="p-4 font-semibold">${{ v.precio_base | number }}</td>
+            <td class="p-4 font-semibold">$ {{ v.precio_base.toLocaleString('es-AR') }}</td>
             <td class="p-4">
               @if (v.activo) {
                 <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
@@ -195,13 +195,22 @@
 
       <div class="mt-4">
         <label class="block text-sm font-semibold text-meurzet-primary mb-1">Unidad</label>
-        <select [(ngModel)]="form.unidad_id"
-          class="w-full p-3 border-2 border-slate-200 rounded-xl text-sm box-border outline-none bg-[#1aa7c4]/5 focus:border-[#1aa7c4] focus:ring-2 focus:ring-[#1aa7c4]/20 transition-all">
-          <option [ngValue]="null">Sin asignar</option>
+        <select [(ngModel)]="form.unidad_id" [disabled]="editando"
+          class="w-full p-3 border-2 border-slate-200 rounded-xl text-sm box-border outline-none bg-[#1aa7c4]/5 focus:border-[#1aa7c4] focus:ring-2 focus:ring-[#1aa7c4]/20 transition-all disabled:opacity-60">
+          <option [ngValue]="null" disabled>Elegí una unidad</option>
           @for (u of unidades; track u.id) {
-            <option [ngValue]="u.id">{{ u.patente }} ({{ u.asientos_totales }} as.)</option>
+            <option [ngValue]="u.id" [disabled]="!tienePlano(u)">
+              {{ u.patente }} ({{ u.asientos_totales }} as.){{ tienePlano(u) ? '' : ' — sin plano de asientos' }}
+            </option>
           }
         </select>
+        <p class="text-[11px] text-slate-400 mt-1">
+          @if (editando) {
+            La unidad no se puede cambiar: los asientos del viaje se generaron con ella.
+          } @else {
+            Los asientos del viaje se generan a partir del plano de la unidad. Las unidades sin plano se configuran en Flota → Asientos.
+          }
+        </p>
       </div>
 
       <div class="mt-4">

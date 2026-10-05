@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calcularFinanciero, montoPagadoConfirmado, parsearPagoPasajero, totalVentaReserva } from './calculo-financiero';
+import { calcularFinanciero, montoPagadoConfirmado, parsearPagoPasajero, precioUnitario, totalVentaReserva } from './calculo-financiero';
 import type { PagoMovimiento } from '../models/database.types';
 
 const pago = (monto: number, estado_pago: PagoMovimiento['estado_pago'] = 'confirmado'): PagoMovimiento =>
@@ -57,5 +57,17 @@ describe('totalVentaReserva', () => {
     const c = totalVentaReserva(100000, datos, [pago(30000), pago(25667)]);
     expect(c.totalFinal).toBe(107000);
     expect(c.montoPendiente).toBe(107000 - 55667);
+  });
+});
+
+describe('precio de venta guardado', () => {
+  it('usa el precio con que se vendió aunque el viaje haya cambiado de precio', () => {
+    expect(precioUnitario({ precio_unitario: 100000 }, 150000)).toBe(100000);
+    expect(totalVentaReserva(150000, { precio_unitario: 100000, porcentaje_pago: 30, cuotas: 3, recargo: 10 }, []).totalFinal).toBe(107000);
+  });
+
+  it('reservas viejas sin precio guardado usan el del viaje', () => {
+    expect(precioUnitario({}, 150000)).toBe(150000);
+    expect(precioUnitario(null, 150000)).toBe(150000);
   });
 });

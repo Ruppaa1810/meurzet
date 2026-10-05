@@ -82,14 +82,22 @@ describe('PagoService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('countPagosPendientes returns count of pending payments', async () => {
+  it('para validar solo cuenta pagos con comprobante (seña: el de la reserva; cuota: el propio)', async () => {
     const chain = buildChain();
-    chain.eq.mockResolvedValue({ count: 3, error: null });
+    chain.order.mockResolvedValue({
+      data: [
+        { id: 1, tipo: 'seña', reserva: { comprobante_url: 'x' } },
+        { id: 2, tipo: 'seña', reserva: { comprobante_url: null } },
+        { id: 3, tipo: 'cuota', comprobante_url: 'y', reserva: {} },
+        { id: 4, tipo: 'cuota', comprobante_url: null, reserva: { comprobante_url: 'x' } },
+      ],
+      error: null,
+    });
     vi.spyOn(supabase, 'from').mockReturnValue(chain as any);
-    const count = await service.countPagosPendientes();
+    const { data } = await service.getPagosPendientes();
     expect(chain.eq).toHaveBeenCalledWith('estado_pago', 'pendiente');
-    expect(chain.or).toHaveBeenCalledWith('tipo.neq.cuota,comprobante_url.not.is.null');
-    expect(count).toBe(3);
+    expect(data!.map(p => p.id)).toEqual([1, 3]);
+    expect(await service.countPagosPendientes()).toBe(2);
   });
 
   it('crearPago inserts into pagos_movimientos', async () => {

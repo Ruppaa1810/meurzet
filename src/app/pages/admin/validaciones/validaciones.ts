@@ -208,8 +208,4 @@ export class Validaciones implements OnInit, OnDestroy {
     if (recargo > 0) parts.push(`${recargo}% recargo`);
     return parts.join(' · ');
   }
-
-  private totalReserva(reserva: NonNullable<PagoConReserva['reserva']>): number {
-    return reserva.viaje?.precio_base || 0;
-  }
 }

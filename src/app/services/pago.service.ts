@@ -26,25 +26,21 @@ export class PagoService {
       .order('created_at', { ascending: false });
   }
 
-  // Las cuotas solo llegan a validación cuando el vendedor subió su comprobante
-  private static readonly PARA_VALIDAR = 'tipo.neq.cuota,comprobante_url.not.is.null';
-
+  /**
+   * Pagos para que la agencia apruebe: solo los que tienen comprobante subido.
+   * La cuota lleva su propio comprobante; la seña usa el de la reserva.
+   */
   async getPagosPendientes() {
-    return await supabase
+    const res = await supabase
       .from('pagos_movimientos')
       .select('*, reserva:reserva_id(*, viaje:viaje_id(*))')
-      .or(PagoService.PARA_VALIDAR)
       .eq('estado_pago', 'pendiente')
       .order('created_at', { ascending: false }) as unknown as { data: PagoConReserva[] | null; error: any };
+    return { ...res, data: res.data?.filter(p => p.tipo === 'cuota' ? !!p.comprobante_url : !!p.reserva?.comprobante_url) ?? null };
   }
 
   async countPagosPendientes(): Promise<number> {
-    const { count } = await supabase
-      .from('pagos_movimientos')
-      .select('*', { count: 'exact', head: true })
-      .or(PagoService.PARA_VALIDAR)
-      .eq('estado_pago', 'pendiente');
-    return count ?? 0;
+    return (await this.getPagosPendientes()).data?.length ?? 0;
   }
 
   async crearPago(data: Omit<PagoMovimiento, 'id' | 'created_at'>) {
