@@ -207,8 +207,13 @@ export class Confirmacion implements OnInit {
   async verComprobante() {
     const html = await this.comprobanteService.generarHTML(this.datosComprobante('reserva'));
     // El HTML lo arma el servicio con los datos del pasajero escapados
+    // El comprobante mide 720px: en el celular se achica para que entre sin deslizar de costado
+    const ajustar = `<script>
+      const a = () => { const c = document.querySelector('.cmp'); if (c) c.style.zoom = Math.min(1, (innerWidth - 32) / 720); };
+      a(); addEventListener('resize', a);
+    </script>`;
     this.previewHtml = this.sanitizer.bypassSecurityTrustHtml(
-      `<!DOCTYPE html><html><body style="margin:0;padding:16px;background:#f4f4f3">${html}</body></html>`);
+      `<!DOCTYPE html><html><body style="margin:0;padding:16px;background:#f4f4f3">${html}${ajustar}</body></html>`);
     this.cdr.detectChanges();
   }
 
