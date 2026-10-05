@@ -28,6 +28,11 @@ export class Inicio implements OnInit {
   filtroDestino = '';
   filtroFecha = '';
   filtroHorario = 'todos';
+  filtrosAbiertos = false;
+
+  get hayFiltros(): boolean {
+    return !!(this.filtroOrigen || this.filtroDestino || this.filtroFecha || this.filtroHorario !== 'todos');
+  }
 
   constructor(
     private viajeService: ViajeService,
@@ -55,6 +60,7 @@ export class Inicio implements OnInit {
     this.cdr.detectChanges();
   }
   buscarViajes() {
+    this.filtrosAbiertos = false;
     this.viajesFiltrados = this.todosViajes.filter(v => {
       if (this.filtroOrigen && !v.origen.toLowerCase().includes(this.filtroOrigen.toLowerCase())) return false;
       if (this.filtroDestino && !v.destino.toLowerCase().includes(this.filtroDestino.toLowerCase())) return false;

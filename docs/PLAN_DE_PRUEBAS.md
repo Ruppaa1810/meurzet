@@ -45,10 +45,24 @@ Puede validar pagos y crear sus propios vendedores. Flota y Viajes los ve pero n
 | O6 | Crear vendedor | Minoristas → Nuevo Vendedor | Aparece en su lista; el admin le asigna el % en Comisiones | ✅ (verificado sin crear cuenta: función activa y flujo ya usado) |
 | O7 | Sus vendedores | Minoristas | Ve solo los vendedores que creó él | ✅ |
 
-## 3. Panel Vendedor
+## 3. Panel Vendedor (se usa sobre todo desde el celular)
 
 | # | Prueba | Cómo | Resultado esperado | Estado |
 |---|---|---|---|---|
+| V1 | Viajes a la venta | Abrir Vender | Solo viajes activos que no salieron; muestra los embarques | ✅ |
+| V2 | Elegir asientos | Elegir 2 asientos | Quedan bloqueados 2 hs para otros vendedores | ✅ |
+| V3 | Doble venta | Otro vendedor intenta tomar el mismo asiento | Le avisa que el asiento ya no está disponible | ✅ |
+| V4 | Reservar | Cargar pasajeros, embarque de cada uno y 3 cuotas | Pide los datos que faltan; crea la reserva MEU- con precio, embarque y cuotas correctos | ✅ |
+| V5 | Resumen al cliente | Compartir resumen | Se descarga una imagen con datos de pago y vencimiento | ✅ |
+| V6 | Subir comprobante | Subir el comprobante de la seña | Seña "En validación"; recién ahí aparece descargar e imprimir | ✅ |
+| V7 | Mis Reservas | Abrir Mis Reservas | Cada reserva dice qué falta hacer; saldo y comisión correctos | ✅ |
+| V8 | Informar cuota | Informar pago de cuota con comprobante | Queda "Cuota en validación" | ✅ |
+| V9 | Cuota rechazada | Después de que el admin la rechace | Se ve el motivo y se puede subir otro comprobante | ✅ |
+| V10 | Comisiones | Mis Comisiones | Muestra a cobrar, cobradas y próximas | ✅ |
+| V11 | Vencimiento | Reserva sin comprobante por más de 24 hs | Queda "Vencida" y el asiento se libera solo | ✅ |
+| V12 | Celular | Recorrer todo en un teléfono | Sin deslizar de costado; barra de navegación abajo; "Continuar" fijo al elegir asientos; teclado numérico en DNI y teléfono | ✅ |
+
+---|---|---|---|---|
 | V1 | Viajes a la venta | Abrir Vender | Solo viajes activos que no salieron; muestra los embarques | ⬜ |
 | V2 | Elegir asientos | Elegir 2 asientos | Quedan bloqueados para otros vendedores | ⬜ |
 | V3 | Doble venta | Dos vendedores eligen el mismo asiento a la vez | El segundo ve que el asiento ya no está disponible | ⬜ |

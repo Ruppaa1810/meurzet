@@ -40,6 +40,11 @@ body {
   color: var(--color-on-surface);
 }
 
+/* Celular: con letra menor a 16px, iPhone agranda la pantalla al tocar un campo */
+@media (max-width: 767px) {
+  input, select, textarea { font-size: 16px !important; }
+}
+
 .mono-timer {
   font-family: 'JetBrains Mono', monospace;
 }

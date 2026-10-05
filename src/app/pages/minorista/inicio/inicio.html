@@ -11,8 +11,15 @@
 } @else {
   <div class="inicio-layout w-full max-w-[1400px] mx-auto px-4 md:px-6 py-6 md:py-10 flex flex-col items-center gap-6 md:gap-8 transition-all duration-350">
     
+    <!-- Celular: el buscador se abre a pedido para que los viajes se vean primero -->
+    <button type="button" (click)="filtrosAbiertos = !filtrosAbiertos"
+      class="md:hidden w-full flex items-center justify-between px-4 h-12 rounded-xl bg-white border border-[#af4f35]/20 text-sm font-semibold text-[#384752]">
+      <span>🔎 {{ hayFiltros ? 'Filtros aplicados' : 'Buscar o filtrar viajes' }}</span>
+      <span class="text-[#af4f35]">{{ filtrosAbiertos ? 'Cerrar' : 'Abrir' }}</span>
+    </button>
+
     <!-- PANEL DE BÚSQUEDA - RESPONSIVE -->
-    <aside class="search-panel w-full max-w-[1050px] bg-white/70 backdrop-blur-md border border-[#af4f35]/20 rounded-2xl md:rounded-[30px] p-4 md:p-8 transition-all duration-300 hover:scale-[1.01] hover:border-[#1aa7c4]/30 hover:shadow-[0_22px_48px_rgba(26,167,196,0.10)]">
+    <aside [class.hidden]="!filtrosAbiertos" class="md:block search-panel w-full max-w-[1050px] bg-white/70 backdrop-blur-md border border-[#af4f35]/20 rounded-2xl md:rounded-[30px] p-4 md:p-8 transition-all duration-300 hover:scale-[1.01] hover:border-[#1aa7c4]/30 hover:shadow-[0_22px_48px_rgba(26,167,196,0.10)]">
       
       <div class="search-header text-center mb-4 md:mb-8 transition-all">
         <h2 class="text-2xl md:text-[38px] font-black text-[#384752] tracking-tighter m-0">Buscar Pasajes</h2>
@@ -22,25 +29,25 @@
       <div class="search-grid grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5 transition-all">
         
         <div class="field-group flex flex-col">
-          <label class="text-[10px] md:text-[11px] font-extrabold tracking-wide uppercase text-slate-500 mb-1 md:mb-2">Origen</label>
+          <label class="text-[11px] md:text-[11px] font-extrabold tracking-wide uppercase text-slate-500 mb-1 md:mb-2">Origen</label>
           <input type="text" [(ngModel)]="filtroOrigen" placeholder="Mendoza"
             class="w-full h-[48px] md:h-[58px] rounded-xl md:rounded-2xl border-2 border-[#af4f35]/15 bg-white px-4 md:px-5 text-sm text-[#384752] outline-none transition-all hover:border-[#1aa7c4] hover:-translate-y-px hover:shadow-[0_0_0_4px_rgba(26,167,196,0.08)] focus:border-[#1aa7c4] focus:shadow-[0_0_0_5px_rgba(26,167,196,0.12)] focus:bg-white">
         </div>
 
         <div class="field-group flex flex-col">
-          <label class="text-[10px] md:text-[11px] font-extrabold tracking-wide uppercase text-slate-500 mb-1 md:mb-2">Destino</label>
+          <label class="text-[11px] md:text-[11px] font-extrabold tracking-wide uppercase text-slate-500 mb-1 md:mb-2">Destino</label>
           <input type="text" [(ngModel)]="filtroDestino" placeholder="Buenos Aires"
             class="w-full h-[48px] md:h-[58px] rounded-xl md:rounded-2xl border-2 border-[#af4f35]/15 bg-white px-4 md:px-5 text-sm text-[#384752] outline-none transition-all hover:border-[#1aa7c4] hover:-translate-y-px hover:shadow-[0_0_0_4px_rgba(26,167,196,0.08)] focus:border-[#1aa7c4] focus:shadow-[0_0_0_5px_rgba(26,167,196,0.12)] focus:bg-white">
         </div>
 
         <div class="field-group flex flex-col">
-          <label class="text-[10px] md:text-[11px] font-extrabold tracking-wide uppercase text-slate-500 mb-1 md:mb-2">Fecha</label>
+          <label class="text-[11px] md:text-[11px] font-extrabold tracking-wide uppercase text-slate-500 mb-1 md:mb-2">Fecha</label>
           <input type="date" [(ngModel)]="filtroFecha"
             class="w-full h-[48px] md:h-[58px] rounded-xl md:rounded-2xl border-2 border-[#af4f35]/15 bg-white px-4 md:px-5 text-sm text-[#384752] outline-none transition-all hover:border-[#1aa7c4] hover:-translate-y-px hover:shadow-[0_0_0_4px_rgba(26,167,196,0.08)] focus:border-[#1aa7c4] focus:shadow-[0_0_0_5px_rgba(26,167,196,0.12)] focus:bg-white">
         </div>
 
         <div class="field-group flex flex-col">
-          <label class="text-[10px] md:text-[11px] font-extrabold tracking-wide uppercase text-slate-500 mb-1 md:mb-2">Horario</label>
+          <label class="text-[11px] md:text-[11px] font-extrabold tracking-wide uppercase text-slate-500 mb-1 md:mb-2">Horario</label>
           <select [(ngModel)]="filtroHorario"
             class="w-full h-[48px] md:h-[58px] rounded-xl md:rounded-2xl border-2 border-[#af4f35]/15 bg-white px-4 md:px-5 text-sm text-[#384752] outline-none transition-all hover:border-[#1aa7c4] hover:-translate-y-px hover:shadow-[0_0_0_4px_rgba(26,167,196,0.08)] focus:border-[#1aa7c4] focus:shadow-[0_0_0_5px_rgba(26,167,196,0.12)] focus:bg-white">
             <option value="todos">Todos los horarios</option>
@@ -90,19 +97,19 @@
 
             <div class="trip-info grid grid-cols-2 gap-3 md:gap-5">
               <div class="trip-block bg-[#f4f4f3]/70 border border-[#af4f35]/10 rounded-xl p-2 md:p-3.5">
-                <span class="block text-[9px] md:text-[11px] font-extrabold text-slate-400 uppercase mb-1">Salida</span>
+                <span class="block text-[11px] md:text-[11px] font-extrabold text-slate-400 uppercase mb-1">Salida</span>
                 <strong class="text-xs md:text-base text-[#384752]">{{ formatFechaCorta(viaje.fecha_salida) }} · {{ formatHora(viaje.fecha_salida) }} hs</strong>
               </div>
               <div class="trip-block bg-[#f4f4f3]/70 border border-[#af4f35]/10 rounded-xl p-2 md:p-3.5">
-                <span class="block text-[9px] md:text-[11px] font-extrabold text-slate-400 uppercase mb-1">Llegada</span>
+                <span class="block text-[11px] md:text-[11px] font-extrabold text-slate-400 uppercase mb-1">Llegada</span>
                 <strong class="text-xs md:text-base text-[#384752]">{{ formatHora(viaje.fecha_llegada) }} hs</strong>
               </div>
               <div class="trip-block bg-[#f4f4f3]/70 border border-[#af4f35]/10 rounded-xl p-2 md:p-3.5">
-                <span class="block text-[9px] md:text-[11px] font-extrabold text-slate-400 uppercase mb-1">Servicio</span>
+                <span class="block text-[11px] md:text-[11px] font-extrabold text-slate-400 uppercase mb-1">Servicio</span>
                 <strong class="text-xs md:text-base text-[#384752]">{{ servicioLabel(viaje) }}</strong>
               </div>
               <div class="trip-block bg-[#f4f4f3]/70 border border-[#af4f35]/10 rounded-xl p-2 md:p-3.5">
-                <span class="block text-[9px] md:text-[11px] font-extrabold text-slate-400 uppercase mb-1">Disponibles</span>
+                <span class="block text-[11px] md:text-[11px] font-extrabold text-slate-400 uppercase mb-1">Disponibles</span>
                 <strong class="text-xs md:text-base text-green-600">{{ asientosLabel(viaje) }}</strong>
               </div>
             </div>

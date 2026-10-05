@@ -6,19 +6,19 @@
 } @else {
 
 <!-- Mobile trip bar -->
-<div class="max-[900px]:flex hidden w-full bg-white border-b border-[#eec997] px-4 py-3 items-center gap-3">
-  <div class="flex items-center gap-1.5 min-w-0">
-    <span class="text-sm font-bold text-[#384752] truncate">{{ viaje?.origen }}</span>
+<div class="max-[900px]:block hidden w-full bg-white border-b border-[#eec997] px-4 py-3">
+  <div class="flex items-center gap-1.5 flex-wrap text-base font-bold">
+    <span class="text-[#384752]">{{ viaje?.origen }}</span>
     <svg class="w-4 h-4 text-meurzet-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-    <span class="text-sm font-bold text-[#af4f35] truncate">{{ viaje?.destino }}</span>
+    <span class="text-[#af4f35]">{{ viaje?.destino }}</span>
   </div>
-  <div class="flex items-center gap-3 ml-auto shrink-0">
-    <span class="text-[11px] font-semibold text-[#384752] whitespace-nowrap">{{ viaje ? formatHora(viaje.fecha_salida) : '' }}</span>
-    <span class="text-[11px] text-[#969fa3]">·</span>
-    <span class="text-[11px] font-semibold text-[#384752] whitespace-nowrap">{{ asientosLibres }} asientos</span>
-    <span class="text-[11px] text-[#969fa3]">·</span>
-    <span class="text-[11px] font-bold text-[#af4f35] whitespace-nowrap">{{ viaje ? formatPrecio(viaje.precio_base) : '' }}</span>
-  </div>
+  <p class="text-[13px] text-[#384752] mt-1">
+    {{ viaje ? fechaCorta(viaje.fecha_salida) : '' }} · {{ viaje ? formatHora(viaje.fecha_salida) : '' }} hs
+    · {{ asientosLibres }} libres · <strong class="text-[#af4f35]">{{ viaje ? formatPrecio(viaje.precio_base) : '' }}</strong>
+  </p>
+  @if (lugaresEmbarque.length) {
+    <p class="text-[13px] text-slate-500 mt-0.5">📍 {{ embarquesTexto }}</p>
+  }
 </div>
 
 <div class="content-wrapper">
@@ -237,7 +237,7 @@
         <span class="continue-label">Asientos seleccionados</span>
         <span class="continue-seat">{{ seatLabel }}</span>
       </div>
-      <button class="continue-btn" [class.disabled]="selectedList.length === 0 || bloqueando" (click)="continuarReserva()">{{ bloqueando ? 'Reservando...' : 'Continuar con la reserva &rarr;' }}</button>
+      <button class="continue-btn" [class.disabled]="selectedList.length === 0 || bloqueando" (click)="continuarReserva()">@if (bloqueando) { Reservando... } @else { <span class="max-[900px]:hidden">Continuar con la reserva &rarr;</span><span class="hidden max-[900px]:inline">Continuar &rarr;</span> }</button>
     </div>
 
     <button class="back-btn" (click)="volver()">

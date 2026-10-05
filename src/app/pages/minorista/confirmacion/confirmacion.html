@@ -8,7 +8,7 @@
         <h2 class="text-lg md:text-xl font-bold text-white mb-1">
           Reserva{{ reservaState.asientos.length > 1 ? 's' : '' }} Registrada{{ reservaState.asientos.length > 1 ? 's' : '' }}
         </h2>
-        <p class="text-meurzet-light text-[10px] md:text-xs">
+        <p class="text-meurzet-light text-[11px] md:text-xs">
           {{ reservaState.asientos.length }} asiento{{ reservaState.asientos.length > 1 ? 's' : '' }} registrado{{ reservaState.asientos.length > 1 ? 's' : '' }} correctamente
         </p>
       </div>
@@ -23,96 +23,20 @@
       <div class="bg-white rounded-xl shadow-lg border-2 border-meurzet-accent/30 hover:border-meurzet-info hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 p-4 md:p-5">
         <div class="flex flex-col gap-2 md:flex-row md:justify-between md:items-center">
           <div>
-            <span class="text-[10px] md:text-xs text-slate-400 uppercase tracking-wide">Código de reserva</span>
+            <span class="text-[11px] md:text-xs text-slate-400 uppercase tracking-wide">Código de reserva</span>
             <p class="font-mono font-bold text-xl md:text-2xl text-meurzet-primary">{{ codigoReserva }}</p>
           </div>
-          <span class="px-2 py-1 rounded-full text-[10px] md:text-xs font-semibold inline-flex items-center gap-1 border {{ estadoFinancieroClass }}">
+          <span class="px-2 py-1 rounded-full text-[11px] md:text-xs font-semibold inline-flex items-center gap-1 border {{ estadoFinancieroClass }}">
             <span class="w-1.5 h-1.5 rounded-full {{ estadoFinancieroDot }}"></span>
             {{ estadoFinancieroLabel }}
           </span>
         </div>
       </div>
 
-      <!-- DETALLE DE RESERVA -->
-      <div class="bg-white rounded-xl md:rounded-2xl shadow-lg border-2 border-meurzet-accent/20 hover:border-meurzet-info hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 overflow-hidden">
-        <div class="bg-meurzet-primary/5 px-4 md:px-6 py-2 md:py-3 border-b border-meurzet-light">
-          <div class="flex flex-col gap-1 md:flex-row md:justify-between md:items-center">
-            <h2 class="font-bold text-sm md:text-base text-meurzet-primary">Detalle de tu reserva</h2>
-            <p class="text-[10px] md:text-xs text-slate-500">{{ reservaState.viaje?.origen }} → {{ reservaState.viaje?.destino }} · {{ reservaState.viaje?.fecha_salida | date:'HH:mm' }} hs</p>
-          </div>
-        </div>
-
-        <div class="p-4 md:p-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
-            @for (asiento of reservaState.asientos; track asiento.asientoId; let i = $index) {
-              <div class="bg-[#f4f4f3] rounded-xl p-3 md:p-4 border-2 border-meurzet-accent/15 hover:border-meurzet-info hover:shadow-md transition-all duration-200">
-                <div class="flex justify-between items-center gap-2 mb-2">
-                  <span class="text-[10px] md:text-xs text-slate-400">Asiento</span>
-                  <span class="text-sm md:text-base font-bold text-meurzet-accent bg-white px-2 py-0.5 rounded-full">{{ asiento.nroAsiento }}</span>
-                </div>
-                <div class="space-y-1">
-                  <p class="font-bold text-xs md:text-sm text-meurzet-primary">{{ reservaState.pasajeros[i]?.nombre }} {{ reservaState.pasajeros[i]?.apellido }}</p>
-                  <p class="text-[9px] md:text-[10px] text-slate-400">DNI: {{ reservaState.pasajeros[i]?.documento }}</p>
-                  <p class="text-[9px] md:text-[10px] text-slate-400">Email: {{ reservaState.pasajeros[i]?.email }}</p>
-                  <p class="text-[9px] md:text-[10px] text-slate-400">Tel: {{ reservaState.pasajeros[i]?.telefono }}</p>
-                  <p class="text-[9px] md:text-[10px] text-slate-400">Planta {{ asiento.piso === 1 ? 'Baja' : 'Alta' }}</p>
-                  @if (reservaState.pasajeros[i]?.lugar_embarque; as emb) {
-                    <p class="text-[9px] md:text-[10px] font-semibold text-meurzet-primary">Embarque: {{ embarqueLabel(emb) }}</p>
-                  }
-                </div>
-              </div>
-            }
-          </div>
-        </div>
-
-        <div class="bg-[#f4f4f3] px-4 md:px-6 py-3 md:py-4 border-t border-meurzet-light">
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 text-center">
-            <div>
-              <span class="text-slate-500 text-[10px] md:text-xs">Total base</span>
-              <p class="font-bold text-base md:text-xl text-meurzet-primary">{{ formatPrecio(total) }}</p>
-            </div>
-            <div>
-              <span class="text-slate-500 text-[10px] md:text-xs">Método de pago</span>
-              <p class="font-semibold text-xs md:text-sm text-meurzet-primary capitalize">{{ reservaState.metodoPago.replace('_', ' ') }}</p>
-            </div>
-            <div>
-              <span class="text-slate-500 text-[10px] md:text-xs">Tipo de pago</span>
-              <p class="font-semibold text-xs md:text-sm text-meurzet-primary">{{ pagoLabel }}</p>
-            </div>
-            <div>
-              <span class="text-slate-500 text-[10px] md:text-xs">A pagar ahora</span>
-              <p class="font-bold text-base md:text-xl text-meurzet-accent">{{ formatPrecio(montoAPagar) }}</p>
-            </div>
-          </div>
-          @if (montoPendiente > 0) {
-          <div class="text-center pt-3 mt-3 border-t border-meurzet-light space-y-1">
-            @if (reservaState.cuotasSeleccionadas > 1) {
-            <div>
-              <span class="text-[10px] md:text-xs text-slate-400">Saldo a financiar + recargo {{ recargoPorcentaje }}%</span>
-              <p class="font-bold text-sm md:text-base text-meurzet-secondary">{{ formatPrecio(montoPendiente) }}</p>
-              <p class="text-[9px] md:text-[10px] text-slate-400">En {{ reservaState.cuotasSeleccionadas }} cuotas de {{ formatPrecio(montoPorCuota) }}</p>
-            </div>
-            } @else {
-            <div>
-              <span class="text-[10px] md:text-xs text-slate-400">Saldo pendiente</span>
-              <p class="font-bold text-sm md:text-base text-meurzet-secondary">{{ formatPrecio(montoPendiente) }}</p>
-            </div>
-            }
-          </div>
-          }
-          @if (totalFinal !== total) {
-          <div class="text-center pt-3 mt-3 border-t border-meurzet-light">
-            <span class="text-[10px] md:text-xs font-semibold text-slate-500">Total a pagar</span>
-            <p class="font-bold text-base md:text-xl text-meurzet-primary">{{ formatPrecio(totalFinal) }}</p>
-          </div>
-          }
-        </div>
-      </div>
-
       <!-- COMPARTIR RESUMEN -->
       <div class="bg-white rounded-xl p-4 md:p-5 border-2 border-meurzet-accent/30 hover:border-meurzet-info hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 text-center">
         <h3 class="text-sm md:text-base font-bold text-meurzet-primary mb-1">Compartí el resumen con el cliente</h3>
-        <p class="text-[10px] md:text-xs text-slate-400 mb-3">Se descarga una imagen PNG para enviar por WhatsApp</p>
+        <p class="text-[11px] md:text-xs text-slate-400 mb-3">Se descarga una imagen PNG para enviar por WhatsApp</p>
         <button (click)="compartirResumen()" [disabled]="compartiendo"
           class="w-full py-3 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-meurzet-accent to-meurzet-secondary hover:from-meurzet-info hover:to-meurzet-primary hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 cursor-pointer disabled:opacity-60">
           {{ compartiendo ? 'Generando...' : '📸 Compartir resumen' }}
@@ -139,20 +63,20 @@
               <div class="flex items-center gap-1.5">
                 <span class="font-bold text-meurzet-accent font-mono">{{ banco.alias }}</span>
                 <button (click)="copiarAlias()"
-                  class="px-2 py-1 rounded-lg text-[9px] font-semibold border transition-all duration-200 cursor-pointer"
+                  class="px-3 min-h-[40px] rounded-lg text-xs font-semibold border transition-all duration-200 cursor-pointer"
                   [class]="aliasCopiado ? 'bg-green-50 text-green-600 border-green-300' : 'bg-white text-slate-500 border-slate-300 hover:border-meurzet-accent hover:text-meurzet-accent'">
-                  {{ aliasCopiado ? '✓ Copiado' : '📋' }}
+                  {{ aliasCopiado ? '✓ Copiado' : '📋 Copiar' }}
                 </button>
               </div>
             </div>
             <div class="flex justify-between items-center">
               <span class="text-slate-500">CBU:</span>
               <div class="flex items-center gap-1.5">
-                <span class="font-medium text-meurzet-primary font-mono text-[10px] md:text-xs">{{ banco.cbu }}</span>
+                <span class="font-medium text-meurzet-primary font-mono text-[11px] md:text-xs">{{ banco.cbu }}</span>
                 <button (click)="copiarCBU()"
-                  class="px-2 py-1 rounded-lg text-[9px] font-semibold border transition-all duration-200 cursor-pointer"
+                  class="px-3 min-h-[40px] rounded-lg text-xs font-semibold border transition-all duration-200 cursor-pointer"
                   [class]="cbuCopiado ? 'bg-green-50 text-green-600 border-green-300' : 'bg-white text-slate-500 border-slate-300 hover:border-meurzet-accent hover:text-meurzet-accent'">
-                  {{ cbuCopiado ? '✓ Copiado' : '📋' }}
+                  {{ cbuCopiado ? '✓ Copiado' : '📋 Copiar' }}
                 </button>
               </div>
             </div>
@@ -171,13 +95,10 @@
             <p class="text-[11px] md:text-sm text-slate-500 mb-3">
               Adjuntá el comprobante (PDF o imagen)
             </p>
-            <input type="file" accept=".pdf,image/*" (change)="subirComprobante($event)" 
-              class="w-full p-2 md:p-2.5 border-2 border-dashed border-[#c9a08f] rounded-lg text-xs md:text-sm bg-slate-50 
-                     file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] md:file:text-[11px] file:font-semibold 
-                     file:bg-meurzet-accent file:text-white file:cursor-pointer
-                     hover:file:bg-meurzet-info
-                     hover:border-meurzet-info focus:outline-none focus:border-meurzet-info focus:ring-1 focus:ring-meurzet-info 
-                     transition-all duration-200 cursor-pointer">
+            <label class="flex items-center justify-center gap-2 w-full min-h-[52px] rounded-xl font-bold text-sm text-white bg-gradient-to-r from-meurzet-accent to-meurzet-secondary cursor-pointer" [class.opacity-60]="subiendo">
+              📷 {{ subiendo ? 'Subiendo...' : 'Subir foto o PDF del comprobante' }}
+              <input type="file" accept=".pdf,image/*" class="hidden" [disabled]="subiendo" (change)="subirComprobante($event)">
+            </label>
             @if (subiendo) {
               <p class="text-[11px] md:text-sm text-meurzet-secondary mt-2 animate-pulse">Subiendo comprobante...</p>
             }
@@ -193,7 +114,7 @@
               </svg>
               ¡Comprobante subido correctamente!
             </p>
-            <p class="text-green-500 text-[10px] mt-1">Pendiente de validación por el administrador</p>
+            <p class="text-green-500 text-[11px] mt-1">Pendiente de validación por el administrador</p>
           </div>
         }
 
@@ -202,7 +123,7 @@
       @if (comprobanteSubido) {
       <div class="bg-white rounded-xl p-4 md:p-5 border-2 border-meurzet-accent/30 hover:border-meurzet-info transition-all">
         <h3 class="text-sm md:text-base font-bold text-meurzet-primary mb-2">Comprobante digital</h3>
-        <p class="text-[10px] md:text-xs text-slate-500 mb-3">Pasale el comprobante al cliente: como imagen para WhatsApp o impreso / en PDF</p>
+        <p class="text-[11px] md:text-xs text-slate-500 mb-3">Pasale el comprobante al cliente: como imagen para WhatsApp o impreso / en PDF</p>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <button (click)="verComprobante()"
             class="py-2.5 rounded-xl font-bold text-xs border-2 border-slate-300 text-slate-600
@@ -226,6 +147,82 @@
       </div>
       }
 
+      <!-- DETALLE DE RESERVA -->
+      <div class="bg-white rounded-xl md:rounded-2xl shadow-lg border-2 border-meurzet-accent/20 hover:border-meurzet-info hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 overflow-hidden">
+        <div class="bg-meurzet-primary/5 px-4 md:px-6 py-2 md:py-3 border-b border-meurzet-light">
+          <div class="flex flex-col gap-1 md:flex-row md:justify-between md:items-center">
+            <h2 class="font-bold text-sm md:text-base text-meurzet-primary">Detalle de tu reserva</h2>
+            <p class="text-[11px] md:text-xs text-slate-500">{{ reservaState.viaje?.origen }} → {{ reservaState.viaje?.destino }} · {{ reservaState.viaje?.fecha_salida | date:'HH:mm' }} hs</p>
+          </div>
+        </div>
+
+        <div class="p-4 md:p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+            @for (asiento of reservaState.asientos; track asiento.asientoId; let i = $index) {
+              <div class="bg-[#f4f4f3] rounded-xl p-3 md:p-4 border-2 border-meurzet-accent/15 hover:border-meurzet-info hover:shadow-md transition-all duration-200">
+                <div class="flex justify-between items-center gap-2 mb-2">
+                  <span class="text-[11px] md:text-xs text-slate-400">Asiento</span>
+                  <span class="text-sm md:text-base font-bold text-meurzet-accent bg-white px-2 py-0.5 rounded-full">{{ asiento.nroAsiento }}</span>
+                </div>
+                <div class="space-y-1">
+                  <p class="font-bold text-xs md:text-sm text-meurzet-primary">{{ reservaState.pasajeros[i]?.nombre }} {{ reservaState.pasajeros[i]?.apellido }}</p>
+                  <p class="text-[11px] md:text-[10px] text-slate-400">DNI: {{ reservaState.pasajeros[i]?.documento }}</p>
+                  <p class="text-[11px] md:text-[10px] text-slate-400">Email: {{ reservaState.pasajeros[i]?.email }}</p>
+                  <p class="text-[11px] md:text-[10px] text-slate-400">Tel: {{ reservaState.pasajeros[i]?.telefono }}</p>
+                  <p class="text-[11px] md:text-[10px] text-slate-400">Planta {{ asiento.piso === 1 ? 'Baja' : 'Alta' }}</p>
+                  @if (reservaState.pasajeros[i]?.lugar_embarque; as emb) {
+                    <p class="text-[11px] md:text-[10px] font-semibold text-meurzet-primary">Embarque: {{ embarqueLabel(emb) }}</p>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="bg-[#f4f4f3] px-4 md:px-6 py-3 md:py-4 border-t border-meurzet-light">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 text-center">
+            <div>
+              <span class="text-slate-500 text-[11px] md:text-xs">Total base</span>
+              <p class="font-bold text-base md:text-xl text-meurzet-primary">{{ formatPrecio(total) }}</p>
+            </div>
+            <div>
+              <span class="text-slate-500 text-[11px] md:text-xs">Método de pago</span>
+              <p class="font-semibold text-xs md:text-sm text-meurzet-primary capitalize">{{ reservaState.metodoPago.replace('_', ' ') }}</p>
+            </div>
+            <div>
+              <span class="text-slate-500 text-[11px] md:text-xs">Tipo de pago</span>
+              <p class="font-semibold text-xs md:text-sm text-meurzet-primary">{{ pagoLabel }}</p>
+            </div>
+            <div>
+              <span class="text-slate-500 text-[11px] md:text-xs">A pagar ahora</span>
+              <p class="font-bold text-base md:text-xl text-meurzet-accent">{{ formatPrecio(montoAPagar) }}</p>
+            </div>
+          </div>
+          @if (montoPendiente > 0) {
+          <div class="text-center pt-3 mt-3 border-t border-meurzet-light space-y-1">
+            @if (reservaState.cuotasSeleccionadas > 1) {
+            <div>
+              <span class="text-[11px] md:text-xs text-slate-400">Saldo a financiar + recargo {{ recargoPorcentaje }}%</span>
+              <p class="font-bold text-sm md:text-base text-meurzet-secondary">{{ formatPrecio(montoPendiente) }}</p>
+              <p class="text-[11px] md:text-[10px] text-slate-400">En {{ reservaState.cuotasSeleccionadas }} cuotas de {{ formatPrecio(montoPorCuota) }}</p>
+            </div>
+            } @else {
+            <div>
+              <span class="text-[11px] md:text-xs text-slate-400">Saldo pendiente</span>
+              <p class="font-bold text-sm md:text-base text-meurzet-secondary">{{ formatPrecio(montoPendiente) }}</p>
+            </div>
+            }
+          </div>
+          }
+          @if (totalFinal !== total) {
+          <div class="text-center pt-3 mt-3 border-t border-meurzet-light">
+            <span class="text-[11px] md:text-xs font-semibold text-slate-500">Total a pagar</span>
+            <p class="font-bold text-base md:text-xl text-meurzet-primary">{{ formatPrecio(totalFinal) }}</p>
+          </div>
+          }
+        </div>
+      </div>
+
       <!-- BOTÓN VOLVER -->
       <button routerLink="/minorista/vender" 
         class="w-full py-3 md:py-4 rounded-xl font-bold text-sm md:text-base text-white 
@@ -237,7 +234,7 @@
       </button>
 
       <!-- ADVERTENCIA -->
-      <p class="text-[9px] md:text-[10px] text-slate-400 text-center pb-2">
+      <p class="text-[11px] md:text-[10px] text-slate-400 text-center pb-2">
         La reserva se mantiene por 24 horas. Pasado ese tiempo, los asientos quedarán libres nuevamente.
       </p>
       

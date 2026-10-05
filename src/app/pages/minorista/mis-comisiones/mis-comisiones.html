@@ -22,26 +22,45 @@
     </div>
 
     <!-- Resumen cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-      <div class="bg-white rounded-2xl shadow-xl border-2 border-amber-200/50 p-4">
+    <div class="grid grid-cols-3 gap-2 md:gap-4 mb-6">
+      <div class="bg-white rounded-2xl shadow-xl border-2 border-amber-200/50 p-3 md:p-4">
         <p class="text-xs text-slate-400 uppercase tracking-wider">A cobrar</p>
-        <p class="text-2xl font-bold text-amber-600 mt-1">{{ formatPrecio(resumen.totalPendiente) }}</p>
-        <p class="text-[11px] text-slate-400">Generadas, pendientes de pago por la agencia</p>
+        <p class="text-lg md:text-2xl font-bold text-amber-600 mt-1">{{ formatPrecio(resumen.totalPendiente) }}</p>
+        <p class="hidden md:block text-[11px] text-slate-400">Generadas, pendientes de pago por la agencia</p>
       </div>
-      <div class="bg-white rounded-2xl shadow-xl border-2 border-green-200/50 p-4">
+      <div class="bg-white rounded-2xl shadow-xl border-2 border-green-200/50 p-3 md:p-4">
         <p class="text-xs text-slate-400 uppercase tracking-wider">Cobrado</p>
-        <p class="text-2xl font-bold text-green-600 mt-1">{{ formatPrecio(resumen.totalPagado) }}</p>
+        <p class="text-lg md:text-2xl font-bold text-green-600 mt-1">{{ formatPrecio(resumen.totalPagado) }}</p>
       </div>
-      <div class="bg-white rounded-2xl shadow-xl border-2 border-[#eec997] p-4">
+      <div class="bg-white rounded-2xl shadow-xl border-2 border-[#eec997] p-3 md:p-4">
         <p class="text-xs text-slate-400 uppercase tracking-wider">Próximas</p>
-        <p class="text-2xl font-bold text-[#384752] mt-1">{{ formatPrecio(totalProximas) }}</p>
-        <p class="text-[11px] text-slate-400">Cuando tus clientes terminen de pagar</p>
+        <p class="text-lg md:text-2xl font-bold text-[#384752] mt-1">{{ formatPrecio(totalProximas) }}</p>
+        <p class="hidden md:block text-[11px] text-slate-400">Cuando tus clientes terminen de pagar</p>
       </div>
     </div>
 
     <!-- Generadas -->
     <h3 class="text-sm font-bold text-[#384752] mb-2">Comisiones generadas</h3>
-    <div class="bg-white rounded-2xl shadow-xl border-2 border-[#eec997] overflow-hidden mb-6">
+    <div class="md:hidden space-y-2 mb-6">
+      @for (c of comisiones; track c.id) {
+        <div class="bg-white rounded-xl border-2 border-[#eec997] p-3">
+          <div class="flex justify-between items-start gap-2">
+            <div class="min-w-0">
+              <p class="font-semibold text-[#384752] truncate">{{ nombrePasajero(c.reserva?.pasajero_datos) }}</p>
+              <p class="text-xs text-slate-400">{{ viajeLabel(c.reserva?.viaje ?? null) }}</p>
+            </div>
+            <p class="font-bold text-[#384752] whitespace-nowrap">{{ formatPrecio(c.monto_comision) }}</p>
+          </div>
+          <div class="flex justify-between items-center mt-2 text-xs text-slate-500">
+            <span>Venta {{ formatPrecio(c.monto_base) }} · {{ c.porcentaje }}%</span>
+            <span class="px-2 py-0.5 rounded-full font-semibold" [class]="c.estado === 'pagado' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'">{{ c.estado === 'pagado' ? 'Cobrada' : 'A cobrar' }}</span>
+          </div>
+        </div>
+      } @empty {
+        <p class="text-center text-sm text-slate-400 py-6 bg-white rounded-xl border-2 border-[#eec997]">Todavía no se generó ninguna comisión</p>
+      }
+    </div>
+    <div class="hidden md:block bg-white rounded-2xl shadow-xl border-2 border-[#eec997] overflow-hidden mb-6">
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
@@ -66,7 +85,7 @@
               <td class="px-4 py-3 text-right text-slate-500">{{ c.porcentaje }}%</td>
               <td class="px-4 py-3 text-right font-semibold text-[#384752]">{{ formatPrecio(c.monto_comision) }}</td>
               <td class="px-4 py-3">
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold"
                   [class]="c.estado === 'pagado' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'">
                   {{ c.estado === 'pagado' ? 'Cobrada' : 'A cobrar' }}
                 </span>
@@ -90,7 +109,23 @@
 
     <!-- Próximas -->
     <h3 class="text-sm font-bold text-[#384752] mb-2">Próximas comisiones</h3>
-    <div class="bg-white rounded-2xl shadow-xl border-2 border-[#eec997] overflow-hidden">
+    <div class="md:hidden space-y-2">
+      @for (p of proximas; track p.reservaId) {
+        <div class="bg-white rounded-xl border-2 border-[#eec997] p-3">
+          <div class="flex justify-between items-start gap-2">
+            <div class="min-w-0">
+              <p class="font-semibold text-[#384752] truncate">{{ p.cliente }}</p>
+              <p class="text-xs text-slate-400">{{ viajeLabel(p.viaje) }}</p>
+            </div>
+            <p class="font-bold text-slate-500 whitespace-nowrap">{{ formatPrecio(p.monto) }}</p>
+          </div>
+          <p class="text-xs text-[#af4f35] mt-2">Falta cobrar al cliente: {{ formatPrecio(p.faltaCobrar) }}</p>
+        </div>
+      } @empty {
+        <p class="text-center text-sm text-slate-400 py-6 bg-white rounded-xl border-2 border-[#eec997]">No tenés ventas en curso</p>
+      }
+    </div>
+    <div class="hidden md:block bg-white rounded-2xl shadow-xl border-2 border-[#eec997] overflow-hidden">
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead>

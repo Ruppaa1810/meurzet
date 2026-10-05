@@ -130,6 +130,14 @@ export class Seleccion implements OnInit, OnDestroy {
     return this.asientos.some(a => a.piso === 2);
   }
 
+  fechaCorta(fecha: string): string {
+    return new Date(fecha).toLocaleDateString('es-AR', { weekday: 'short', day: 'numeric', month: 'short' });
+  }
+
+  get embarquesTexto(): string {
+    return this.lugaresEmbarque.map(l => l.nombre).join(' · ');
+  }
+
   get asientosLibres(): number {
     return this.asientos.filter(a => a.estado === 'libre').length;
   }
