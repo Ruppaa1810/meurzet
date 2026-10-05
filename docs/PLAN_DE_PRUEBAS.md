@@ -31,14 +31,19 @@ Columna **Estado**: ✅ probado y funciona · ⬜ pendiente · ❌ falla.
 | A18 | Crear usuario vendedor | Minoristas → Nuevo Usuario (rol vendedor, con % de comisión) | Aparece en la lista y puede iniciar sesión | ⬜ (hacerlo una persona) |
 | A19 | Desactivar usuario | Minoristas → desactivar el usuario de A18 | No puede iniciar sesión | ⬜ |
 
-## 2. Panel Operador (supervisor)
+## 2. Panel Operador (empleado de la agencia)
+
+Puede validar pagos y crear sus propios vendedores. Flota y Viajes los ve pero no los modifica.
 
 | # | Prueba | Cómo | Resultado esperado | Estado |
 |---|---|---|---|---|
-| O1 | Menú | Iniciar sesión como operador | Ve Panel, Validaciones, Flota, Viajes y Minoristas; **no** ve Auditoría, Comisiones, Lugares ni Datos de pago | ⬜ |
-| O2 | Acceso directo | Escribir /admin/comisiones en la barra | Lo saca de la página | ⬜ |
-| O3 | Validaciones | Aprobar y rechazar un pago | Igual que A9–A11 | ⬜ |
-| O4 | Viajes | Intentar crear un viaje | Según lo que el negocio decida que puede hacer el operador | ⬜ |
+| O1 | Menú | Iniciar sesión como operador | Ve Panel, Validaciones, Flota, Viajes y Minoristas; **no** ve Auditoría, Comisiones, Lugares ni Datos de pago | ✅ |
+| O2 | Acceso directo | Escribir /admin/comisiones o /admin/configuracion en la barra | Vuelve a su panel | ✅ |
+| O3 | Validaciones | Aprobar y rechazar señas y cuotas | Igual que A9–A12 (incluida la comisión al aprobar la última cuota) | ✅ |
+| O4 | Flota y Viajes | Abrir Flota y Viajes | Solo consulta: sin botones de crear, editar ni eliminar | ✅ |
+| O5 | Panel de control | Abrir Panel | Los accesos dicen Consultar en Flota y Viajes | ✅ |
+| O6 | Crear vendedor | Minoristas → Nuevo Vendedor | Aparece en su lista; el admin le asigna el % en Comisiones | ⬜ (hacerlo una persona) |
+| O7 | Sus vendedores | Minoristas | Ve solo los vendedores que creó él | ⬜ (después de O6) |
 
 ## 3. Panel Vendedor
 
