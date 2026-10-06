@@ -37,6 +37,10 @@ export class GestionMinoristas implements OnInit, OnDestroy {
   formNombre = '';
   formAgencia = '';
   formRol: UserRole = 'vendedor_minorista';
+
+  rolLabel(rol: UserRole): string {
+    return rol === 'admin_mayorista' ? 'Admin' : rol === 'operador_admin' ? 'Operador' : 'Vendedor';
+  }
   formPorcentaje = 0;
 
   mostrarModalToggle = false;

@@ -105,7 +105,7 @@
             @if (esAdmin) {
             <td class="p-4">
               <span [class.text-purple-600]="v.rol === 'operador_admin'" [class.text-slate-600]="v.rol !== 'operador_admin'"
-                class="text-xs font-bold">{{ v.rol === 'operador_admin' ? 'Operador' : 'Vendedor' }}</span>
+                class="text-xs font-bold">{{ rolLabel(v.rol) }}</span>
             </td>
             }
             <td class="p-4 text-center">
@@ -260,7 +260,7 @@
     <div class="bg-white rounded-2xl p-5 md:p-8 max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain w-full max-w-[420px] border-2 border-[#af4f35]/30 shadow-[0_20px_60px_-8px_rgba(175,79,53,0.4)] transition-all duration-300 scale-100"
       (click)="$event.stopPropagation()">
       <h3 class="text-xl font-bold text-meurzet-primary m-0 mb-6">
-        {{ editando ? 'Editar ' + (editando.rol === 'operador_admin' ? 'Operador' : 'Vendedor') : (esAdmin ? 'Nuevo Usuario' : 'Nuevo Vendedor') }}
+        {{ editando ? 'Editar ' + rolLabel(editando.rol) : (esAdmin ? 'Nuevo Usuario' : 'Nuevo Vendedor') }}
       </h3>
 
       @if (mensaje) {
@@ -290,6 +290,7 @@
           class="w-full px-4 py-3.5 border-2 border-slate-200 rounded-xl text-sm box-border outline-none bg-gradient-to-b from-white to-[#1aa7c4]/[0.04] shadow-inner shadow-slate-100 focus:border-[#1aa7c4] focus:ring-2 focus:ring-[#1aa7c4]/25 focus:shadow-md focus:shadow-[#1aa7c4]/10 focus:bg-white transition-all duration-200">
           <option value="vendedor_minorista">Vendedor</option>
           <option value="operador_admin">Operador</option>
+          <option value="admin_mayorista">Admin (acceso total)</option>
         </select>
       </div>
       }
@@ -326,7 +327,7 @@
         <button (click)="guardar()" [disabled]="guardando"
           class="flex-1 py-3 rounded-xl font-bold text-white border-none cursor-pointer bg-gradient-to-br from-meurzet-accent to-meurzet-secondary hover:from-[#1aa7c4] hover:to-[#1aa7c4] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
           [class.opacity-60]="guardando">
-          {{ guardando ? 'Guardando...' : (editando ? 'Guardar' : formRol === 'operador_admin' ? 'Crear Operador' : 'Crear Vendedor') }}
+          {{ guardando ? 'Guardando...' : (editando ? 'Guardar' : 'Crear ' + rolLabel(formRol)) }}
         </button>
       </div>
     </div>
