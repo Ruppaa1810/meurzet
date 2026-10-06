@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LugarEmbarqueService } from '../../../services/lugar-embarque.service';
+import { PerfilService } from '../../../services/perfil.service';
 import type { LugarEmbarque } from '../../../models/database.types';
 
 @Component({
@@ -27,12 +28,17 @@ export class LugaresEmbarque implements OnInit {
   eliminarId: number | null = null;
   eliminando = false;
 
+  esAdmin = false;
+
   constructor(
     private lugarService: LugarEmbarqueService,
+    private perfilService: PerfilService,
     private cdr: ChangeDetectorRef,
   ) {}
 
   async ngOnInit() {
+    const { data } = await this.perfilService.getCurrentProfile();
+    this.esAdmin = data?.rol === 'admin_mayorista';
     await this.cargar();
   }
 
@@ -116,7 +122,7 @@ export class LugaresEmbarque implements OnInit {
   }
 
   async ejecutarEliminar() {
-    if (!this.eliminarId) return;
+    if (!this.esAdmin || !this.eliminarId) return;
     this.eliminando = true;
     const { error } = await this.lugarService.deleteLugar(this.eliminarId);
     if (error) { this.mensaje = error.message; this.eliminando = false; this.cdr.detectChanges(); return; }

@@ -4,6 +4,7 @@ import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/rou
 import { AuthService } from '../../services/auth.service';
 import { PerfilService } from '../../services/perfil.service';
 import type { Perfil } from '../../models/database.types';
+import { seccionesPara } from './menu-admin';
 
 @Component({
   selector: 'app-admin',
@@ -38,6 +39,10 @@ export class Admin implements OnInit {
 
   get esAdmin(): boolean {
     return this.perfil?.rol === 'admin_mayorista';
+  }
+
+  get secciones() {
+    return seccionesPara(this.perfil?.rol);
   }
 
   async ngOnInit() {

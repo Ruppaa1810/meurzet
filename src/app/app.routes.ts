@@ -22,7 +22,7 @@ export const routes: Routes = [
       { path: 'auditoria', loadComponent: () => import('./pages/admin/auditoria/auditoria').then(m => m.Auditoria), canActivate: [AuthGuard], data: { roles: ['admin_mayorista'] } },
       { path: 'minoristas', loadComponent: () => import('./pages/admin/gestion-minoristas/gestion-minoristas').then(m => m.GestionMinoristas), canActivate: [AuthGuard], data: { roles: ['admin_mayorista', 'operador_admin'] } },
       { path: 'comisiones', loadComponent: () => import('./pages/admin/comisiones/comisiones').then(m => m.Comisiones), canActivate: [AuthGuard], data: { roles: ['admin_mayorista'] } },
-      { path: 'lugares-embarque', loadComponent: () => import('./pages/admin/lugares-embarque/lugares-embarque').then(m => m.LugaresEmbarque), canActivate: [AuthGuard], data: { roles: ['admin_mayorista'] } },
+      { path: 'lugares-embarque', loadComponent: () => import('./pages/admin/lugares-embarque/lugares-embarque').then(m => m.LugaresEmbarque), canActivate: [AuthGuard], data: { roles: ['admin_mayorista', 'operador_admin'] } },
       { path: 'configuracion', loadComponent: () => import('./pages/admin/configuracion/configuracion').then(m => m.Configuracion), canActivate: [AuthGuard], data: { roles: ['admin_mayorista'] } },
     ]
   },

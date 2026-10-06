@@ -1,7 +1,7 @@
 <div class="p-8">
 
   <div class="flex justify-end items-center mb-6">
-    @if (esAdmin) {
+    @if (puedeEditar) {
       <button (click)="abrirModal()"
         class="px-6 py-3 rounded-xl font-bold text-sm text-white border-none cursor-pointer bg-gradient-to-br from-meurzet-accent to-meurzet-secondary hover:bg-[#1aa7c4] hover:from-[#1aa7c4] hover:to-[#1aa7c4] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
         + Nuevo Viaje
@@ -71,17 +71,19 @@
               }
             </td>
             <td class="p-4 text-right">
-              @if (esAdmin) {
+              @if (puedeEditar) {
                 <button (click)="abrirModal(v)"
                   class="px-3 py-1.5 rounded-lg text-xs bg-blue-50 text-blue-600 border border-blue-200 cursor-pointer mr-2 hover:bg-[#1aa7c4] hover:text-white hover:border-[#1aa7c4] transition-all duration-200">
                   Editar
                 </button>
+              }
+              @if (esAdmin) {
                 <button (click)="confirmarEliminar(v.id)"
                   class="px-3 py-1.5 rounded-lg text-xs bg-red-50 text-red-600 border border-red-200 cursor-pointer hover:bg-red-600 hover:text-white hover:border-red-600 transition-all duration-200">
                   Eliminar
                 </button>
               }
-              @if (!esAdmin) {
+              @if (!puedeEditar) {
                 <span class="text-xs text-slate-400">Solo lectura</span>
               }
             </td>

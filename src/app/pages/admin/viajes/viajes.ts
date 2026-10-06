@@ -66,6 +66,10 @@ export class Viajes implements OnInit {
     return this.rol === 'admin_mayorista';
   }
 
+  get puedeEditar(): boolean {
+    return this.esAdmin || this.rol === 'operador_admin';
+  }
+
   async ngOnInit() {
     try {
       const { data } = await this.perfilService.getCurrentProfile();
@@ -151,7 +155,7 @@ export class Viajes implements OnInit {
   }
 
   async guardar() {
-    if (!this.esAdmin) return;
+    if (!this.puedeEditar) return;
     if (!this.form.origen.trim() || !this.form.destino.trim() || !this.form.fecha_salida || !this.form.fecha_llegada) return;
 
     const unidad = this.unidades.find(u => u.id === this.form.unidad_id);
