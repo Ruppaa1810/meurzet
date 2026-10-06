@@ -23,6 +23,8 @@ export const routes: Routes = [
       { path: 'minoristas', loadComponent: () => import('./pages/admin/gestion-minoristas/gestion-minoristas').then(m => m.GestionMinoristas), canActivate: [AuthGuard], data: { roles: ['admin_mayorista', 'operador_admin'] } },
       { path: 'comisiones', loadComponent: () => import('./pages/admin/comisiones/comisiones').then(m => m.Comisiones), canActivate: [AuthGuard], data: { roles: ['admin_mayorista'] } },
       { path: 'lugares-embarque', loadComponent: () => import('./pages/admin/lugares-embarque/lugares-embarque').then(m => m.LugaresEmbarque), canActivate: [AuthGuard], data: { roles: ['admin_mayorista', 'operador_admin'] } },
+      // Misma pantalla que el vendedor: datos personales y cambiar contraseña
+      { path: 'perfil', loadComponent: () => import('./pages/minorista/perfil/perfil').then(m => m.Perfil) },
       { path: 'configuracion', loadComponent: () => import('./pages/admin/configuracion/configuracion').then(m => m.Configuracion), canActivate: [AuthGuard], data: { roles: ['admin_mayorista'] } },
     ]
   },
