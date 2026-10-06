@@ -30,6 +30,17 @@ export class PerfilService {
       .order('created_at', { ascending: false });
   }
 
+  /** null = todos (admin); para el operador, los vendedores que dio de alta él. */
+  async vendedoresACargo(perfil: Perfil): Promise<string[] | null> {
+    if (perfil.rol === 'admin_mayorista') return null;
+    const { data } = await supabase
+      .from('perfiles')
+      .select('id')
+      .eq('created_by', perfil.id)
+      .eq('rol', 'vendedor_minorista');
+    return (data ?? []).map(p => p.id);
+  }
+
   async togglePerfilActivo(id: string, activo: boolean) {
     return await supabase
       .from('perfiles')

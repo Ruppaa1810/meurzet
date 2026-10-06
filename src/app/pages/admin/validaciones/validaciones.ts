@@ -55,9 +55,14 @@ export class Validaciones implements OnInit, OnDestroy {
     return this.rol === 'admin_mayorista' || this.rol === 'operador_admin';
   }
 
+  private vendedorIds: string[] | null = [];
+
   async ngOnInit() {
     const { data } = await this.perfilService.getCurrentProfile();
-    if (data) this.rol = data.rol;
+    if (data) {
+      this.rol = data.rol;
+      this.vendedorIds = await this.perfilService.vendedoresACargo(data);
+    }
     this.cargar();
   }
 
@@ -69,7 +74,7 @@ export class Validaciones implements OnInit, OnDestroy {
     this.loading = true;
     this.error = '';
     this.paginacion.irAPagina(1);
-    const { data, error } = await this.pagoService.getPagosPendientes();
+    const { data, error } = await this.pagoService.getPagosPendientes(this.vendedorIds);
     if (error) {
       this.error = `Error al cargar pagos: ${error.message}`;
     } else if (data) {

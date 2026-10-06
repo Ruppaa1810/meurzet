@@ -75,11 +75,10 @@ export class AdminDashboard implements OnInit {
 
   async ngOnInit() {
     try {
-      const [{ data: perfil }, { data: perfiles }, viajes, pagosPorValidar] = await Promise.all([
+      const [{ data: perfil }, { data: perfiles }, viajes] = await Promise.all([
         this.perfilService.getCurrentProfile(),
         this.perfilService.getVendedoresMinoristas(),
         this.viajeService.getViajes(),
-        this.pagoService.countPagosPendientes(),
       ]);
       this.perfil = perfil;
       for (const p of perfiles ?? []) this.perfiles.set(p.id, p);
@@ -90,7 +89,7 @@ export class AdminDashboard implements OnInit {
         this.sinVendedores = this.vendedorIds.length === 0;
       }
       this.viajesALaVenta = viajes.data?.length ?? 0;
-      this.pagosPorValidar = pagosPorValidar;
+      this.pagosPorValidar = await this.pagoService.countPagosPendientes(this.vendedorIds);
       await this.cargarPeriodo();
     } catch {
     }

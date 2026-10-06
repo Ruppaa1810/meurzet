@@ -100,6 +100,22 @@ describe('PagoService', () => {
     expect(await service.countPagosPendientes()).toBe(2);
   });
 
+  it('el operador solo ve los pagos por validar de sus vendedores', async () => {
+    const chain = buildChain();
+    chain.order.mockResolvedValue({
+      data: [
+        { id: 1, tipo: 'seña', reserva: { comprobante_url: 'x', vendedor_id: 'suyo' } },
+        { id: 2, tipo: 'seña', reserva: { comprobante_url: 'x', vendedor_id: 'ajeno' } },
+        { id: 3, tipo: 'cuota', comprobante_url: 'y', reserva: { vendedor_id: 'suyo' } },
+      ],
+      error: null,
+    });
+    vi.spyOn(supabase, 'from').mockReturnValue(chain as any);
+    expect((await service.getPagosPendientes(['suyo'])).data!.map(p => p.id)).toEqual([1, 3]);
+    expect(await service.countPagosPendientes([])).toBe(0);
+    expect(await service.countPagosPendientes(null)).toBe(3);
+  });
+
   it('crearPago inserts into pagos_movimientos', async () => {
     const chain = buildChain();
     chain.single.mockResolvedValue({ data: { id: 1, monto: 5000 }, error: null });
