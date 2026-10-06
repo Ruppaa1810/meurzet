@@ -5,7 +5,6 @@ import { CommonModule } from '@angular/common';
 import { PerfilService } from '../../../services/perfil.service';
 import { PagoService, type PagoConReserva, type PagoGrupo } from '../../../services/pago.service';
 import { ReservaService } from '../../../services/reserva.service';
-import { AuditoriaService } from '../../../services/auditoria.service';
 import type { UserRole } from '../../../models/database.types';
 import { Paginacion } from '../../../utils/paginacion';
 import { embarqueLabel } from '../../../utils/embarques';
@@ -47,7 +46,6 @@ export class Validaciones implements OnInit, OnDestroy {
     private perfilService: PerfilService,
     private pagoService: PagoService,
     private reservaService: ReservaService,
-    private auditoriaService: AuditoriaService,
     private cdr: ChangeDetectorRef,
   ) {}
 

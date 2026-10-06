@@ -39,6 +39,15 @@ serve(async (req) => {
       await supabase.from('perfiles').update({ email }).eq('id', userId)
     }
 
+    // Auditoría: lo hace el servidor, así que se indica quién lo pidió
+    const { data: perfil } = await supabase.from('perfiles').select('nombre, email').eq('id', userId).single()
+    const cambios = [password && 'la contraseña', email && 'el email'].filter(Boolean).join(' y ')
+    await supabase.from('auditoria').insert({
+      usuario_id: user.id,
+      categoria: 'usuarios',
+      detalle: `Cambió ${cambios} de ${perfil?.nombre ?? ''} (${perfil?.email ?? ''})`,
+    })
+
     return json({ data: { userId } }, 200)
   } catch (err) {
     return json({ error: err.message }, 500)

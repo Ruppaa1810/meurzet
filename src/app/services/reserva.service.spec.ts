@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { ReservaService } from './reserva.service';
-import { AuditoriaService } from './auditoria.service';
 import { NotificacionesService } from './notificaciones.service';
 import { supabase } from './supabase-client';
 
@@ -19,7 +18,6 @@ describe('ReservaService', () => {
     TestBed.configureTestingModule({
       providers: [
         ReservaService,
-        { provide: AuditoriaService, useValue: { log: () => {} } },
         { provide: NotificacionesService, useValue: { notificarReservaAprobada: () => {}, notificarReservaRechazada: () => {} } },
       ],
     });

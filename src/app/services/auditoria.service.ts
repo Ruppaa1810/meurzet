@@ -1,30 +1,19 @@
 import { Injectable } from '@angular/core';
 import { supabase } from './supabase-client';
-import type { AuditoriaPasaje } from '../models/database.types';
+import type { RegistroAuditoria, UserRole } from '../models/database.types';
 
-export interface AuditoriaConVendedor extends AuditoriaPasaje {
-  perfil?: { nombre: string } | null;
+export interface RegistroConUsuario extends RegistroAuditoria {
+  usuario: { nombre: string; email: string | null; rol: UserRole } | null;
 }
 
+/** La auditoría la escriben triggers en la base (migración 025): acá solo se lee. */
 @Injectable({ providedIn: 'root' })
 export class AuditoriaService {
-  async log(asientoViajeId: number, accion: string) {
-    const session = await supabase.auth.getSession();
-    const vendedorId = session.data.session?.user?.id;
-    if (!vendedorId) return { error: new Error('Sesión expirada') };
-
+  async getUltimos(limit = 500) {
     return await supabase
-      .from('auditoria_pasajes')
-      .insert({ asiento_viaje_id: asientoViajeId, vendedor_id: vendedorId, accion })
-      .select()
-      .single<AuditoriaPasaje>();
-  }
-
-  async getAll(limit = 50) {
-    return await supabase
-      .from('auditoria_pasajes')
-      .select('*, perfil:vendedor_id(nombre)')
+      .from('auditoria')
+      .select('*, usuario:usuario_id(nombre, email, rol)')
       .order('fecha', { ascending: false })
-      .limit(limit) as unknown as { data: AuditoriaConVendedor[] | null; error: any };
+      .limit(limit) as unknown as { data: RegistroConUsuario[] | null; error: any };
   }
 }

@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { supabase } from './supabase-client';
-import { AuditoriaService } from './auditoria.service';
 import { NotificacionesService } from './notificaciones.service';
 import type { Reserva } from '../models/database.types';
 import { totalVentaReserva } from '../utils/calculo-financiero';
@@ -8,7 +7,6 @@ import { totalVentaReserva } from '../utils/calculo-financiero';
 @Injectable({ providedIn: 'root' })
 export class ReservaService {
   constructor(
-    private auditoria: AuditoriaService,
     private notificaciones: NotificacionesService,
   ) {}
 
@@ -92,7 +90,6 @@ export class ReservaService {
       p_asiento_viaje_id: asientoViajeId,
     });
     if (!res.error) {
-      this.auditoria.log(asientoViajeId, 'aprobacion');
       this.notificar(reservaId, 'aprobada');
     }
     return res;
@@ -105,7 +102,6 @@ export class ReservaService {
       p_motivo: motivo,
     });
     if (!res.error) {
-      this.auditoria.log(asientoViajeId, 'rechazo');
       this.notificar(reservaId, 'rechazada', motivo);
     }
     return res;

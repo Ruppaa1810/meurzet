@@ -88,12 +88,12 @@ export interface PagoMovimiento {
   created_at: string;
 }
 
-export interface AuditoriaPasaje {
+export interface RegistroAuditoria {
   id: number;
-  asiento_viaje_id: number | null;
-  vendedor_id: string | null;
-  accion: string;
   fecha: string;
+  usuario_id: string | null;
+  categoria: 'ventas' | 'pagos' | 'viajes' | 'usuarios' | 'configuracion' | 'sesiones';
+  detalle: string;
 }
 
 export interface ConfigPagoOpcion {
