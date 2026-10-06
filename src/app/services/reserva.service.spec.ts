@@ -39,34 +39,17 @@ describe('ReservaService', () => {
     expect(res.data?.id).toBe(1);
   });
 
-  it('getReservasConfirmadasEnRango queries with date range', async () => {
+  it('getReservasPanel filtra por vendedores solo cuando se pasan (operador)', async () => {
     const desde = new Date('2026-01-01');
-    const hasta = new Date('2026-01-02');
     const chain = buildChain();
-    chain.lt.mockResolvedValue({ count: 5, error: null });
     vi.spyOn(supabase, 'from').mockReturnValue(chain as any);
-    const res = await service.getReservasConfirmadasEnRango(desde, hasta);
-    expect(chain.eq).toHaveBeenCalledWith('estado', 'aprobado');
+
+    await service.getReservasPanel(desde, ['v1', 'v2']);
     expect(chain.gte).toHaveBeenCalledWith('created_at', desde.toISOString());
-    expect(chain.lt).toHaveBeenCalledWith('created_at', hasta.toISOString());
-    expect(res.count).toBe(5);
-  });
+    expect(chain.in).toHaveBeenCalledWith('vendedor_id', ['v1', 'v2']);
 
-  it('getActividadReciente returns last 10 items', async () => {
-    const chain = buildChain();
-    chain.limit.mockResolvedValue({ data: [{ id: 1 }], error: null });
-    vi.spyOn(supabase, 'from').mockReturnValue(chain as any);
-    const res = await service.getActividadReciente();
-    expect(chain.order).toHaveBeenCalledWith('created_at', { ascending: false });
-    expect(chain.limit).toHaveBeenCalledWith(10);
-    expect(res.data).toEqual([{ id: 1 }]);
-  });
-
-  it('getTotalVendido sums precio_base of approved reservas', async () => {
-    const chain = buildChain();
-    chain.eq.mockResolvedValue({ data: [{ viaje: { precio_base: 10000 } }, { viaje: { precio_base: 15000 } }], error: null });
-    vi.spyOn(supabase, 'from').mockReturnValue(chain as any);
-    const total = await service.getTotalVendido();
-    expect(total).toBe(25000);
+    chain.in.mockClear();
+    await service.getReservasPanel(desde, null);
+    expect(chain.in).not.toHaveBeenCalled();
   });
 });

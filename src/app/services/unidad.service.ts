@@ -25,12 +25,6 @@ export class UnidadService {
       .single<Unidad>();
   }
 
-  async getUnidadesCount() {
-    return await supabase
-      .from('unidades')
-      .select('id', { count: 'exact', head: true });
-  }
-
   async createUnidad(data: Omit<Unidad, 'id' | 'created_at'>) {
     return await supabase
       .from('unidades')
@@ -71,13 +65,6 @@ export class UnidadService {
       .from('unidades')
       .delete()
       .eq('id', id);
-  }
-
-  async getBloqueadosPorVendedor() {
-    return await supabase
-      .from('mapa_asientos_viaje')
-      .select('id', { count: 'exact', head: true })
-      .eq('estado', 'bloqueado');
   }
 
   async generarAsientosParaViaje(viajeId: number, unidadId: number) {

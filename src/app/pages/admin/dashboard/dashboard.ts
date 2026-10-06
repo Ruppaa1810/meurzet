@@ -4,10 +4,24 @@ import { Router } from '@angular/router';
 
 import { ViajeService } from '../../../services/viaje.service';
 import { ReservaService } from '../../../services/reserva.service';
-import { UnidadService } from '../../../services/unidad.service';
 import { PerfilService } from '../../../services/perfil.service';
 import { PagoService } from '../../../services/pago.service';
-import type { Perfil } from '../../../models/database.types';
+import { totalVentaReserva } from '../../../utils/calculo-financiero';
+import { seccionesPara } from '../menu-admin';
+import type { Perfil, PagoMovimiento } from '../../../models/database.types';
+
+type Periodo = 'hoy' | 'semana' | 'mes';
+
+interface ReservaPanel {
+  id: number;
+  estado: string;
+  created_at: string;
+  vendedor_id: string | null;
+  pasajero_datos: Record<string, unknown>;
+  viaje: { origen: string; destino: string; precio_base: number } | null;
+}
+
+interface FilaRanking { nombre: string; agencia: string; pasajes: number; vendido: number }
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -18,114 +32,141 @@ import type { Perfil } from '../../../models/database.types';
 })
 export class AdminDashboard implements OnInit {
   perfil: Perfil | null = null;
-  viajesActivos = 0;
-  totalUnidades = 0;
-  reservasHoy = 0;
-  bloqueadosPorVendedor = 0;
-  actividadReciente: any[] = [];
   loading = true;
+  periodo: Periodo = 'mes';
+  ultimaActualizacion = '';
 
+  pagosPorValidar = 0;
+  esperandoComprobante = 0;
+  viajesALaVenta = 0;
+  pasajesVendidos = 0;
   totalVendido = 0;
   totalCobrado = 0;
-  totalPendiente = 0;
-  eficienciaCobro = 0;
-  pagosPendientes = 0;
+  pendienteCobro = 0;
+  porcentajeCobrado = 0;
+  ranking: FilaRanking[] = [];
+  actividad: (ReservaPanel & { vendedor: string })[] = [];
+  sinVendedores = false;
 
-  deltaConfirmados = 0;
-  ultimaActualizacion = '';
-  filtroFecha: 'hoy' | 'semana' | 'mes' = 'mes';
-
-  get esAdmin(): boolean {
-    return this.perfil?.rol === 'admin_mayorista';
-  }
+  /** null = toda la empresa (admin); lista = vendedores que dio de alta el operador. */
+  private vendedorIds: string[] | null = null;
+  private perfiles = new Map<string, Perfil>();
 
   constructor(
     private perfilService: PerfilService,
     private viajeService: ViajeService,
     private reservaService: ReservaService,
-    private unidadService: UnidadService,
     private pagoService: PagoService,
     private router: Router,
     private cdr: ChangeDetectorRef,
   ) {}
 
+  get esAdmin(): boolean {
+    return this.perfil?.rol === 'admin_mayorista';
+  }
+
+  get secciones() {
+    return seccionesPara(this.perfil?.rol);
+  }
+
+  get textoPeriodo(): string {
+    return { hoy: 'hoy', semana: 'últimos 7 días', mes: 'este mes' }[this.periodo];
+  }
+
   async ngOnInit() {
     try {
-      const { data: perfil } = await this.perfilService.getCurrentProfile();
-      this.perfil = perfil;
-
-      const hoyIni = new Date(); hoyIni.setHours(0,0,0,0);
-      const ayerIni = new Date(hoyIni); ayerIni.setDate(ayerIni.getDate() - 1);
-      const mananaIni = new Date(hoyIni); mananaIni.setDate(mananaIni.getDate() + 1);
-
-      const [viajesRes, unidadesRes, bloqueadosRes, actividadRes, totalVendido, totalCobrado, pagosPendientes, confirmadasHoy, confirmadasAyer] = await Promise.all([
+      const [{ data: perfil }, { data: perfiles }, viajes, pagosPorValidar] = await Promise.all([
+        this.perfilService.getCurrentProfile(),
+        this.perfilService.getVendedoresMinoristas(),
         this.viajeService.getViajes(),
-        this.unidadService.getUnidadesCount(),
-        this.unidadService.getBloqueadosPorVendedor(),
-        this.reservaService.getActividadReciente(),
-        this.reservaService.getTotalVendido(),
-        this.pagoService.getTotalCobrado(),
         this.pagoService.countPagosPendientes(),
-        this.reservaService.getReservasConfirmadasEnRango(hoyIni, mananaIni),
-        this.reservaService.getReservasConfirmadasEnRango(ayerIni, hoyIni),
       ]);
-
-      if (viajesRes.data) this.viajesActivos = viajesRes.data.length;
-      this.totalUnidades = unidadesRes.count ?? 0;
-      this.bloqueadosPorVendedor = bloqueadosRes.count ?? 0;
-      this.reservasHoy = confirmadasHoy.count ?? 0;
-      if (actividadRes.data) this.actividadReciente = actividadRes.data;
-      this.totalVendido = totalVendido;
-      this.totalCobrado = totalCobrado;
-      this.totalPendiente = Math.max(0, totalVendido - totalCobrado);
-      this.eficienciaCobro = totalVendido > 0 ? Math.round((totalCobrado / totalVendido) * 100) : 0;
-      this.pagosPendientes = pagosPendientes;
-
-      const ayer = confirmadasAyer.count ?? 0;
-      this.deltaConfirmados = ayer > 0 ? Math.round(((this.reservasHoy - ayer) / ayer) * 100) : this.reservasHoy > 0 ? 100 : 0;
+      this.perfil = perfil;
+      for (const p of perfiles ?? []) this.perfiles.set(p.id, p);
+      if (perfil && !this.esAdmin) {
+        this.vendedorIds = (perfiles ?? [])
+          .filter(p => p.created_by === perfil.id && p.rol === 'vendedor_minorista')
+          .map(p => p.id);
+        this.sinVendedores = this.vendedorIds.length === 0;
+      }
+      this.viajesALaVenta = viajes.data?.length ?? 0;
+      this.pagosPorValidar = pagosPorValidar;
+      await this.cargarPeriodo();
     } catch {
     }
-    this.ultimaActualizacion = new Date().toLocaleString('es-AR', {
-      day: '2-digit', month: 'short', year: 'numeric',
-      hour: '2-digit', minute: '2-digit',
-    });
     this.loading = false;
     this.cdr.detectChanges();
+  }
+
+  async cambiarPeriodo(periodo: Periodo) {
+    this.periodo = periodo;
+    await this.cargarPeriodo();
+    this.cdr.detectChanges();
+  }
+
+  private async cargarPeriodo() {
+    const vacio = this.vendedorIds?.length === 0;
+    const [reservasRes, esperando] = vacio
+      ? [{ data: [] }, 0]
+      : await Promise.all([
+          this.reservaService.getReservasPanel(this.inicioPeriodo(), this.vendedorIds),
+          this.reservaService.contarEsperandoComprobante(this.vendedorIds),
+        ]);
+    const reservas = (reservasRes.data ?? []) as unknown as ReservaPanel[];
+    this.esperandoComprobante = esperando;
+
+    const aprobadas = reservas.filter(r => r.estado === 'aprobado');
+    const { data: pagos } = await this.pagoService.getPagosPorReservas(aprobadas.map(r => r.id));
+    const pagosPorReserva = new Map<number, PagoMovimiento[]>();
+    for (const p of pagos ?? []) pagosPorReserva.set(p.reserva_id, [...(pagosPorReserva.get(p.reserva_id) ?? []), p]);
+
+    let vendido = 0;
+    let pendiente = 0;
+    const porVendedor = new Map<string, FilaRanking>();
+    for (const r of aprobadas) {
+      const { totalFinal, montoPendiente } = totalVentaReserva(r.viaje?.precio_base ?? 0, r.pasajero_datos, pagosPorReserva.get(r.id) ?? []);
+      vendido += totalFinal;
+      pendiente += montoPendiente;
+      const id = r.vendedor_id ?? '';
+      const fila = porVendedor.get(id) ?? { nombre: this.nombre(id), agencia: this.perfiles.get(id)?.agencia_nombre ?? '', pasajes: 0, vendido: 0 };
+      fila.pasajes++;
+      fila.vendido += totalFinal;
+      porVendedor.set(id, fila);
+    }
+
+    this.pasajesVendidos = aprobadas.length;
+    this.totalVendido = vendido;
+    this.pendienteCobro = pendiente;
+    this.totalCobrado = vendido - pendiente;
+    this.porcentajeCobrado = vendido > 0 ? Math.round(this.totalCobrado / vendido * 100) : 0;
+    this.ranking = [...porVendedor.values()].sort((a, b) => b.vendido - a.vendido).slice(0, 5);
+    this.actividad = reservas.slice(0, 10).map(r => ({ ...r, vendedor: this.nombre(r.vendedor_id ?? '') }));
+    this.ultimaActualizacion = new Date().toLocaleString('es-AR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+  }
+
+  private nombre(id: string): string {
+    const p = this.perfiles.get(id);
+    return p?.nombre || p?.email || 'Vendedor';
+  }
+
+  private inicioPeriodo(): Date {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    if (this.periodo === 'semana') d.setDate(d.getDate() - 6);
+    if (this.periodo === 'mes') d.setDate(1);
+    return d;
   }
 
   irA(ruta: string) {
     this.router.navigate([`/admin/${ruta}`]);
   }
 
-  async aplicarFiltro(filtro: 'hoy' | 'semana' | 'mes') {
-    this.filtroFecha = filtro;
-    const rango = this.getRangoFecha();
-    const actividadRes = await this.reservaService.getActividadRecienteEnRango(rango.ini, rango.fin);
-    if (actividadRes.data) this.actividadReciente = actividadRes.data;
-    this.cdr.detectChanges();
-  }
-
-  private getRangoFecha(): { ini: Date; fin: Date } {
-    const hoy = new Date(); hoy.setHours(23,59,59,999);
-    const inicio = new Date(hoy);
-    if (this.filtroFecha === 'hoy') {
-      inicio.setHours(0,0,0,0);
-    } else if (this.filtroFecha === 'semana') {
-      inicio.setDate(inicio.getDate() - 7);
-      inicio.setHours(0,0,0,0);
-    } else {
-      inicio.setDate(1);
-      inicio.setHours(0,0,0,0);
-    }
-    return { ini: inicio, fin: hoy };
-  }
-
   labelEstado(estado: string): string {
     const map: Record<string, string> = {
-      aprobado: 'Aprobado',
-      pendiente_validacion: 'Pendiente de validación',
+      aprobado: 'Aprobada',
+      pendiente_validacion: 'Por validar',
       pendiente_comprobante: 'Esperando comprobante',
-      rechazado: 'Rechazado',
+      rechazado: 'Rechazada',
     };
     return map[estado] ?? estado;
   }

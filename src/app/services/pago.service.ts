@@ -126,14 +126,6 @@ export class PagoService {
       .eq('reserva_id', reservaId);
   }
 
-  async getTotalCobrado(): Promise<number> {
-    const { data } = await supabase
-      .from('pagos_movimientos')
-      .select('monto')
-      .eq('estado_pago', 'confirmado');
-    return (data || []).reduce((sum, p) => sum + p.monto, 0);
-  }
-
   async recalcularEstadoFinanciero(reservaId: number, precioTotal: number) {
     const totalPagado = await this.getTotalPagado(reservaId);
     let estado: EstadoFinanciero;

@@ -1,327 +1,176 @@
 <div class="min-h-screen bg-[#f4f4f3] p-4 sm:p-6 md:p-10">
-  
-  <!-- TÍTULO SECCIÓN -->
-  <div class="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
+
+  <div class="mb-5 sm:mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
     <div>
       <h2 class="text-lg sm:text-xl font-bold text-[#384752]">Panel de Control</h2>
-      <p class="text-xs text-slate-500 mt-1">Resumen general del sistema</p>
+      <p class="text-xs text-slate-500 mt-1">{{ esAdmin ? 'Resumen de toda la empresa' : 'Resumen de tus vendedores' }}</p>
+      @if (ultimaActualizacion && !loading) {
+        <p class="text-[11px] text-slate-400 mt-0.5">Actualizado {{ ultimaActualizacion }}</p>
+      }
     </div>
-    @if (ultimaActualizacion && !loading) {
-      <span class="text-[10px] text-slate-400">Última actualización: {{ ultimaActualizacion }}</span>
-    }
+    <div class="flex gap-2">
+      @for (p of [{ id: 'hoy', label: 'Hoy' }, { id: 'semana', label: '7 días' }, { id: 'mes', label: 'Mes' }]; track p.id) {
+        <button (click)="cambiarPeriodo($any(p.id))"
+          class="px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all cursor-pointer"
+          [class]="periodo === p.id ? 'bg-[#1aa7c4] text-white border-[#1aa7c4]' : 'bg-white text-slate-500 border-[#af4f35]/30 hover:border-[#1aa7c4] hover:text-[#1aa7c4]'">
+          {{ p.label }}
+        </button>
+      }
+    </div>
   </div>
 
   @if (loading) {
-    <!-- SKELETON LOADING -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 animate-pulse">
       @for (_ of [1,2,3,4]; track _) {
-        <div class="bg-white rounded-2xl p-4 sm:p-5 border-2 border-[#eec997] animate-pulse">
-          <div class="h-3 w-20 sm:w-24 bg-slate-200 rounded mb-3"></div>
-          <div class="h-7 w-14 sm:w-16 bg-slate-200 rounded"></div>
+        <div class="bg-white rounded-2xl p-4 border-2 border-[#eec997]">
+          <div class="h-3 w-20 bg-slate-200 rounded mb-3"></div>
+          <div class="h-7 w-12 bg-slate-200 rounded"></div>
         </div>
       }
     </div>
-    <div class="animate-pulse">
-      <div class="h-4 w-28 sm:w-32 bg-slate-200 rounded mb-3 sm:mb-4"></div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
-        @for (_ of [1,2,3]; track _) {
-          <div class="bg-white rounded-2xl p-4 sm:p-5 border-2 border-[#eec997]">
-            <div class="h-10 w-10 sm:h-12 sm:w-12 bg-slate-200 rounded-lg mb-3"></div>
-            <div class="h-4 w-24 sm:w-28 bg-slate-200 rounded mb-2"></div>
-            <div class="h-3 w-32 sm:w-40 bg-slate-200 rounded"></div>
-          </div>
-        }
-      </div>
-    </div>
   } @else {
-    
-    <!-- TARJETAS KPI - RESPONSIVE -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
-      
-      <!-- Card 1 -->
-      <div class="bg-white rounded-2xl p-4 sm:p-5 border-2 border-[#af4f35]/30 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-        <div class="flex justify-between items-start">
-          <div class="relative group">
-            <p class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-              Bloqueados
-              <svg class="w-3 h-3 text-slate-300 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-            </p>
-            <div class="absolute bottom-full left-0 mb-2 hidden group-hover:block bg-slate-800 text-white text-[9px] sm:text-[10px] rounded-lg px-2 py-1 whitespace-nowrap z-10">
-              Asientos reservados sin confirmar pago
-            </div>
-          </div>
-          <span class="text-[9px] sm:text-[10px] font-semibold text-[#e4912e] bg-orange-100 px-2 py-0.5 rounded-full">Pendiente</span>
-        </div>
-        <p class="text-2xl sm:text-3xl font-bold text-[#e4912e] mt-2">{{ bloqueadosPorVendedor || 0 }}</p>
+
+    @if (sinVendedores) {
+      <div class="mb-5 p-3 rounded-xl bg-blue-50 border border-blue-200 text-blue-700 text-xs sm:text-sm">
+        Todavía no diste de alta vendedores. Cuando vendan, sus ventas aparecen acá.
+      </div>
+    }
+
+    <!-- PARA ATENDER -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+      <button (click)="irA('validaciones')"
+        class="text-left bg-white rounded-2xl p-4 border-2 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer"
+        [class]="pagosPorValidar > 0 ? 'border-[#af4f35]' : 'border-[#af4f35]/30'">
+        <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Pagos por validar</p>
+        <p class="text-2xl sm:text-3xl font-bold mt-1" [class]="pagosPorValidar > 0 ? 'text-[#af4f35]' : 'text-slate-300'">{{ pagosPorValidar }}</p>
+        <p class="text-[11px] text-slate-400 mt-1">{{ pagosPorValidar > 0 ? 'Revisar comprobantes →' : 'Todo al día' }}</p>
+      </button>
+
+      <div class="bg-white rounded-2xl p-4 border-2 border-[#af4f35]/30 shadow-md">
+        <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Esperando comprobante</p>
+        <p class="text-2xl sm:text-3xl font-bold text-[#e4912e] mt-1">{{ esperandoComprobante }}</p>
+        <p class="text-[11px] text-slate-400 mt-1">Reservas sin pago subido</p>
       </div>
 
-      <!-- Card 2 -->
-      <div class="bg-white rounded-2xl p-4 sm:p-5 border-2 border-[#af4f35]/30 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-        <div class="flex justify-between items-start">
-          <div class="relative group">
-            <p class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-              Viajes activos
-              <svg class="w-3 h-3 text-slate-300 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-            </p>
-            <div class="absolute bottom-full left-0 mb-2 hidden group-hover:block bg-slate-800 text-white text-[9px] sm:text-[10px] rounded-lg px-2 py-1 whitespace-nowrap z-10">
-              Viajes con asientos disponibles
-            </div>
-          </div>
-          <span class="text-[9px] sm:text-[10px] font-semibold text-[#e4912e] bg-orange-100 px-2 py-0.5 rounded-full">En curso</span>
-        </div>
-        <p class="text-2xl sm:text-3xl font-bold text-[#e4912e] mt-2">{{ viajesActivos || 0 }}</p>
+      <div class="bg-white rounded-2xl p-4 border-2 border-[#af4f35]/30 shadow-md">
+        <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Pasajes vendidos</p>
+        <p class="text-2xl sm:text-3xl font-bold text-[#1aa7c4] mt-1">{{ pasajesVendidos }}</p>
+        <p class="text-[11px] text-slate-400 mt-1">Aprobados {{ textoPeriodo }}</p>
       </div>
 
-      <!-- Card 3 -->
-      <div class="bg-white rounded-2xl p-4 sm:p-5 border-2 border-[#af4f35]/30 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-        <div class="flex justify-between items-start">
-          <div class="relative group">
-            <p class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-              Confirmados hoy
-              <svg class="w-3 h-3 text-slate-300 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-            </p>
-            <div class="absolute bottom-full left-0 mb-2 hidden group-hover:block bg-slate-800 text-white text-[9px] sm:text-[10px] rounded-lg px-2 py-1 whitespace-nowrap z-10">
-              Pasajes aprobados en el día
-            </div>
-          </div>
-          <span class="text-[9px] sm:text-[10px] font-semibold text-[#1aa7c4] bg-blue-100 px-2 py-0.5 rounded-full">Completado</span>
-        </div>
-        <p class="text-2xl sm:text-3xl font-bold text-[#1aa7c4] mt-2">{{ reservasHoy || 0 }}</p>
-        @if (deltaConfirmados !== 0) {
-          <div class="flex items-center gap-1.5 mt-3 p-1.5 rounded-lg"
-            [class]="deltaConfirmados >= 0 ? 'bg-green-50' : 'bg-red-50'">
-            <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5" [class]="deltaConfirmados >= 0 ? 'text-green-600' : 'text-red-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" [attr.d]="deltaConfirmados >= 0 ? 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6' : 'M13 17h8m0 0V9m0 8l-8-8-4 4-6-6'" />
-            </svg>
-            <span class="text-[10px] sm:text-xs font-semibold" [class]="deltaConfirmados >= 0 ? 'text-green-700' : 'text-red-700'">
-              {{ deltaConfirmados >= 0 ? '+' : '' }}{{ deltaConfirmados }}% vs ayer
-            </span>
-          </div>
-        }
-      </div>
-
-      <!-- Card 4 -->
-      <div class="bg-white rounded-2xl p-4 sm:p-5 border-2 border-[#af4f35]/30 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-        <div class="flex justify-between items-start">
-          <div class="relative group">
-            <p class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-              Unidades
-              <svg class="w-3 h-3 text-slate-300 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-            </p>
-            <div class="absolute bottom-full left-0 mb-2 hidden group-hover:block bg-slate-800 text-white text-[9px] sm:text-[10px] rounded-lg px-2 py-1 whitespace-nowrap z-10">
-              Micros en servicio
-            </div>
-          </div>
-          <span class="text-[9px] sm:text-[10px] font-semibold text-[#384752] bg-gray-100 px-2 py-0.5 rounded-full">Disponibles</span>
-        </div>
-        <p class="text-2xl sm:text-3xl font-bold text-[#384752] mt-2">{{ totalUnidades || 0 }}</p>
-      </div>
+      <button (click)="irA('viajes')"
+        class="text-left bg-white rounded-2xl p-4 border-2 border-[#af4f35]/30 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer">
+        <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Viajes a la venta</p>
+        <p class="text-2xl sm:text-3xl font-bold text-[#384752] mt-1">{{ viajesALaVenta }}</p>
+        <p class="text-[11px] text-slate-400 mt-1">Activos y por salir →</p>
+      </button>
     </div>
 
-    <!-- RESUMEN FINANCIERO -->
+    <!-- DINERO -->
     <div class="mb-6 sm:mb-8">
-      <h3 class="text-sm sm:text-base font-bold text-[#384752] mb-3 sm:mb-4 uppercase tracking-wider">Resumen Financiero</h3>
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-
-        <div class="bg-white rounded-2xl p-4 sm:p-5 border-2 border-emerald-200 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-          <p class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Total Vendido</p>
+      <h3 class="text-sm sm:text-base font-bold text-[#384752] mb-3 uppercase tracking-wider">
+        {{ esAdmin ? 'Resumen financiero' : 'Ventas de tus vendedores' }}
+        <span class="normal-case font-semibold text-slate-400 text-xs tracking-normal">· {{ textoPeriodo }}</span>
+      </h3>
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div class="bg-white rounded-2xl p-4 border-2 border-emerald-200 shadow-md">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Vendido</p>
           <p class="text-lg sm:text-xl font-bold text-emerald-700">$ {{ totalVendido.toLocaleString('es-AR') }}</p>
         </div>
-
-        <div class="bg-white rounded-2xl p-4 sm:p-5 border-2 border-[#1aa7c4]/30 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-          <p class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Total Cobrado</p>
+        <div class="bg-white rounded-2xl p-4 border-2 border-[#1aa7c4]/30 shadow-md">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Cobrado</p>
           <p class="text-lg sm:text-xl font-bold text-[#1aa7c4]">$ {{ totalCobrado.toLocaleString('es-AR') }}</p>
         </div>
-
-        <div class="bg-white rounded-2xl p-4 sm:p-5 border-2 border-amber-200 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-          <p class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Pendiente de Cobro</p>
-          <p class="text-lg sm:text-xl font-bold text-amber-600">$ {{ totalPendiente.toLocaleString('es-AR') }}</p>
+        <div class="bg-white rounded-2xl p-4 border-2 border-amber-200 shadow-md">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Falta cobrar</p>
+          <p class="text-lg sm:text-xl font-bold text-amber-600">$ {{ pendienteCobro.toLocaleString('es-AR') }}</p>
         </div>
-
-        <div class="bg-white rounded-2xl p-4 sm:p-5 border-2 border-[#af4f35]/30 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-          <p class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Eficiencia de Cobro</p>
-          <p class="text-lg sm:text-xl font-bold text-[#af4f35]">{{ eficienciaCobro }}%</p>
-          <div class="mt-3 w-full h-1.5 bg-[#eec997] rounded-full overflow-hidden">
-            <div class="h-full bg-gradient-to-r from-[#e4912e] to-emerald-500 rounded-full" [style.width.%]="eficienciaCobro"></div>
+        <div class="bg-white rounded-2xl p-4 border-2 border-[#af4f35]/30 shadow-md">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Cobrado del total</p>
+          <p class="text-lg sm:text-xl font-bold text-[#af4f35]">{{ porcentajeCobrado }}%</p>
+          <div class="mt-2 w-full h-1.5 bg-[#eec997] rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-[#e4912e] to-emerald-500 rounded-full" [style.width.%]="porcentajeCobrado"></div>
           </div>
         </div>
-
       </div>
     </div>
 
-    <!-- ACCESOS RÁPIDOS - RESPONSIVE -->
+    <!-- VENDEDORES -->
     <div class="mb-6 sm:mb-8">
-      <h3 class="text-sm sm:text-base font-bold text-[#384752] mb-3 sm:mb-4 uppercase tracking-wider">Accesos Rápidos</h3>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
-        
-        <div class="bg-white rounded-2xl p-4 sm:p-5 border-2 border-[#af4f35]/30 shadow-md hover:border-[#1aa7c4] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group" (click)="irA('validaciones')">
-          <div class="flex items-start gap-3 sm:gap-4">
-            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#af4f35]/10 flex items-center justify-center shrink-0 group-hover:bg-[#1aa7c4]/10 transition-colors">
-              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-[#af4f35] group-hover:text-[#1aa7c4] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+      <h3 class="text-sm sm:text-base font-bold text-[#384752] mb-3 uppercase tracking-wider">
+        {{ esAdmin ? 'Mejores vendedores' : 'Tus vendedores' }}
+        <span class="normal-case font-semibold text-slate-400 text-xs tracking-normal">· {{ textoPeriodo }}</span>
+      </h3>
+      <div class="bg-white rounded-2xl border-2 border-[#af4f35]/30 shadow-md divide-y divide-[#eec997]/60">
+        @for (v of ranking; track v.nombre; let i = $index) {
+          <div class="flex items-center gap-3 px-4 py-3">
+            <span class="w-6 h-6 rounded-full bg-[#1aa7c4]/10 text-[#1aa7c4] text-xs font-bold flex items-center justify-center shrink-0">{{ i + 1 }}</span>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-semibold text-[#384752] truncate">{{ v.nombre }}</p>
+              @if (v.agencia) { <p class="text-[11px] text-slate-400 truncate">{{ v.agencia }}</p> }
             </div>
-            <div class="flex-1">
-              <div class="font-bold text-[#384752] text-xs sm:text-sm">Validar Pagos</div>
-              <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5">Revisar comprobantes</p>
-              <div class="flex items-center justify-between mt-2">
-                <span class="text-[10px] sm:text-xs text-[#af4f35] font-semibold inline-flex items-center gap-1 group-hover:text-[#1aa7c4] transition-colors">Validar →</span>
-                <span class="text-[10px] sm:text-xs font-bold text-[#af4f35] bg-[#af4f35]/10 px-2 py-0.5 rounded-full group-hover:bg-[#1aa7c4]/10 group-hover:text-[#1aa7c4] transition-all">{{ pagosPendientes }}</span>
-              </div>
+            <div class="text-right shrink-0">
+              <p class="text-sm font-bold text-emerald-700">$ {{ v.vendido.toLocaleString('es-AR') }}</p>
+              <p class="text-[11px] text-slate-400">{{ v.pasajes }} pasaje{{ v.pasajes !== 1 ? 's' : '' }}</p>
             </div>
           </div>
-        </div>
-
-        <div class="bg-white rounded-2xl p-4 sm:p-5 border-2 border-[#af4f35]/30 shadow-md hover:border-[#1aa7c4] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group" (click)="irA('flota')">
-          <div class="flex items-start gap-3 sm:gap-4">
-            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#e4912e]/10 flex items-center justify-center shrink-0">
-              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-[#e4912e]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 17a2 2 0 11-4 0 2 2 0 014 0zM20 17a2 2 0 11-4 0 2 2 0 014 0z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 17h2m10 0h2a2 2 0 002-2v-3a2 2 0 00-2-2h-3V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h6m2 0h2" />
-              </svg>
-            </div>
-            <div class="flex-1">
-              <div class="font-bold text-[#384752] text-xs sm:text-sm">{{ esAdmin ? 'Gestionar Flota' : 'Flota' }}</div>
-              <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5">{{ esAdmin ? 'Editar unidades' : 'Consultar unidades' }}</p>
-              <div class="flex items-center justify-between mt-2">
-                <span class="text-[10px] sm:text-xs text-[#e4912e] font-semibold inline-flex items-center gap-1">Ver flota →</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-2xl p-4 sm:p-5 border-2 border-[#af4f35]/30 shadow-md hover:border-[#1aa7c4] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group" (click)="irA('viajes')">
-          <div class="flex items-start gap-3 sm:gap-4">
-            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
-              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-              </svg>
-            </div>
-            <div class="flex-1">
-              <div class="font-bold text-[#384752] text-xs sm:text-sm">{{ esAdmin ? 'Nuevo Viaje' : 'Viajes' }}</div>
-              <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5">{{ esAdmin ? 'Crear rutas' : 'Consultar viajes' }}</p>
-              <div class="flex items-center justify-between mt-2">
-                <span class="text-[10px] sm:text-xs text-emerald-600 font-semibold inline-flex items-center gap-1">{{ esAdmin ? 'Crear ruta →' : 'Ver viajes →' }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        @if (esAdmin) {
-        <div class="bg-white rounded-2xl p-4 sm:p-5 border-2 border-[#af4f35]/30 shadow-md hover:border-[#7c3aed] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group" (click)="irA('auditoria')">
-          <div class="flex items-start gap-3 sm:gap-4">
-            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-purple-100 flex items-center justify-center shrink-0">
-              <svg class="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-              </svg>
-            </div>
-            <div class="flex-1">
-              <div class="font-bold text-[#384752] text-xs sm:text-sm">Auditoría</div>
-              <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5">Control de actividad de operadores</p>
-              <div class="flex items-center justify-between mt-2">
-                <span class="text-[10px] sm:text-xs text-purple-600 font-semibold inline-flex items-center gap-1">Ver auditoría →</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        } @empty {
+          <p class="text-center text-slate-400 py-6 text-xs sm:text-sm">Sin ventas aprobadas {{ textoPeriodo }}</p>
         }
-
       </div>
     </div>
 
-    <!-- ACTIVIDAD RECIENTE - RESPONSIVE -->
-    <div>
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
-        <h3 class="text-sm sm:text-base font-bold text-[#384752] uppercase tracking-wider">Actividad Reciente</h3>
-        
-        <!-- Filtros de fecha -->
-        <div class="flex gap-2">
-          <button (click)="aplicarFiltro('hoy')"
-            [class]="filtroFecha === 'hoy' ? 'bg-[#1aa7c4] text-white border-[#1aa7c4]' : 'border-[#af4f35]/30 hover:bg-[#1aa7c4] hover:text-white hover:border-[#1aa7c4]'"
-            class="px-2 sm:px-3 py-1 text-[10px] sm:text-xs rounded-lg border transition-all">Hoy</button>
-          <button (click)="aplicarFiltro('semana')"
-            [class]="filtroFecha === 'semana' ? 'bg-[#1aa7c4] text-white border-[#1aa7c4]' : 'border-[#af4f35]/30 hover:bg-[#1aa7c4] hover:text-white hover:border-[#1aa7c4]'"
-            class="px-2 sm:px-3 py-1 text-[10px] sm:text-xs rounded-lg border transition-all">Semana</button>
-          <button (click)="aplicarFiltro('mes')"
-            [class]="filtroFecha === 'mes' ? 'bg-[#1aa7c4] text-white border-[#1aa7c4]' : 'border-[#af4f35]/30 hover:bg-[#1aa7c4] hover:text-white hover:border-[#1aa7c4]'"
-            class="px-2 sm:px-3 py-1 text-[10px] sm:text-xs rounded-lg border transition-all">Mes</button>
-        </div>
-      </div>
-
-      <!-- VISTA TABLA (DESKTOP) -->
-      <div class="hidden md:block bg-white rounded-2xl border-2 border-[#af4f35]/30 shadow-md overflow-hidden">
-        <div class="overflow-x-auto">
-          <table class="w-full">
-            <thead>
-              <tr class="bg-[#f4f4f3] border-b border-[#eec997]">
-                <th class="text-left px-4 sm:px-6 py-3 text-[10px] sm:text-[11px] font-bold uppercase text-slate-400">Viaje</th>
-                <th class="text-left px-4 sm:px-6 py-3 text-[10px] sm:text-[11px] font-bold uppercase text-slate-400">Estado</th>
-                <th class="text-right px-4 sm:px-6 py-3 text-[10px] sm:text-[11px] font-bold uppercase text-slate-400">Creada</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (act of actividadReciente; track act.id) {
-                <tr class="hover:bg-[#1aa7c4]/10 transition-all duration-300 cursor-pointer group">
-                  <td class="px-4 sm:px-6 py-3 sm:py-3.5 text-xs sm:text-sm font-semibold text-[#384752] group-hover:text-[#1aa7c4] transition-colors">
-                    {{ act.viaje?.origen }} → {{ act.viaje?.destino }}
-                  </td>
-                  <td class="px-4 sm:px-6 py-3 sm:py-3.5">
-                    <span class="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-xs font-semibold inline-flex items-center gap-1"
-                      [class]="act.estado === 'aprobado' ? 'bg-green-50 text-green-700 border border-green-200' :
-                               act.estado === 'rechazado' ? 'bg-red-50 text-red-700 border border-red-200' :
-                               'bg-amber-50 text-amber-700 border border-amber-200'">
-                      <span class="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full"
-                        [class]="act.estado === 'aprobado' ? 'bg-green-500' :
-                                 act.estado === 'rechazado' ? 'bg-red-500' :
-                                 'bg-amber-500'"></span>
-                      {{ labelEstado(act.estado) }}
-                    </span>
-                  </td>
-                  <td class="px-4 sm:px-6 py-3 sm:py-3.5 text-right text-slate-400 text-[10px] sm:text-xs group-hover:text-[#1aa7c4] transition-colors">
-                    {{ act.created_at | date: 'HH:mm' }}
-                  </td>
-                </tr>
-              } @empty {
-                <tr>
-                  <td colspan="3" class="text-center text-slate-400 py-6 sm:py-8 text-xs sm:text-sm">Sin actividad reciente</td>
-                </tr>
+    <!-- ACCESOS RÁPIDOS: las mismas secciones del menú -->
+    <div class="mb-6 sm:mb-8">
+      <h3 class="text-sm sm:text-base font-bold text-[#384752] mb-3 uppercase tracking-wider">Accesos rápidos</h3>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+        @for (s of secciones; track s.ruta) {
+          <button (click)="irA(s.ruta)"
+            class="text-left bg-white rounded-2xl p-3 sm:p-4 border-2 border-[#af4f35]/30 shadow-md hover:border-[#1aa7c4] hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group">
+            <div class="flex items-center justify-between mb-2">
+              <div class="w-9 h-9 rounded-xl bg-[#af4f35]/10 flex items-center justify-center group-hover:bg-[#1aa7c4]/10 transition-colors">
+                <svg class="w-5 h-5 text-[#af4f35] group-hover:text-[#1aa7c4] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                  @for (d of s.icono; track $index) {
+                    <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="d" />
+                  }
+                </svg>
+              </div>
+              @if (s.ruta === 'validaciones' && pagosPorValidar > 0) {
+                <span class="text-[11px] font-bold text-white bg-[#af4f35] px-2 py-0.5 rounded-full">{{ pagosPorValidar }}</span>
               }
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- VISTA TARJETAS (MÓVIL) -->
-      <div class="md:hidden space-y-3">
-        @for (act of actividadReciente; track act.id) {
-          <div class="bg-white rounded-xl p-3 border border-[#eec997] hover:border-[#1aa7c4] transition-all cursor-pointer">
-            <div class="flex justify-between items-start mb-2">
-              <span class="font-semibold text-xs text-[#384752]">{{ act.viaje?.origen }} → {{ act.viaje?.destino }}</span>
-              <span class="text-[9px] text-slate-400">{{ act.created_at | date: 'HH:mm' }}</span>
             </div>
-            <div>
-              <span class="px-2 py-0.5 rounded-full text-[9px] font-semibold"
-                [class]="act.estado === 'aprobado' ? 'bg-green-50 text-green-700' :
-                         act.estado === 'rechazado' ? 'bg-red-50 text-red-700' :
-                         'bg-amber-50 text-amber-700'">
-                {{ labelEstado(act.estado) }}
-              </span>
-            </div>
-          </div>
+            <p class="font-bold text-[#384752] text-xs sm:text-sm">{{ s.titulo }}</p>
+            <p class="text-[11px] text-slate-500 mt-0.5 leading-snug">{{ s.descripcion }}</p>
+          </button>
         }
       </div>
+    </div>
 
+    <!-- ACTIVIDAD -->
+    <div>
+      <h3 class="text-sm sm:text-base font-bold text-[#384752] mb-3 uppercase tracking-wider">
+        Últimas reservas
+        <span class="normal-case font-semibold text-slate-400 text-xs tracking-normal">· {{ textoPeriodo }}</span>
+      </h3>
+      <div class="bg-white rounded-2xl border-2 border-[#af4f35]/30 shadow-md divide-y divide-[#eec997]/60">
+        @for (r of actividad; track r.id) {
+          <div class="flex items-center gap-3 px-4 py-3">
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-semibold text-[#384752] truncate">{{ r.viaje?.origen }} → {{ r.viaje?.destino }}</p>
+              <p class="text-[11px] text-slate-400 truncate">{{ r.vendedor }} · {{ r.created_at | date: 'dd/MM HH:mm' }}</p>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold shrink-0"
+              [class]="r.estado === 'aprobado' ? 'bg-green-50 text-green-700' :
+                       r.estado === 'rechazado' ? 'bg-red-50 text-red-700' :
+                       'bg-amber-50 text-amber-700'">
+              {{ labelEstado(r.estado) }}
+            </span>
+          </div>
+        } @empty {
+          <p class="text-center text-slate-400 py-6 text-xs sm:text-sm">Sin reservas {{ textoPeriodo }}</p>
+        }
+      </div>
     </div>
 
   }
-  
 </div>

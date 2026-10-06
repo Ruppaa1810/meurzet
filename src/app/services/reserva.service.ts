@@ -36,39 +36,32 @@ export class ReservaService {
       .order('created_at', { ascending: false });
   }
 
+  /** Reservas desde una fecha; con vendedorIds, solo las de esos vendedores. */
+  async getReservasPanel(desde: Date, vendedorIds: string[] | null) {
+    let q = supabase
+      .from('reservas')
+      .select('id, estado, created_at, vendedor_id, pasajero_datos, viaje:viaje_id(origen, destino, precio_base)')
+      .gte('created_at', desde.toISOString())
+      .order('created_at', { ascending: false });
+    if (vendedorIds) q = q.in('vendedor_id', vendedorIds);
+    return await q;
+  }
+
+  async contarEsperandoComprobante(vendedorIds: string[] | null): Promise<number> {
+    let q = supabase
+      .from('reservas')
+      .select('id', { count: 'exact', head: true })
+      .eq('estado', 'pendiente_comprobante');
+    if (vendedorIds) q = q.in('vendedor_id', vendedorIds);
+    return (await q).count ?? 0;
+  }
+
   async getReservasPendientes() {
     return await supabase
       .from('reservas')
       .select('*, viaje:viaje_id(*)')
       .in('estado', ['pendiente_comprobante', 'pendiente_validacion'])
       .order('created_at', { ascending: false });
-  }
-
-  async getReservasConfirmadasEnRango(desde: Date, hasta: Date) {
-    return await supabase
-      .from('reservas')
-      .select('id', { count: 'exact', head: true })
-      .eq('estado', 'aprobado')
-      .gte('created_at', desde.toISOString())
-      .lt('created_at', hasta.toISOString());
-  }
-
-  async getActividadReciente() {
-    return await supabase
-      .from('reservas')
-      .select('id, estado, created_at, viaje:viaje_id(origen, destino)')
-      .order('created_at', { ascending: false })
-      .limit(10);
-  }
-
-  async getActividadRecienteEnRango(desde: Date, hasta: Date) {
-    return await supabase
-      .from('reservas')
-      .select('id, estado, created_at, viaje:viaje_id(origen, destino)')
-      .gte('created_at', desde.toISOString())
-      .lt('created_at', hasta.toISOString())
-      .order('created_at', { ascending: false })
-      .limit(20);
   }
 
   private async notificar(reservaId: number, tipo: 'aprobada' | 'rechazada', motivo?: string) {
@@ -128,15 +121,6 @@ export class ReservaService {
   }
 
   /** Total de las ventas aprobadas, con el precio al que se vendieron y el recargo por cuotas. */
-  async getTotalVendido(): Promise<number> {
-    const { data } = await supabase
-      .from('reservas')
-      .select('pasajero_datos, viaje:viaje_id(precio_base)')
-      .eq('estado', 'aprobado');
-    return (data || []).reduce((sum: number, r: any) =>
-      sum + totalVentaReserva(r.viaje?.precio_base || 0, r.pasajero_datos || {}, []).totalFinal, 0);
-  }
-
   async actualizarComprobante(ids: number[], url: string) {
     return await supabase
       .from('reservas')
