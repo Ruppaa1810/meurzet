@@ -116,6 +116,23 @@ describe('PagoService', () => {
     expect(await service.countPagosPendientes(null)).toBe(3);
   });
 
+  it('la seña o la cuota de todos los asientos de una venta se valida como un solo pago', async () => {
+    const chain = buildChain();
+    const res = (resp: boolean) => ({ comprobante_url: 'x', pasajero_datos: { grupo_id: 'g1', es_responsable_financiero: resp } });
+    chain.order.mockResolvedValue({
+      data: [
+        { id: 1, tipo: 'seña', monto: 100, reserva: res(false) },
+        { id: 2, tipo: 'seña', monto: 100, reserva: res(true) },
+        { id: 3, tipo: 'cuota', cuota_numero: 1, comprobante_url: 'y', monto: 50, reserva: res(false) },
+        { id: 4, tipo: 'cuota', cuota_numero: 1, comprobante_url: 'y', monto: 50, reserva: res(true) },
+      ],
+      error: null,
+    });
+    vi.spyOn(supabase, 'from').mockReturnValue(chain as any);
+    const { data } = await service.getPagosPendientes();
+    expect(data!.map(p => [p.id, p.monto, p.pagos.length])).toEqual([[2, 200, 2], [4, 100, 2]]);
+  });
+
   it('crearPago inserts into pagos_movimientos', async () => {
     const chain = buildChain();
     chain.single.mockResolvedValue({ data: { id: 1, monto: 5000 }, error: null });

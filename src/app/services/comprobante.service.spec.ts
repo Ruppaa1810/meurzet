@@ -25,14 +25,20 @@ describe('ComprobanteService.generarHTML', () => {
   let svc: ComprobanteService;
   beforeEach(() => { svc = new ComprobanteService(config); });
 
-  it('muestra código, viaje, asiento y plan de pagos', async () => {
-    const html = await svc.generarHTML(datos());
+  it('el resumen muestra código, viaje, asiento y plan de pagos', async () => {
+    const html = await svc.generarHTML(datos({ tipo: 'resumen' }));
     expect(html).toContain('MEU-000175');
     expect(html).toContain('Paraná');
     expect(html).toContain('>12<');
     expect(html).toContain('Cuota 2 de 3');
     expect(html).toContain('Recargo por cuotas (10%)');
+  });
+
+  it('el comprobante solo lleva el estado de cuenta, sin repetir el plan ni cómo pagar', async () => {
+    const html = await svc.generarHTML(datos());
     expect(html).toContain('$ 51.333');
+    expect(html).not.toContain('Cuota 2 de 3');
+    expect(html).not.toContain('Cómo pagar');
   });
 
   it('escapa los datos que carga el vendedor', async () => {
@@ -55,7 +61,7 @@ describe('ComprobanteService.generarHTML', () => {
       seniaPagada: false, seniaEnValidacion: true, pagado: 0, pendiente: 107000,
       cuotas: datos().cuotas.map(c => ({ ...c, pagada: false })),
     }));
-    expect(html).toMatch(/<td>Seña<\/td><td class="r">\$ 30\.000<\/td><td class="r"><span class="val">En validación/);
+    expect(html).toContain('<b class="val">$ 30.000</b>');
     expect(html).toContain('Resta pagar');
     expect(html).toContain('$ 77.000'); // 107.000 - 30.000 informados
     expect(html).toContain('se suma como pagado cuando la agencia lo confirma');
@@ -76,7 +82,7 @@ describe('ComprobanteService.generarHTML', () => {
   });
 
   it('saldo en un solo pago se muestra como "Saldo"', async () => {
-    const html = await svc.generarHTML(datos({ recargo: 0, total: 100000, cuotas: [{ numero: 1, total: 1, monto: 70000, pagada: false }] }));
+    const html = await svc.generarHTML(datos({ tipo: 'resumen', recargo: 0, total: 100000, cuotas: [{ numero: 1, total: 1, monto: 70000, pagada: false }] }));
     expect(html).toContain('<td>Saldo</td>');
     expect(html).not.toContain('Recargo');
   });

@@ -274,16 +274,6 @@ export class MisReservas implements OnInit {
     return new Date(fecha).toLocaleString('es-AR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   }
 
-  pagoEstadoClass(estado: string): string {
-    return estado === 'confirmado' ? 'bg-green-100 text-green-700'
-      : estado === 'rechazado' ? 'bg-red-100 text-red-700'
-      : 'bg-amber-100 text-amber-700';
-  }
-
-  pagoEstadoLabel(estado: string): string {
-    return estado === 'confirmado' ? 'Confirmado' : estado === 'rechazado' ? 'Rechazado' : 'Pendiente';
-  }
-
   totalBaseGroup(g: ReservaGroup): number {
     return g.reservas.reduce((s, r) => s + r.monto, 0);
   }
@@ -314,6 +304,11 @@ export class MisReservas implements OnInit {
 
   pagosCuotas(g: ReservaGroup): PagoMovimiento[] {
     return this.todosPagos(g).filter(p => p.tipo === 'cuota');
+  }
+
+  /** La seña de toda la venta: cada asiento tiene la suya. */
+  montoSena(g: ReservaGroup): number {
+    return this.pagosSena(g).reduce((s, p) => s + p.monto, 0);
   }
 
   senaConfirmada(g: ReservaGroup): boolean {
@@ -477,7 +472,7 @@ export class MisReservas implements OnInit {
       }),
       pasajeros: g.reservas.map(r => this.pasajeroDatos(r) as any),
       precioUnitario: r0.monto,
-      senia: this.pagosSena(g).reduce((s, p) => s + p.monto, 0) || c.montoAPagar,
+      senia: this.montoSena(g) || c.montoAPagar,
       seniaPagada: this.pagosSena(g).length > 0 && this.senaConfirmada(g),
       seniaEnValidacion: etapa === 'en_validacion',
       recargo: parsearPagoPasajero(r0.pasajero_datos as Record<string, unknown>).recargo,
@@ -608,9 +603,5 @@ export class MisReservas implements OnInit {
   private metodoPagoStr(mp: string): string {
     const map: Record<string, string> = { efectivo: 'Efectivo', transferencia: 'Transferencia', tarjeta_credito: 'Tarjeta de crédito', otro: 'Otro' };
     return map[mp] || mp;
-  }
-
-  metodoPagoDirecto(mp: string): string {
-    return this.metodoPagoStr(mp);
   }
 }

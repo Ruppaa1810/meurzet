@@ -3,7 +3,7 @@ import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { PerfilService } from '../../../services/perfil.service';
-import { PagoService, type PagoConReserva } from '../../../services/pago.service';
+import { PagoService, type PagoConReserva, type PagoGrupo } from '../../../services/pago.service';
 import { ReservaService } from '../../../services/reserva.service';
 import { AuditoriaService } from '../../../services/auditoria.service';
 import type { UserRole } from '../../../models/database.types';
@@ -20,20 +20,20 @@ import { PaginacionComponent } from '../../../components/paginacion';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Validaciones implements OnInit, OnDestroy {
-  pagos: PagoConReserva[] = [];
+  pagos: PagoGrupo[] = [];
   loading = true;
   error = '';
   rol: UserRole | null = null;
 
   paginacion = new Paginacion(5);
 
-  get paginatedPagos(): PagoConReserva[] {
+  get paginatedPagos(): PagoGrupo[] {
     return this.paginacion.getPaginated(this.pagos);
   }
 
   mostrarModal = false;
   accion: 'aprobar' | 'rechazar' | null = null;
-  pagoAccion: PagoConReserva | null = null;
+  pagoAccion: PagoGrupo | null = null;
   motivoRechazo = '';
   guardando = false;
 
@@ -84,14 +84,14 @@ export class Validaciones implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  confirmarAprobar(pago: PagoConReserva) {
+  confirmarAprobar(pago: PagoGrupo) {
     this.pagoAccion = pago;
     this.accion = 'aprobar';
     this.motivoRechazo = '';
     this.mostrarModal = true;
   }
 
-  confirmarRechazar(pago: PagoConReserva) {
+  confirmarRechazar(pago: PagoGrupo) {
     this.pagoAccion = pago;
     this.accion = 'rechazar';
     this.motivoRechazo = '';
@@ -113,37 +113,40 @@ export class Validaciones implements OnInit, OnDestroy {
     if (this.accion === 'rechazar' && !this.motivoRechazo.trim()) return;
 
     this.guardando = true;
-    const pago = this.pagoAccion;
-    const reserva = pago.reserva;
-    const reservaId = reserva?.id || pago.reserva_id;
-    const totalVenta = reserva
-      ? totalVentaReserva(reserva.viaje?.precio_base || 0, reserva.pasajero_datos, []).totalFinal
-      : 0;
+    const grupo = this.pagoAccion;
 
     try {
-      if (this.accion === 'aprobar') {
-        const { error } = await this.pagoService.actualizarEstadoPago(pago.id, 'confirmado');
-        if (error) { this.error = error.message; return; }
-        await this.pagoService.recalcularEstadoFinanciero(reservaId, totalVenta);
-        if (reserva?.asiento_viaje_id) {
-          await this.reservaService.aprobarReserva(reservaId, reserva.asiento_viaje_id);
-        }
-        const comision = await this.pagoService.generarComisionSiCorresponde(reservaId);
-        if (comision?.error) this.error = `Pago aprobado, pero no se pudo generar la comisión: ${comision.error.message}`;
-      } else if (pago.tipo === 'cuota') {
-        // Un comprobante de cuota mal subido no cancela la reserva: la cuota vuelve a pendiente y el vendedor ve el motivo
-        const { error } = await this.pagoService.rechazarComprobanteCuota(pago.id, this.motivoRechazo.trim());
-        if (error) { this.error = error.message; return; }
-      } else {
-        const { error } = await this.pagoService.actualizarEstadoPago(pago.id, 'rechazado');
-        if (error) { this.error = error.message; return; }
-        await this.pagoService.recalcularEstadoFinanciero(reservaId, totalVenta);
-        if (reserva?.asiento_viaje_id) {
-          await this.reservaService.rechazarReserva(reservaId, reserva.asiento_viaje_id, this.motivoRechazo.trim());
+      // Se valida el pago de cada asiento de la venta
+      for (const pago of grupo.pagos) {
+        const reserva = pago.reserva;
+        const reservaId = reserva?.id || pago.reserva_id;
+        const totalVenta = reserva
+          ? totalVentaReserva(reserva.viaje?.precio_base || 0, reserva.pasajero_datos, []).totalFinal
+          : 0;
+        if (this.accion === 'aprobar') {
+          const { error } = await this.pagoService.actualizarEstadoPago(pago.id, 'confirmado');
+          if (error) { this.error = error.message; return; }
+          await this.pagoService.recalcularEstadoFinanciero(reservaId, totalVenta);
+          if (reserva?.asiento_viaje_id) {
+            await this.reservaService.aprobarReserva(reservaId, reserva.asiento_viaje_id);
+          }
+          const comision = await this.pagoService.generarComisionSiCorresponde(reservaId);
+          if (comision?.error) this.error = `Pago aprobado, pero no se pudo generar la comisión: ${comision.error.message}`;
+        } else if (pago.tipo === 'cuota') {
+          // Un comprobante de cuota mal subido no cancela la reserva: la cuota vuelve a pendiente y el vendedor ve el motivo
+          const { error } = await this.pagoService.rechazarComprobanteCuota(pago.id, this.motivoRechazo.trim());
+          if (error) { this.error = error.message; return; }
+        } else {
+          const { error } = await this.pagoService.actualizarEstadoPago(pago.id, 'rechazado');
+          if (error) { this.error = error.message; return; }
+          await this.pagoService.recalcularEstadoFinanciero(reservaId, totalVenta);
+          if (reserva?.asiento_viaje_id) {
+            await this.reservaService.rechazarReserva(reservaId, reserva.asiento_viaje_id, this.motivoRechazo.trim());
+          }
         }
       }
 
-      this.pagos = this.pagos.filter(p => p.id !== pago.id);
+      this.pagos = this.pagos.filter(p => p !== grupo);
 
       if (this.paginatedPagos.length === 0 && this.paginacion.currentPage > 1) {
         this.paginacion.irAPagina(this.paginacion.currentPage - 1);

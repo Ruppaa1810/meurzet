@@ -7,6 +7,26 @@ export type PagoConReserva = PagoMovimiento & {
   reserva: (Reserva & { viaje?: Viaje }) | null;
 };
 
+/** Pago de toda la venta: el del responsable financiero con el monto de todos los asientos sumado. */
+export type PagoGrupo = PagoConReserva & { pagos: PagoConReserva[] };
+
+/**
+ * Cada asiento tiene su propia seña y sus cuotas, pero el cliente paga todo junto con un solo comprobante:
+ * la seña (o la cuota N) de todos los asientos de la venta se valida como un solo pago.
+ */
+export function agruparPagos(pagos: PagoConReserva[]): PagoGrupo[] {
+  const grupos = new Map<string, PagoConReserva[]>();
+  for (const p of pagos) {
+    const gid = (p.reserva?.pasajero_datos as Record<string, unknown> | undefined)?.['grupo_id'];
+    const key = gid ? `${gid}|${p.tipo}|${p.cuota_numero ?? ''}` : `pago-${p.id}`;
+    grupos.set(key, [...(grupos.get(key) ?? []), p]);
+  }
+  return [...grupos.values()].map(ps => {
+    const rep = ps.find(p => (p.reserva?.pasajero_datos as Record<string, unknown> | undefined)?.['es_responsable_financiero']) ?? ps[0];
+    return { ...rep, monto: ps.reduce((s, p) => s + p.monto, 0), pagos: ps };
+  });
+}
+
 @Injectable({ providedIn: 'root' })
 export class PagoService {
   async getPagosPorReserva(reservaId: number) {
@@ -37,13 +57,11 @@ export class PagoService {
       .eq('estado_pago', 'pendiente')
       .order('created_at', { ascending: false }) as unknown as { data: PagoConReserva[] | null; error: any };
     // Con vendedorIds (operador): solo los pagos de sus vendedores
-    return {
-      ...res,
-      data: res.data?.filter(p =>
-        (p.tipo === 'cuota' ? !!p.comprobante_url : !!p.reserva?.comprobante_url) &&
-        (!vendedorIds || vendedorIds.includes(p.reserva?.vendedor_id ?? '')),
-      ) ?? null,
-    };
+    const data = res.data?.filter(p =>
+      (p.tipo === 'cuota' ? !!p.comprobante_url : !!p.reserva?.comprobante_url) &&
+      (!vendedorIds || vendedorIds.includes(p.reserva?.vendedor_id ?? '')),
+    );
+    return { ...res, data: data ? agruparPagos(data) : null };
   }
 
   async countPagosPendientes(vendedorIds: string[] | null = null): Promise<number> {

@@ -297,9 +297,9 @@
           <div class="flex justify-between text-sm">
             <span class="text-slate-500">Seña ({{ pagoPromedio(selectedGroup) }})</span>
             @if (pagosSena(selectedGroup).length > 0 && senaConfirmada(selectedGroup)) {
-              <span class="font-semibold text-green-600">{{ formatPrecio(pagosSena(selectedGroup)[0]?.monto || 0) }} ✓</span>
+              <span class="font-semibold text-green-600">{{ formatPrecio(montoSena(selectedGroup)) }} ✓</span>
             } @else if (pagosSena(selectedGroup).length > 0) {
-              <span class="font-semibold text-amber-600">{{ formatPrecio(pagosSena(selectedGroup)[0]?.monto || 0) }} pendiente</span>
+              <span class="font-semibold text-amber-600">{{ formatPrecio(montoSena(selectedGroup)) }} pendiente</span>
             } @else {
               <span class="text-slate-400">Sin registrar</span>
             }
@@ -352,54 +352,6 @@
           </div>
           <div class="text-right text-[11px] font-medium text-green-600">{{ progresoPagoGroup(selectedGroup) }}%</div>
         </div>
-      </div>
-
-      <!-- Sección 4: Historial de pagos -->
-      <div>
-        <h4 class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold mb-2">Historial de pagos</h4>
-        @if (todosPagos(selectedGroup).length > 0) {
-        <div class="bg-white rounded-xl border border-[#eec997]/50 divide-y divide-[#eec997]/30">
-          @for (p of todosPagos(selectedGroup); track p.id) {
-          <div class="px-3 py-2.5 flex items-center justify-between">
-            <div class="flex items-center gap-2 min-w-0">
-              <span class="shrink-0">
-                @if (p.estado_pago === 'confirmado') {
-                  <span class="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
-                    <svg class="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
-                  </span>
-                } @else if (p.estado_pago === 'rechazado') {
-                  <span class="w-5 h-5 rounded-full bg-red-100 flex items-center justify-center">
-                    <svg class="w-3 h-3 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
-                  </span>
-                } @else {
-                  <span class="w-5 h-5 rounded-full bg-amber-100 flex items-center justify-center">
-                    <svg class="w-3 h-3 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/></svg>
-                  </span>
-                }
-              </span>
-              <div class="min-w-0">
-                <p class="text-xs font-medium text-[#384752]">
-                  @if (p.tipo === 'seña') {
-                    Seña
-                  } @else {
-                    Cuota {{ p.cuota_numero }}/{{ p.cuotas_totales }}
-                  }
-                </p>
-                <p class="text-[11px] text-slate-400">{{ formatFecha(p.created_at) }} · {{ metodoPagoDirecto(p.metodo_pago) }}</p>
-              </div>
-            </div>
-            <div class="text-right shrink-0 ml-3">
-              <p class="text-sm font-semibold text-[#384752]">{{ formatPrecio(p.monto) }}</p>
-              <span class="text-[11px] font-semibold px-1.5 py-0.5 rounded" [class]="pagoEstadoClass(p.estado_pago)">
-                {{ pagoEstadoLabel(p.estado_pago) }}
-              </span>
-            </div>
-          </div>
-          }
-        </div>
-        } @else {
-        <p class="text-xs text-slate-400 text-center py-3">Sin pagos registrados</p>
-        }
       </div>
 
       <!-- Sección 5: Comprobante -->

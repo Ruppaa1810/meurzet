@@ -127,7 +127,6 @@ export class ComprobanteService {
     const subtotal = d.precioUnitario * d.asientos.length;
     const progreso = d.total > 0 ? Math.min(100, Math.round(d.pagado / d.total * 100)) : 0;
     const titulo = d.tipo === 'resumen' ? 'Resumen de reserva' : 'Comprobante de reserva';
-    const mostrarBanco = d.tipo === 'resumen' || d.pendiente > 0;
 
     const pasajeros = d.asientos.map((a, i) => {
       const p = d.pasajeros[i];
@@ -139,6 +138,7 @@ export class ComprobanteService {
       </tr>`;
     }).join('');
 
+    // El comprobante solo lleva el recuadro del estado de cuenta: el detalle del plan y cómo pagar ya están en el resumen
     const resumen = d.tipo === 'resumen';
     // En el resumen todavía no se pagó nada: se indica qué se paga ahora y qué después
     const estadoPago = (pagada: boolean, enValidacion = false, ahora = false) => resumen
@@ -195,7 +195,7 @@ export class ComprobanteService {
   <div class="cmp-sec">
     <p class="cmp-h">Pago</p>
     <div class="cmp-pay">
-      <div>
+      ${resumen ? `<div>
         <table>
           <colgroup><col><col style="width:110px"><col style="width:100px"></colgroup>
           <tbody>
@@ -209,15 +209,15 @@ export class ComprobanteService {
           <colgroup><col><col style="width:110px"><col style="width:100px"></colgroup>
           <tbody>${plan}</tbody>
         </table>
-      </div>
-      <div class="cmp-box" style="align-self:flex-start">
+      </div>` : ''}
+      <div class="cmp-box" style="align-self:flex-start${resumen ? '' : ';width:100%'}">
         ${recuadro}
         <div class="muted" style="margin:8px 0 0">Medio de pago: ${METODOS[d.metodoPago as MetodoPago] ?? esc(d.metodoPago)}</div>
       </div>
     </div>
   </div>
 
-  ${mostrarBanco ? `
+  ${resumen ? `
   <div class="cmp-sec">
     <p class="cmp-h">Cómo pagar</p>
     <div class="cmp-bank">
@@ -227,9 +227,7 @@ export class ComprobanteService {
       <div><small>Banco</small><b>${esc(banco.banco)}</b></div>
     </div>
     <div class="cmp-note">
-      ${d.tipo === 'resumen'
-        ? `Transferí <b>${$(d.senia)}</b> de seña y mandale el comprobante a tu vendedor.${d.vencimiento ? ` La reserva se mantiene hasta el <b>${esc(d.vencimiento)} hs</b>.` : ''}`
-        : 'Cuando pagues cada cuota, mandale el comprobante a tu vendedor.'}
+      Transferí <b>${$(d.senia)}</b> de seña y mandale el comprobante a tu vendedor.${d.vencimiento ? ` La reserva se mantiene hasta el <b>${esc(d.vencimiento)} hs</b>.` : ''}
       Indicá el código <b>${esc(d.codigo)}</b> como referencia.
     </div>
   </div>` : ''}
@@ -254,7 +252,7 @@ export class ComprobanteService {
     w.focus();
   }
 
-  /** Descarga el comprobante como imagen PNG, para mandarlo por WhatsApp. */
+  /** Comprobante como imagen PNG para mandarlo por WhatsApp: en el celular se comparte, en la compu se descarga. */
   async descargarImagen(d: DatosComprobante) {
     const cont = document.createElement('div');
     cont.style.cssText = 'position:fixed;left:-10000px;top:0;padding:16px;background:#f4f4f3';
@@ -264,12 +262,45 @@ export class ComprobanteService {
       await Promise.all([...cont.querySelectorAll('img')].map(img => img.complete ? null : new Promise(r => { img.onload = img.onerror = r; })));
       const { default: html2canvas } = await import('html2canvas');
       const canvas = await html2canvas(cont, { scale: 2, useCORS: true, backgroundColor: '#f4f4f3', logging: false });
+      const blob = await new Promise<Blob | null>(r => canvas.toBlob(r, 'image/png'));
+      if (!blob) throw new Error('No se pudo generar la imagen');
+      const file = new File([blob], `${d.tipo === 'resumen' ? 'resumen' : 'comprobante'}-${d.codigo.toLowerCase()}.png`, { type: 'image/png' });
+      if (navigator.canShare?.({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file] });
+        } catch (e) {
+          // El iPhone no deja compartir si pasó tiempo desde el toque (armar la imagen tarda): se muestra para compartir desde ahí
+          if ((e as Error).name !== 'AbortError') mostrarImagen(file);
+        }
+        return;
+      }
       const a = document.createElement('a');
-      a.download = `${d.tipo === 'resumen' ? 'resumen' : 'comprobante'}-${d.codigo.toLowerCase()}.png`;
-      a.href = canvas.toDataURL('image/png');
+      a.download = file.name;
+      a.href = URL.createObjectURL(file);
       a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 10_000);
     } finally {
       cont.remove();
     }
   }
+}
+
+/** Imagen a pantalla completa con un botón para compartirla (toque nuevo) o mantenerla presionada para guardarla. */
+function mostrarImagen(file: File) {
+  const url = URL.createObjectURL(file);
+  const o = document.createElement('div');
+  o.style.cssText = 'position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.85);overflow:auto;padding:16px;font-family:sans-serif';
+  const btn = 'flex:1;padding:12px;border:0;border-radius:12px;font-size:16px;font-weight:600';
+  o.innerHTML = `<div style="display:flex;gap:8px;margin-bottom:12px">
+      <button data-a="share" style="${btn};background:#e4912e;color:#fff">Compartir</button>
+      <button data-a="close" style="${btn};background:#fff;color:#384752">Cerrar</button>
+    </div>
+    <p style="color:#fff;font-size:13px;text-align:center;margin:0 0 12px">También podés mantener presionada la imagen para guardarla</p>
+    <img src="${url}" alt="" style="width:100%;border-radius:8px">`;
+  o.addEventListener('click', e => {
+    const a = (e.target as HTMLElement).dataset['a'];
+    if (a === 'share') navigator.share({ files: [file] }).catch(() => {});
+    if (a === 'close') { o.remove(); URL.revokeObjectURL(url); }
+  });
+  document.body.appendChild(o);
 }
