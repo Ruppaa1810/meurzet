@@ -20,7 +20,8 @@ export class AuthGuard implements CanActivate {
     }
 
     const { data: perfil } = await this.perfilService.getPerfil(session.user.id);
-    if (!perfil) {
+    if (!perfil || perfil.activo === false) {
+      if (perfil) await this.authService.signOut();
       this.router.navigate(['/'], { replaceUrl: true });
       return false;
     }

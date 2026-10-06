@@ -55,21 +55,18 @@ export class Login {
   async login() {
     this.loading = true;
     this.message = '';
+    this.isSuccessMessage = false;
 
     try {
       const { data, error } = await this.authService.login(this.email, this.password);
-
       if (error) {
         this.message = traducirError(error.message);
-        this.loading = false;
         return;
       }
 
       const userId = data.user?.id;
-
       if (!userId) {
         this.message = 'Usuario inválido';
-        this.loading = false;
         return;
       }
 
@@ -82,15 +79,21 @@ export class Login {
       const { data: perfil, error: perfilError } = await this.perfilService.getPerfil(userId);
       if (perfilError || !perfil) {
         this.message = 'Perfil no encontrado';
-        this.loading = false;
+        return;
+      }
+      if (perfil.activo === false) {
+        await this.authService.signOut();
+        this.message = 'Tu usuario está desactivado. Consultá con la administración.';
         return;
       }
       this.redirigirSegunRol(perfil.rol);
     } catch (e: any) {
       this.message = traducirError(e?.message || 'Error inesperado');
+    } finally {
+      // OnPush: sin esto el error recién se veía al tocar "Ingresar" de nuevo
+      this.loading = false;
+      this.cdr.detectChanges();
     }
-
-    this.loading = false;
   }
 
   async sendResetEmail() {
